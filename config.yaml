@@ -1,0 +1,33 @@
+proxmox_config:
+  url: "192.168.1.1"
+  port: 8006
+  realm: "pam"
+  token_id: ""
+  token_secret: ""
+  user: ""
+  password: ""
+  verify_ssl: false
+
+vms:
+  - id: 100
+    name: VM1
+    run_timeout: 60
+    dependencies: []
+    healthcheck:
+      address: "192.168.1.1"
+      type: "ping"
+
+  - id: 101
+    name: VM2
+    run_timeout: 120
+    dependencies:
+      - 100
+    healthcheck:
+      address: "http://192.168.1.1/"
+      type: "http"
+
+  - id: 102
+    name: VM3
+    dependencies:
+      - 100
+      - 101

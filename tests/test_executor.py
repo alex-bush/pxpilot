@@ -1,25 +1,28 @@
 import pytest
 from unittest.mock import Mock, patch
-from pxvmflow.executor import Executor, get_entity_path
-from pxvmflow.models import PxEntity, EntityType
+
+from pxvmflow.config import *
+from pxvmflow.executor import Executor
+from pxvmflow.models import PxEntity
+from pxvmflow.consts import ProxmoxType
 
 
 @pytest.fixture
 def mock_config():
-    class Config:
-        PROXMOX_URL = 'http://fake-url.com'
-        PROXMOX_PORT = 8006
-        PROXMOX_USER = 'user'
-        PROXMOX_REALM = 'pam'
-        PROXMOX_PASSWORD = 'password'
-        VERIFY_SSL = False
-
-    return Config()
-
-
-def test_get_entity_path():
-    assert get_entity_path(EntityType.LXC) == 'lxc'
-    assert get_entity_path(EntityType.VM) == 'qemu'
+    return ProxmoxConfig(
+        url='http://fake-url.com',
+        port=8006,
+        realm='pam',
+        token_id='test-token-id',
+        token_secret='test-token-secret',
+        user='user',
+        password='password',
+        verify_ssl=False,
+        vms=[
+            VM(id=100, name="VM1", run_timeout=60, healthcheck=HealthCheck(address="192.168.1.61", type="ping")),
+            VM(id=301, name="VM2", run_timeout=120, healthcheck=HealthCheck(address="http://192.168.1.12/login", type="http"))
+        ]
+    )
 
 
 class TestExecutor:
@@ -33,6 +36,7 @@ class TestExecutor:
             yield mock
 
     def test_init(self, executor):
+        #config = executor._config
         assert executor._host == 'http://fake-url.com'
         assert executor._port == 8006
         assert executor._user == 'user'
@@ -60,17 +64,17 @@ class TestExecutor:
         assert all(isinstance(vm, PxEntity) for vm in vms)
 
         assert vms[0].id == 101
-        assert vms[0].type == EntityType.LXC
+        assert vms[0].type == ProxmoxType.LXC
         assert vms[0].status == 'running'
 
         assert vms[1].id == 103
-        assert vms[1].type == EntityType.LXC
+        assert vms[1].type == ProxmoxType.LXC
         assert vms[1].status == 'paused'
 
         assert vms[2].id == 102
-        assert vms[2].type == EntityType.VM
+        assert vms[2].type == ProxmoxType.QEMU
         assert vms[2].status == 'stopped'
 
         assert vms[3].id == 104
-        assert vms[3].type == EntityType.VM
+        assert vms[3].type == ProxmoxType.QEMU
         assert vms[3].status == 'suspended'

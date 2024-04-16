@@ -40,20 +40,34 @@ class ProxmoxClient:
             timeout=30,
         )
 
-    def get_client(self):
-        return self._proxmox
-
     def get(self, command):
+        """ Execute GET request using proxmoxer """
+
         return self._proxmox(command).get()
 
     def post(self, command):
+        """ Execute POST request using proxmoxer """
+
         return self._proxmox(command).post()
 
     def start_vm(self, node, type, id):
+        """
+        Start virtual machine.
+        :param node: The cluster node name.
+        :param type: lxc/qemu
+        :param id: The (unique) ID of the VM.
+        """
         self.post(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.START}")
 
     def stop_vm(self, node, type, id):
         self.post(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.SHUTDOWN}")
 
     def get_status(self, node, type, id):
+        """
+        Get virtual machine status.
+        :param node: The cluster node name.
+        :param type: lxc/qemu
+        :param id: The (unique) ID of the VM.
+        :return: Status of requested LXC/VM(qemu)
+        """
         return self.get(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.CURRENT}")

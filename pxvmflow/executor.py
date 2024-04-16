@@ -54,7 +54,7 @@ class Executor:
     def get_status(self, vm: ProxmoxVMInfo) -> str:
         """ Return current running status of VM """
 
-        return self._px_client.get_status(vm.node, vm.type, vm.id)['status']
+        return self._px_client.get_status(vm.node, vm.type, vm.id)["status"]
 
     def start_vm(self, vm: ProxmoxVMInfo):
         """ Start VM """
@@ -86,8 +86,8 @@ class Executor:
                 LOGGER.debug(f"VM [{vm_to_start.id}]: Start.")
                 self.start_vm(vm_to_start)
 
-                #if start_item.run_timeout is not None:
-                #    time.sleep(start_item.run_timeout)
+                if start_item.run_timeout is not None:
+                    time.sleep(start_item.run_timeout)
 
                 flag = True
                 while flag:

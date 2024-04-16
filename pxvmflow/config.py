@@ -46,13 +46,13 @@ class ProxmoxConfig:
 class VmFlowConfig:
     def load(self, file_path) -> ProxmoxConfig | None:
         def load_yaml_config(file_path: str) -> Dict[str, Any]:
-            with open(file_path, 'r') as file:
+            with open(file_path, "r") as file:
                 return yaml.safe_load(file)
 
         def parse_healthcheck(healthcheck_data):
             if healthcheck_data:
-                healthcheck_type = ValidationType[healthcheck_data['type'].upper()]
-                return HealthCheckOptions(address=healthcheck_data['address'], type=healthcheck_type)
+                healthcheck_type = ValidationType[healthcheck_data["type"].upper()]
+                return HealthCheckOptions(address=healthcheck_data["address"], type=healthcheck_type)
 
         try:
             config_data = load_yaml_config(file_path)
@@ -60,11 +60,11 @@ class VmFlowConfig:
             LOGGER.exception(e)
             return None
 
-        proxmox_config = ProxmoxConfig(**config_data['proxmox_config'])
+        proxmox_config = ProxmoxConfig(**config_data["proxmox_config"])
 
         vms = []
-        for vm_data in config_data['vms']:
-            healthcheck_data = vm_data.pop('healthcheck', None)
+        for vm_data in config_data["vms"]:
+            healthcheck_data = vm_data.pop("healthcheck", None)
             healthcheck = parse_healthcheck(healthcheck_data)
             vm = VMStartOptions(**vm_data, healthcheck=healthcheck)
             vms.append(vm)

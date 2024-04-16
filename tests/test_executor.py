@@ -3,7 +3,6 @@ from unittest.mock import Mock, patch
 
 from pxvmflow.config import *
 from pxvmflow.executor import Executor
-from pxvmflow.models import PxEntity
 from pxvmflow.consts import ProxmoxType
 
 
@@ -18,9 +17,9 @@ def mock_config():
         user='user',
         password='password',
         verify_ssl=False,
-        vms=[
-            VM(id=100, name="VM1", run_timeout=60, healthcheck=HealthCheck(address="192.168.1.61", type="ping")),
-            VM(id=301, name="VM2", run_timeout=120, healthcheck=HealthCheck(address="http://192.168.1.12/login", type="http"))
+        start_options=[
+            VMStartOptions(id=100, name="VM1", run_timeout=60, healthcheck=HealthCheckOptions(address="192.168.1.61", type="ping")),
+            VMStartOptions(id=301, name="VM2", run_timeout=120, healthcheck=HealthCheckOptions(address="http://192.168.1.12/login", type="http"))
         ]
     )
 
@@ -61,7 +60,7 @@ class TestExecutor:
         vms = executor.get_all_vm("node1")
 
         assert len(vms) == 4
-        assert all(isinstance(vm, PxEntity) for vm in vms)
+        assert all(isinstance(vm, ProxmoxVMInfo) for vm in vms)
 
         assert vms[0].id == 101
         assert vms[0].type == ProxmoxType.LXC

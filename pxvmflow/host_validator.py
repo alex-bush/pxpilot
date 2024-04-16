@@ -1,18 +1,37 @@
+import requests
 from pythonping import ping
 
-from enum import Enum, auto
-
-
-class ValidationType(Enum):
-    PING = auto
-    HTTP_REQUEST = auto
+from pxvmflow.config import HealthCheckOptions, ValidationType
+from pxvmflow.consts import LOGGER
 
 
 class HostValidator:
-    @staticmethod
-    def validate(address, validation_type: ValidationType):
-        if validation_type == ValidationType.PING:
-            response = ping(address, count=1, verbose=True)
-            if response == "Request timed out":
+    def validate(self, healthcheck: HealthCheckOptions) -> bool:
+        if healthcheck.type.value == ValidationType.PING.value:
+            return self.validate_ping(healthcheck)
+        elif healthcheck.type.value == ValidationType.HTTP.value:
+            return self.validate_request(healthcheck)
+
+        LOGGER.debug("Unknown healthcheck type")
+        return True
+
+    def validate_ping(self, healthcheck: HealthCheckOptions) -> bool:
+        try:
+            LOGGER.debug(f"Ping: {healthcheck.address}")
+            response = ping(healthcheck.address, count=1, verbose=True)
+            return response.success()
+        except ConnectionError as er:
+            LOGGER.exception(er)
+            return False
+
+    def validate_request(self, healthcheck: HealthCheckOptions) -> bool:
+        try:
+            LOGGER.debug(f"Http request: {healthcheck.address}")
+            response = requests.get(healthcheck.address, timeout=2)
+            if 200 <= response.status_code < 400:
+                return True
+            else:
                 return False
-            return True
+        except requests.RequestException as e:
+            LOGGER.debug(f"Error checking URL {healthcheck.address}")
+            return False

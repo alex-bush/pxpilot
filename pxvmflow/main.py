@@ -1,13 +1,17 @@
 from config import VmFlowConfig
 from executor import Executor
+from consts import LOGGER
+
+import warnings
+warnings.filterwarnings("ignore")
 
 
 def main():
     proxmox_config = VmFlowConfig().load("config.yaml")
     if proxmox_config is not None:
-        print("Config loaded. Proceed to execution")
+        LOGGER.info("Config loaded.")
         executor = Executor(proxmox_config)
-        #executor.start()
+        executor.start()
 
 
 if __name__ == "__main__":

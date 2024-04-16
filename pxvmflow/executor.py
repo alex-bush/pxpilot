@@ -1,16 +1,17 @@
 import time
 
 from pxvmflow.pxtool import ProxmoxClient
-from pxvmflow.models import PxEntity
 from pxvmflow.consts import *
-from pxvmflow.host_validator import HostValidator, ValidationType
+from pxvmflow.host_validator import HostValidator
 from pxvmflow.config import *
+from pxvmflow.pxtool.px import ProxmoxVMInfo
 
 
 class Executor:
     """ Main logic class """
 
     _px_client: ProxmoxClient
+    _config: ProxmoxConfig
 
     def __init__(self, config: ProxmoxConfig):
         self._host = config.url
@@ -20,64 +21,82 @@ class Executor:
         self._password = config.password
         self._verify_ssl = config.verify_ssl
 
+        self._config = config
+
     def start(self):
         """ entry point """
 
-        client = ProxmoxClient(self._host, self._port, user=self._user, realm=self._realm,
-                               password=self._password, verify_ssl=self._verify_ssl)
-        self._px_client = client.build_client()
+        self._px_client = ProxmoxClient(self._host, self._port, user=self._user, realm=self._realm,
+                                        password=self._password, verify_ssl=self._verify_ssl)
+        self._px_client.build_client()
 
-        entities = self.get_all_vm(client.get("nodes")[0]["node"])
+        px_vms = self.get_all_vm(self._px_client.get("nodes")[0]["node"])
 
-        for e in entities:
-            print(e.id, ": ", self.get_status(e))
+        self.start_vms(self._config.start_options, px_vms)
 
-        print(entities)
+        self.clean_up(self._config.start_options, px_vms)
 
-        self.main_loop(entities)
+    def get_all_vm(self, node) -> dict[int, ProxmoxVMInfo]:
+        """ Get actual vm list from proxmox """
 
-    def get_all_vm(self, node) -> list[PxEntity]:
         def fetch_entities(entity_type):
-            return [PxEntity(id=int(entity["vmid"]), type=entity_type, status=entity["status"], node=node)
+            return [ProxmoxVMInfo(id=int(entity["vmid"]), type=entity_type, status=entity["status"], node=node)
                     for entity in self._px_client.get(f"nodes/{node}/{entity_type}")]
 
-        entities = []
-        entities.extend(fetch_entities(ProxmoxType.LXC))
-        entities.extend(fetch_entities(ProxmoxType.QEMU))
+        entities = dict()
+        for lxc in fetch_entities(ProxmoxType.LXC):
+            entities[lxc.id] = lxc
+        for qemu in fetch_entities(ProxmoxType.QEMU):
+            entities[qemu.id] = qemu
 
         return entities
 
-    def get_status(self, vm: PxEntity) -> str:
-        """ get status of VM/LXC """
+    def get_status(self, vm: ProxmoxVMInfo) -> str:
+        """ Return current running status of VM """
 
-        state = self._px_client.get(f"nodes/{vm.node}/{vm.type}/{vm.id}/status/{ProxmoxCommand.CURRENT}")
-        print(state)
-        return state['status']
+        return self._px_client.get_status(vm.node, vm.type, vm.id)['status']
 
-    def start_vm(self, vm: PxEntity):
-        self._px_client.post(f"nodes/{vm.node}/{vm.type}/{vm.id}/status/{ProxmoxCommand.START}")
+    def start_vm(self, vm: ProxmoxVMInfo):
+        """ Start VM """
 
-    def is_running(self, vm: PxEntity):
+        self._px_client.start_vm(vm.node, vm.type, vm.id)
+
+    def clean_up(self, start_options, px_vms: [int, ProxmoxVMInfo]):
+        for start_item in start_options:
+            vm_to_start: ProxmoxVMInfo = px_vms[start_item.id]
+            LOGGER.debug(
+                f"VM [{vm_to_start.id}]: Shutdown.")
+            self._px_client.stop_vm(vm_to_start.node, vm_to_start.type, vm_to_start.id)
+
+    def is_running(self, vm: ProxmoxVMInfo, hc: HealthCheckOptions):
         """ retrieve the status of VM/LXC and check that VM/LXC is running """
 
         if self.get_status(vm) == ProxmoxState.RUNNING:
-            return HostValidator.validate("192.168.1.1", ValidationType.PING)
+            if hc is not None and hc.address is not None:
+                return HostValidator().validate(hc)
+            LOGGER.debug(f"VM [{vm.id}]: HealthCheckOptions is missing.")
+            return True
         else:
             return False
 
-    def main_loop(self, entities: list[PxEntity]):
-        """ run list of VM/LXC and wait for start is complete """
+    def start_vms(self, start_options, px_vms: [int, ProxmoxVMInfo]):
+        for start_item in start_options:
+            vm_to_start = px_vms[start_item.id]
+            if vm_to_start.status == ProxmoxState.STOPPED:
+                LOGGER.debug(f"VM [{vm_to_start.id}]: Start.")
+                self.start_vm(vm_to_start)
 
-        for vm in entities:
-            if vm.status == ProxmoxState.STOPPED:
+                #if start_item.run_timeout is not None:
+                #    time.sleep(start_item.run_timeout)
+
                 flag = True
-                self.start_vm(vm)
-
                 while flag:
-                    if self.is_running(vm):
+                    if self.is_running(vm_to_start, start_item.healthcheck):
                         flag = False
-                        print(f"{time.time()}: VM id={vm.id} successfully started.")
+                        LOGGER.debug(f"VM [{vm_to_start.id}]: Successfully started.")
                     else:
-                        print(f"{time.time()}: VM id={vm.id} is being started.")
+                        LOGGER.debug(f"VM [{vm_to_start.id}]: Starting...")
 
                     time.sleep(5)
+            else:
+                LOGGER.debug(f"VM [{vm_to_start.id}]: Already started. No action needed.")

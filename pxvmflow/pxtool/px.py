@@ -1,5 +1,17 @@
+from dataclasses import dataclass
+
 import proxmoxer
 from proxmoxer import ProxmoxAPI
+
+from pxvmflow.consts import ProxmoxCommand, ProxmoxType
+
+
+@dataclass
+class ProxmoxVMInfo:
+    id: int
+    type: ProxmoxType
+    status: str
+    node: str
 
 
 class ProxmoxClient:
@@ -13,7 +25,7 @@ class ProxmoxClient:
         self._password = password
         self._verify_ssl = verify_ssl
 
-    def build_client(self):
+    def build_client(self) -> None:
         if "@" in self._user:
             user_id = self._user
         else:
@@ -28,8 +40,6 @@ class ProxmoxClient:
             timeout=30,
         )
 
-        return self._proxmox
-
     def get_client(self):
         return self._proxmox
 
@@ -38,3 +48,12 @@ class ProxmoxClient:
 
     def post(self, command):
         return self._proxmox(command).post()
+
+    def start_vm(self, node, type, id):
+        self.post(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.START}")
+
+    def stop_vm(self, node, type, id):
+        self.post(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.SHUTDOWN}")
+
+    def get_status(self, node, type, id):
+        return self.get(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.CURRENT}")

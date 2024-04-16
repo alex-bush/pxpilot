@@ -10,8 +10,8 @@ from pxvmflow.pxtool.px import ProxmoxVMInfo
 class Executor:
     """ Main logic class """
 
-    _px_client: ProxmoxClient
-    _config: ProxmoxConfig
+    _px_client: ProxmoxClient = None
+    _config: ProxmoxConfig = None
 
     def __init__(self, config: ProxmoxConfig):
         self._host = config.url
@@ -26,9 +26,9 @@ class Executor:
     def start(self):
         """ entry point """
 
-        self._px_client = ProxmoxClient(self._host, self._port, user=self._user, realm=self._realm,
+        if self._px_client is None:
+            self._px_client = ProxmoxClient(self._host, self._port, user=self._user, realm=self._realm,
                                         password=self._password, verify_ssl=self._verify_ssl)
-        self._px_client.build_client()
 
         px_vms = self.get_all_vm(self._px_client.get("nodes")[0]["node"])
 
@@ -82,6 +82,11 @@ class Executor:
     def start_vms(self, start_options, px_vms: [int, ProxmoxVMInfo]):
         for start_item in start_options:
             vm_to_start = px_vms[start_item.id]
+
+            if not start_item.enabled:
+                LOGGER.debug(f"VM [{vm_to_start.id}]: Disabled. Skipped.")
+                continue
+
             if vm_to_start.status == ProxmoxState.STOPPED:
                 LOGGER.debug(f"VM [{vm_to_start.id}]: Start.")
                 self.start_vm(vm_to_start)

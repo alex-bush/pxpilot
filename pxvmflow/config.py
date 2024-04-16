@@ -24,6 +24,7 @@ class HealthCheckOptions:
 class VMStartOptions:
     id: int
     node: str
+    enabled: bool = True
     run_timeout: Optional[int] = None
     dependencies: List[int] = field(default_factory=list)
     healthcheck: Optional[HealthCheckOptions] = None

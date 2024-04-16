@@ -25,6 +25,8 @@ class ProxmoxClient:
         self._password = password
         self._verify_ssl = verify_ssl
 
+        self.build_client()
+
     def build_client(self) -> None:
         if "@" in self._user:
             user_id = self._user

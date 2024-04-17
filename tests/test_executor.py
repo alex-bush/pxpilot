@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 from pxvmflow.config import *
 from pxvmflow.executor import Executor
 from pxvmflow.consts import ProxmoxType
+from pxvmflow.pxtool.px import ProxmoxVMInfo
 
 
 @pytest.fixture
@@ -18,8 +19,8 @@ def mock_config():
         password='password',
         verify_ssl=False,
         start_options=[
-            VMStartOptions(id=100, name="VM1", run_timeout=60, healthcheck=HealthCheckOptions(address="192.168.1.61", type="ping")),
-            VMStartOptions(id=301, name="VM2", run_timeout=120, healthcheck=HealthCheckOptions(address="http://192.168.1.12/login", type="http"))
+            VMStartOptions(id=100, node="VM1", run_timeout=60, healthcheck=HealthCheckOptions(address="192.168.1.61", type="ping")),
+            VMStartOptions(id=301, node="VM2", run_timeout=120, healthcheck=HealthCheckOptions(address="http://192.168.1.12/login", type="http"))
         ]
     )
 
@@ -60,20 +61,23 @@ class TestExecutor:
         vms = executor.get_all_vm("node1")
 
         assert len(vms) == 4
-        assert all(isinstance(vm, ProxmoxVMInfo) for vm in vms)
+        #assert all(isinstance(vm, dict) for vm in vms)
 
-        assert vms[0].id == 101
-        assert vms[0].type == ProxmoxType.LXC
-        assert vms[0].status == 'running'
+        assert vms[101].id == 101
+        assert vms[101].type == ProxmoxType.LXC
+        assert vms[101].status == 'running'
 
-        assert vms[1].id == 103
-        assert vms[1].type == ProxmoxType.LXC
-        assert vms[1].status == 'paused'
+        assert vms[103].id == 103
+        assert vms[103].type == ProxmoxType.LXC
+        assert vms[103].status == 'paused'
 
-        assert vms[2].id == 102
-        assert vms[2].type == ProxmoxType.QEMU
-        assert vms[2].status == 'stopped'
+        assert vms[102].id == 102
+        assert vms[102].type == ProxmoxType.QEMU
+        assert vms[102].status == 'stopped'
 
-        assert vms[3].id == 104
-        assert vms[3].type == ProxmoxType.QEMU
-        assert vms[3].status == 'suspended'
+        assert vms[104].id == 104
+        assert vms[104].type == ProxmoxType.QEMU
+        assert vms[104].status == 'suspended'
+
+        executor._px_client.get.assert_any_call("nodes/node1/lxc")
+        executor._px_client.get.assert_any_call("nodes/node1/qemu")

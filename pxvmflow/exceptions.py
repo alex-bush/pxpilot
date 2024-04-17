@@ -1,0 +1,2 @@
+class UnknownHealthcheckException(Exception):
+    pass

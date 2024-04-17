@@ -1,5 +1,6 @@
 import time
 
+from pxvmflow.exceptions import UnknownHealthcheckException
 from pxvmflow.pxtool import ProxmoxClient
 from pxvmflow.consts import *
 from pxvmflow.host_validator import HostValidator
@@ -25,6 +26,10 @@ class Executor:
 
     def start(self):
         """ entry point """
+
+        if len(self._config.start_options) == 0 or sum(1 for item in self._config.start_options if item.enabled) == 0:
+            LOGGER.info(F"There is no available virtual machine to start in configuration. Exiting...")
+            return
 
         if self._px_client is None:
             self._px_client = ProxmoxClient(self._host, self._port, user=self._user, realm=self._realm,
@@ -63,45 +68,60 @@ class Executor:
 
     def clean_up(self, start_options, px_vms: [int, ProxmoxVMInfo]):
         for start_item in start_options:
-            vm_to_start: ProxmoxVMInfo = px_vms[start_item.id]
-            LOGGER.debug(
-                f"VM [{vm_to_start.id}]: Shutdown.")
-            self._px_client.stop_vm(vm_to_start.node, vm_to_start.type, vm_to_start.id)
+            LOGGER.debug(f"VM [{start_item.id}]: Shutdown.")
+
+            vm_to_start = px_vms[start_item.id]
+            from proxmoxer import ResourceException
+            try:
+                self._px_client.stop_vm(vm_to_start.node, vm_to_start.type, vm_to_start.id)
+            except ResourceException as ex:
+                LOGGER.warn(f"Error occurred during stop vm: {ex.content}")
 
     def is_running(self, vm: ProxmoxVMInfo, hc: HealthCheckOptions):
         """ retrieve the status of VM/LXC and check that VM/LXC is running """
 
         if self.get_status(vm) == ProxmoxState.RUNNING:
             if hc is not None and hc.address is not None:
-                return HostValidator().validate(hc)
-            LOGGER.debug(f"VM [{vm.id}]: HealthCheckOptions is missing.")
+                try:
+                    return HostValidator().validate(hc)
+                except UnknownHealthcheckException as ex:
+                    LOGGER.error(f"VM [{vm.id}]: Validation error: {ex}")
+                    return True
+
+            LOGGER.debug(f"VM [{vm.id}]: HealthCheckOptions is not provided.")
             return True
         else:
             return False
 
     def start_vms(self, start_options, px_vms: [int, ProxmoxVMInfo]):
+        """
+
+        :param start_options: list of VMStartOptions contains settings for start Vms
+        :param px_vms: List of information about existing VMs from proxmox
+        """
         for start_item in start_options:
             vm_to_start = px_vms[start_item.id]
 
             if not start_item.enabled:
-                LOGGER.debug(f"VM [{vm_to_start.id}]: Disabled. Skipped.")
+                LOGGER.debug(f"VM [{vm_to_start.id}]: Starting disabled in config. Skipped.")
                 continue
 
-            if vm_to_start.status == ProxmoxState.STOPPED:
-                LOGGER.debug(f"VM [{vm_to_start.id}]: Start.")
-                self.start_vm(vm_to_start)
+            if vm_to_start.status != ProxmoxState.STOPPED:
+                LOGGER.info(f"VM [{vm_to_start.id}]: Virtual machine already started. No action needed.")
+                continue
 
-                if start_item.run_timeout is not None:
-                    time.sleep(start_item.run_timeout)
+            LOGGER.debug(f"VM [{vm_to_start.id}]: Start virtual machine.")
+            self.start_vm(vm_to_start)
 
-                flag = True
-                while flag:
-                    if self.is_running(vm_to_start, start_item.healthcheck):
-                        flag = False
-                        LOGGER.debug(f"VM [{vm_to_start.id}]: Successfully started.")
-                    else:
-                        LOGGER.debug(f"VM [{vm_to_start.id}]: Starting...")
+            if start_item.run_timeout is not None:
+                time.sleep(start_item.run_timeout)
 
-                    time.sleep(5)
-            else:
-                LOGGER.debug(f"VM [{vm_to_start.id}]: Already started. No action needed.")
+            flag = True
+            while flag:
+                if self.is_running(vm_to_start, start_item.healthcheck):
+                    flag = False
+                    LOGGER.info(f"VM [{vm_to_start.id}]: Virtual machine successfully started.")
+                else:
+                    LOGGER.debug(f"VM [{vm_to_start.id}]: Host is unreachable. Waiting...")
+
+                time.sleep(5)

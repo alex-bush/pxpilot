@@ -10,6 +10,7 @@ def main():
     proxmox_config = VmFlowConfig().load("config.yaml")
     if proxmox_config is not None:
         LOGGER.info("Config loaded.")
+
         executor = Executor(proxmox_config)
         executor.start()
 

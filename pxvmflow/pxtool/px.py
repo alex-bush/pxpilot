@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 
 import proxmoxer
-from proxmoxer import ProxmoxAPI
+from proxmoxer import ProxmoxAPI, ResourceException
 
 from pxvmflow.consts import ProxmoxCommand, ProxmoxType
+from pxvmflow.exceptions import ProxmoxException
 
 
 @dataclass
@@ -42,15 +43,21 @@ class ProxmoxClient:
             timeout=30,
         )
 
-    def get(self, command):
+    def px_get(self, command):
         """ Execute GET request using proxmoxer """
 
-        return self._proxmox(command).get()
+        try:
+            return self._proxmox(command).get()
+        except ResourceException as ex:
+            raise ProxmoxException(ex.content)
 
-    def post(self, command):
+    def px_post(self, command):
         """ Execute POST request using proxmoxer """
 
-        return self._proxmox(command).post()
+        try:
+            return self._proxmox(command).post()
+        except ResourceException as ex:
+            raise ProxmoxException(ex.content)
 
     def start_vm(self, node, type, id):
         """
@@ -59,10 +66,10 @@ class ProxmoxClient:
         :param type: lxc/qemu
         :param id: The (unique) ID of the VM.
         """
-        self.post(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.START}")
+        self.px_post(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.START}")
 
     def stop_vm(self, node, type, id):
-        self.post(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.SHUTDOWN}")
+        self.px_post(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.SHUTDOWN}")
 
     def get_status(self, node, type, id):
         """
@@ -72,4 +79,4 @@ class ProxmoxClient:
         :param id: The (unique) ID of the VM.
         :return: Status of requested LXC/VM(qemu)
         """
-        return self.get(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.CURRENT}")
+        return self.px_get(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.CURRENT}")

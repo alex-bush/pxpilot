@@ -1,6 +1,6 @@
 import time
 
-from pxvmflow.exceptions import UnknownHealthcheckException
+from pxvmflow.exceptions import UnknownHealthcheckException, ProxmoxException
 from pxvmflow.pxtool import ProxmoxClient
 from pxvmflow.consts import *
 from pxvmflow.host_validator import HostValidator
@@ -35,11 +35,18 @@ class Executor:
             self._px_client = ProxmoxClient(self._host, self._port, user=self._user, realm=self._realm,
                                         password=self._password, verify_ssl=self._verify_ssl)
 
+        sta = self.get_vms_to_start(self._config.start_options)
+
         px_vms = self.get_all_vm(self._px_client.get("nodes")[0]["node"])
 
-        self.start_vms(self._config.start_options, px_vms)
+        self.start_vms(sta, px_vms)
 
-        self.clean_up(self._config.start_options, px_vms)
+        self.clean_up(sta, px_vms)
+
+    def get_vms_to_start(self, start_options):
+        """ Prepare a list of virtual machines to start by dependencies """
+
+        return start_options
 
     def get_all_vm(self, node) -> dict[int, ProxmoxVMInfo]:
         """ Get actual vm list from proxmox """
@@ -61,23 +68,22 @@ class Executor:
 
         return self._px_client.get_status(vm.node, vm.type, vm.id)["status"]
 
-    def start_vm(self, vm: ProxmoxVMInfo):
+    def start_vm(self, vm: ProxmoxVMInfo) -> None:
         """ Start VM """
 
         self._px_client.start_vm(vm.node, vm.type, vm.id)
 
-    def clean_up(self, start_options, px_vms: [int, ProxmoxVMInfo]):
+    def clean_up(self, start_options, px_vms: [int, ProxmoxVMInfo]) -> None:
         for start_item in start_options:
             LOGGER.debug(f"VM [{start_item.id}]: Shutdown.")
 
             vm_to_start = px_vms[start_item.id]
-            from proxmoxer import ResourceException
             try:
                 self._px_client.stop_vm(vm_to_start.node, vm_to_start.type, vm_to_start.id)
-            except ResourceException as ex:
-                LOGGER.warn(f"Error occurred during stop vm: {ex.content}")
+            except ProxmoxException as ex:
+                LOGGER.warn(f"Error occurred during stop vm: {ex}")
 
-    def is_running(self, vm: ProxmoxVMInfo, hc: HealthCheckOptions):
+    def is_running(self, vm: ProxmoxVMInfo, hc: HealthCheckOptions) -> bool:
         """ retrieve the status of VM/LXC and check that VM/LXC is running """
 
         if self.get_status(vm) == ProxmoxState.RUNNING:
@@ -93,7 +99,7 @@ class Executor:
         else:
             return False
 
-    def start_vms(self, start_options, px_vms: [int, ProxmoxVMInfo]):
+    def start_vms(self, start_options, px_vms: [int, ProxmoxVMInfo]) -> None:
         """
 
         :param start_options: list of VMStartOptions contains settings for start Vms

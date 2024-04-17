@@ -2,8 +2,8 @@ import requests
 from pythonping import ping
 
 from pxvmflow.config import HealthCheckOptions, ValidationType
-from pxvmflow.consts import LOGGER
 from pxvmflow.exceptions import UnknownHealthcheckException
+from pxvmflow.logging_config import LOGGER
 
 
 class HostValidator:

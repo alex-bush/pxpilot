@@ -1,8 +1,10 @@
 from config import VmFlowConfig
 from executor import Executor
-from consts import LOGGER
 
 import warnings
+
+from pxvmflow.logging_config import LOGGER
+
 warnings.filterwarnings("ignore")
 
 

@@ -38,9 +38,9 @@ vms:
 def test_yaml_parse_error():
     with patch("builtins.open", mock_open(read_data="invalid_yaml: :")):
         with patch("yaml.safe_load", side_effect=ParserError):
-            with patch("pxvmflow.consts.LOGGER") as mock_logger:
-                config = VmFlowConfig().load("fake_path")
-                assert config is None
+            #with patch("pxvmflow. logging_config") as mock_logger:
+            config = VmFlowConfig().load("fake_path")
+            assert config is None
                 #mock_logger.exception.assert_called_once()
 
 

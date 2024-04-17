@@ -1,10 +1,11 @@
 import time
 
+from pxvmflow.config import ProxmoxConfig, HealthCheckOptions
+from pxvmflow.consts import ProxmoxType, ProxmoxState
 from pxvmflow.exceptions import UnknownHealthcheckException, ProxmoxException
+from pxvmflow.logging_config import LOGGER
 from pxvmflow.pxtool import ProxmoxClient
-from pxvmflow.consts import *
 from pxvmflow.host_validator import HostValidator
-from pxvmflow.config import *
 from pxvmflow.pxtool.px import ProxmoxVMInfo
 
 
@@ -37,7 +38,7 @@ class Executor:
 
         sta = self.get_vms_to_start(self._config.start_options)
 
-        px_vms = self.get_all_vm(self._px_client.get("nodes")[0]["node"])
+        px_vms = self.get_all_vm(self._px_client.px_get("nodes")[0]["node"])
 
         self.start_vms(sta, px_vms)
 
@@ -53,7 +54,7 @@ class Executor:
 
         def fetch_entities(entity_type):
             return [ProxmoxVMInfo(id=int(entity["vmid"]), type=entity_type, status=entity["status"], node=node)
-                    for entity in self._px_client.get(f"nodes/{node}/{entity_type}")]
+                    for entity in self._px_client.px_get(f"nodes/{node}/{entity_type}")]
 
         entities = dict()
         for lxc in fetch_entities(ProxmoxType.LXC):

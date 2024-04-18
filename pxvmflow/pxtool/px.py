@@ -6,11 +6,13 @@ from proxmoxer import ProxmoxAPI, ResourceException
 from pxvmflow.consts import ProxmoxCommand, ProxmoxType
 from pxvmflow.exceptions import ProxmoxException
 
+__all__ = ["ProxmoxVMInfo", "ProxmoxClient"]
+
 
 @dataclass
 class ProxmoxVMInfo:
-    id: int
-    type: ProxmoxType
+    vm_id: int
+    vm_type: ProxmoxType
     status: str
     node: str
 

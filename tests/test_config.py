@@ -19,11 +19,11 @@ proxmox_config:
   password: 'password'
   verify_ssl: False
 vms:
-  - id: 1
+  - vm_id: 1
     node: 'node1'
     healthcheck:
-      address: 'http://127.0.0.1/ping'
-      type: 'ping'
+      target_url: 'http://127.0.0.1/ping'
+      check_method: 'ping'
 """
 
     with patch("builtins.open", mock_open(read_data=test_yaml_content)):
@@ -32,7 +32,7 @@ vms:
             assert isinstance(config, ProxmoxConfig)
             assert config.url == 'http://example.com'
             assert len(config.start_options) == 1
-            assert config.start_options[0].healthcheck.type == ValidationType.PING
+            assert config.start_options[0].healthcheck.check_method == ValidationType.PING
 
 
 def test_yaml_parse_error():
@@ -56,11 +56,11 @@ proxmox_config:
   password: 'password'
   verify_ssl: False
 vms:
-  - id: 1
+  - vm_id: 1
     node: 'node1'
     healthcheck:
-      address: 'http://127.0.0.1/ping'
-      type: 'ping'
+      target_url: 'http://127.0.0.1/ping'
+      check_method: 'ping'
 """
 
     with patch("builtins.open", mock_open(read_data=test_yaml_content)):
@@ -68,5 +68,5 @@ vms:
             config = VmFlowConfig().load("fake_path")
             vm_healthcheck = config.start_options[0].healthcheck
             assert isinstance(vm_healthcheck, HealthCheckOptions)
-            assert vm_healthcheck.address == 'http://127.0.0.1/ping'
-            assert vm_healthcheck.type == ValidationType.PING
+            assert vm_healthcheck.target_url == 'http://127.0.0.1/ping'
+            assert vm_healthcheck.check_method == ValidationType.PING

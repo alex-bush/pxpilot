@@ -9,25 +9,31 @@ proxmox_config:
   verify_ssl: false
 
 vms:
-  - id: 100
-    name: VM1
-    run_timeout: 60
+  - vm_id: 100
+    node: px-test
     dependencies: []
+    startup_parameters:
+      await_running: true
+      startup_timeout: 300
     healthcheck:
-      address: "192.168.1.1"
-      type: "ping"
+      target_url: "192.168.1.61"
+      check_method: "ping"
 
-  - id: 101
-    name: VM2
-    run_timeout: 120
+  - vm_id: 301
+    node: px-test
+    startup_parameters:
+      await_running: true
+      startup_timeout: 300
+    enabled: true
     dependencies:
-      - 100
-    healthcheck:
-      address: "http://192.168.1.1/"
-      type: "http"
-
-  - id: 102
-    name: VM3
-    dependencies:
-      - 100
       - 101
+    healthcheck:
+      target_url: "http://192.168.1.77/"
+      check_method: "http"
+
+  - vm_id: 124
+    node: px-test
+    dependencies:
+      - 101
+      - 301
+

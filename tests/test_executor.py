@@ -4,7 +4,6 @@ from unittest.mock import Mock, patch
 from pxvmflow.config import *
 from pxvmflow.executor import Executor
 from pxvmflow.consts import ProxmoxType
-from pxvmflow.pxtool.px import ProxmoxVMInfo
 
 
 @pytest.fixture

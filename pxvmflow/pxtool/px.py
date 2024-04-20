@@ -13,6 +13,7 @@ __all__ = ["ProxmoxVMInfo", "ProxmoxClient"]
 class ProxmoxVMInfo:
     vm_id: int
     vm_type: ProxmoxType
+    name: str
     status: str
     node: str
 

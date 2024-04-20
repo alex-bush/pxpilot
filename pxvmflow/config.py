@@ -91,11 +91,19 @@ class ProxmoxConfig:
     verify_ssl: bool
 
     start_options: List[VMStartOptions] = field(default_factory=list)
+    notification_options: List[Dict[str, Any]] = field(default_factory=list)
+
+
+@dataclass
+class NotificationOptions:
+    token: str
+    chat_id: int | str
 
 
 class VmFlowConfig:
     def load(self, file_path: str) -> Optional[ProxmoxConfig]:
         """Load configuration from a YAML file into a ProxmoxConfig object."""
+
         def load_yaml_config(file_path: str) -> Dict[str, Any]:
             """Helper function to load a YAML configuration file."""
             with open(file_path, "r") as file:
@@ -117,13 +125,18 @@ class VmFlowConfig:
                 )
             return None
 
+        def parse_notification_parameters(notification_data: Dict[str, Any]) -> Dict[str, Any]:
+            return notification_data
+
         try:
             config_data = load_yaml_config(file_path)
         except ParserError as e:
             LOGGER.exception("Failed to parse configuration file: %s", e)
             return None
 
-        proxmox_config = ProxmoxConfig(**config_data["proxmox_config"])
+        app_config = ProxmoxConfig(**config_data["proxmox_config"])
+
+        app_config.notification_options = parse_notification_parameters(config_data["notification_options"])
 
         vms = []
         for vm_data in config_data["vms"]:
@@ -141,6 +154,6 @@ class VmFlowConfig:
             )
             vms.append(vm)
 
-        proxmox_config.start_options = vms
+        app_config.start_options = vms
 
-        return proxmox_config
+        return app_config

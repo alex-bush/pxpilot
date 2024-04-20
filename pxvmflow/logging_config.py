@@ -1,5 +1,6 @@
 import logging
 import sys
+from notifications import log
 
 
 def setup_logging():
@@ -13,6 +14,8 @@ def setup_logging():
     stream_handler.setFormatter(formatter)
 
     logger.addHandler(stream_handler)
+
+    log.setup_logging(stream_handler)
 
     logging.getLogger('requests').setLevel(logging.WARNING)
 

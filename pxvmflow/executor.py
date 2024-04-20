@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 
-from pxvmflow.config import ProxmoxConfig, HealthCheckOptions, VMStartOptions
+from pxvmflow.config import HealthCheckOptions, VMStartOptions
 from pxvmflow.consts import ProxmoxType, ProxmoxState
 from pxvmflow.exceptions import UnknownHealthcheckException, ProxmoxException
 from pxvmflow.logging_config import LOGGER
@@ -40,15 +40,12 @@ class Executor:
 
         self.clean_up(sta, px_vms)
 
-        # if self._summary_message is not None:
-        #     return self._summary_message
-
     def get_vms_to_start(self, start_options):
         """ Prepare a list of virtual machines to start by dependencies """
 
         return start_options
 
-    def log_to_summary(self, vm: ProxmoxVMInfo, status, start_time, duration):
+    def notification_log(self, vm: ProxmoxVMInfo, status, start_time, duration):
         if self._notification_manager is not None:
             self._notification_manager.append_status(vm.vm_type, vm.vm_id, vm.name, status, start_time, duration)
 
@@ -124,7 +121,7 @@ class Executor:
                 continue
 
             if vm_to_start.status != ProxmoxState.STOPPED:
-                self.log_to_summary(vm_to_start, "running", datetime.now(), 0)
+                self.notification_log(vm_to_start, "running", datetime.now(), 0)
                 LOGGER.info(f"VM [{vm_to_start.vm_id}]: Virtual machine already started. No action needed.")
                 continue
 
@@ -141,7 +138,7 @@ class Executor:
                     flag = False
                     LOGGER.info(f"VM [{vm_to_start.vm_id}]: Virtual machine successfully started.")
                     end_time = datetime.now()
-                    self.log_to_summary(vm_to_start, "started", end_time.now(), end_time - start_time)
+                    self.notification_log(vm_to_start, "started", end_time.now(), end_time - start_time)
                 else:
                     LOGGER.info(f"VM [{vm_to_start.vm_id}]: The host is not yet available. Waiting...")
 

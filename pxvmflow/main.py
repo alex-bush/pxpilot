@@ -1,19 +1,12 @@
-from config import VmFlowConfig
-from executor import Executor
-
 import warnings
 
+from config import VmFlowConfig
+from executor import Executor
 from pxvmflow.logging_config import LOGGER
-from pxvmflow.notifications import notifier_types, Notifier, TelegramMessage, NotificationManager
+from pxvmflow.notifications import NotificationManager
 from pxvmflow.pxtool import ProxmoxClient
 
 warnings.filterwarnings("ignore")
-
-
-def create_notifier(notifier_config) -> Notifier:
-    for key in notifier_config.keys():
-        if key in notifier_types:
-            return notifier_types[key](notifier_config[key])
 
 
 def main():
@@ -21,7 +14,9 @@ def main():
     if app_config is not None:
         LOGGER.info("Config loaded.")
 
-        notification_manager = NotificationManager(app_config.notification_options)
+        notification_manager = None
+        if app_config.notification_options is not None and len(app_config.notification_options) > 0:
+            notification_manager = NotificationManager(app_config.notification_options)
 
         px_client = ProxmoxClient(host=app_config.url, port=app_config.port, user=app_config.user,
                                   realm=app_config.realm, password=app_config.password, verify_ssl=app_config.verify_ssl)
@@ -31,15 +26,6 @@ def main():
         if notification_manager is not None:
             LOGGER.debug("Notification Manager is non None. Try to send notifications")
             notification_manager.send()
-
-        # message = TelegramMessage()
-        # message.append("test message from pxvmflow")
-        #
-        # if message is not None:
-        #     notifiers = [create_notifier(n) for n in app_config.notification_options]
-        #
-        #     for notifier in notifiers:
-        #         notifier.send(message)
 
 
 if __name__ == "__main__":

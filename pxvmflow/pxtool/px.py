@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import proxmoxer
 from proxmoxer import ProxmoxAPI, ResourceException
 
-from pxvmflow.consts import ProxmoxCommand, ProxmoxType
+from pxvmflow.consts import ProxmoxCommand, VMType
 from pxvmflow.exceptions import ProxmoxException
 
 __all__ = ["ProxmoxVMInfo", "ProxmoxClient"]
@@ -12,7 +12,7 @@ __all__ = ["ProxmoxVMInfo", "ProxmoxClient"]
 @dataclass
 class ProxmoxVMInfo:
     vm_id: int
-    vm_type: ProxmoxType
+    vm_type: VMType
     name: str
     status: str
     node: str

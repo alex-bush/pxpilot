@@ -2,6 +2,7 @@ import warnings
 
 from config import VmFlowConfig
 from executor import Executor
+from pxvmflow.host_validator import HostValidator
 from pxvmflow.logging_config import LOGGER
 from pxvmflow.notifications import NotificationManager
 from pxvmflow.pxtool import ProxmoxClient
@@ -20,7 +21,7 @@ def main():
 
         px_client = ProxmoxClient(host=app_config.url, port=app_config.port, user=app_config.user,
                                   realm=app_config.realm, password=app_config.password, verify_ssl=app_config.verify_ssl)
-        executor = Executor(px_client, app_config.start_options, notification_manager)
+        executor = Executor(px_client, app_config.start_options, HostValidator(), notification_manager)
         executor.start()
 
         if notification_manager is not None:

@@ -26,6 +26,10 @@ class NotificationManager:
             status_icon = CHECK_MARK_SYMBOL
             duration_str = f"{duration.seconds} seconds"
             status_str = "Successfully started"
+        elif vm_status == "timeout":
+            status_icon = CROSS_SIGN_SYMBOL
+            duration_str = f"{duration.seconds} seconds"
+            status_str = "Timeout"
         else:
             status_icon = BLUE_CIRCLE_SYMBOL
             duration_str = f"Already running"

@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 
 from pxvmflow.config import *
 from pxvmflow.executor import Executor
-from pxvmflow.consts import ProxmoxType
+from pxvmflow.consts import VMType
 
 
 @pytest.fixture
@@ -65,19 +65,19 @@ class TestExecutor:
         #assert all(isinstance(vm, dict) for vm in vms)
 
         assert vms[101].vm_id == 101
-        assert vms[101].vm_type == ProxmoxType.LXC
+        assert vms[101].vm_type == VMType.LXC
         assert vms[101].status == 'running'
 
         assert vms[103].vm_id == 103
-        assert vms[103].vm_type == ProxmoxType.LXC
+        assert vms[103].vm_type == VMType.LXC
         assert vms[103].status == 'paused'
 
         assert vms[102].vm_id == 102
-        assert vms[102].vm_type == ProxmoxType.QEMU
+        assert vms[102].vm_type == VMType.QEMU
         assert vms[102].status == 'stopped'
 
         assert vms[104].vm_id == 104
-        assert vms[104].vm_type == ProxmoxType.QEMU
+        assert vms[104].vm_type == VMType.QEMU
         assert vms[104].status == 'suspended'
 
         executor._px_client.get.assert_any_call("nodes/node1/lxc")

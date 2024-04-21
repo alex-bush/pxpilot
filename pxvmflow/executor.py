@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pxvmflow.config import HealthCheckOptions, VMStartOptions
 from pxvmflow.consts import VMType, VMState, STATUS_POLL_INTERVAL
-from pxvmflow.exceptions import UnknownHealthcheckException, ProxmoxException
+from pxvmflow.exceptions import UnknownHealthcheckError, ProxmoxError
 from pxvmflow.logging_config import LOGGER
 from pxvmflow.notifications import NotificationManager
 from pxvmflow.pxtool import *
@@ -116,8 +116,8 @@ class Executor:
             start_time = datetime.now()
             self.start_vm(vm_to_start)
 
-            if start_item.run_timeout is not None:
-                time.sleep(start_item.run_timeout)
+            # if start_item.run_timeout is not None:
+            #     time.sleep(start_item.run_timeout)
 
             flag = True
             while flag:
@@ -158,7 +158,7 @@ class Executor:
             if hc is not None and hc.target_url is not None:
                 try:
                     return self._host_validator.validate(hc)
-                except UnknownHealthcheckException as ex:
+                except UnknownHealthcheckError as ex:
                     LOGGER.error(f"VM [{vm.vm_id}]: Unknown healthcheck type: {ex}")
                     return True
 
@@ -205,7 +205,7 @@ class Executor:
             vm_to_start = px_vms[start_item.vm_id]
             try:
                 self._px_client.stop_vm(vm_to_start.node, vm_to_start.vm_type, vm_to_start.vm_id)
-            except ProxmoxException as ex:
+            except ProxmoxError as ex:
                 LOGGER.warn(f"Error occurred during stop vm: {ex}")
 
     def notification_log(self, vm: ProxmoxVMInfo, status, start_time, duration):

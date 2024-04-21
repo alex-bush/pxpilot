@@ -4,7 +4,7 @@ from unittest.mock import patch, mock_open
 import yaml
 from yaml.parser import ParserError
 
-from pxvmflow.config import VmFlowConfig, ValidationType, HealthCheckOptions, ProxmoxConfig
+from pxvmflow.config import ConfigManager, ValidationType, HealthCheckOptions, ProxmoxConfig
 
 
 def test_successful_load():
@@ -28,7 +28,7 @@ vms:
 
     with patch("builtins.open", mock_open(read_data=test_yaml_content)):
         with patch("yaml.safe_load", return_value=yaml.safe_load(test_yaml_content)):
-            config = VmFlowConfig().load("fake_path")
+            config = ConfigManager().load("fake_path")
             assert isinstance(config, ProxmoxConfig)
             assert config.url == 'http://example.com'
             assert len(config.start_options) == 1
@@ -39,7 +39,7 @@ def test_yaml_parse_error():
     with patch("builtins.open", mock_open(read_data="invalid_yaml: :")):
         with patch("yaml.safe_load", side_effect=ParserError):
             #with patch("pxvmflow. logging_config") as mock_logger:
-            config = VmFlowConfig().load("fake_path")
+            config = ConfigManager().load("fake_path")
             assert config is None
                 #mock_logger.exception.assert_called_once()
 
@@ -65,7 +65,7 @@ vms:
 
     with patch("builtins.open", mock_open(read_data=test_yaml_content)):
         with patch("yaml.safe_load", return_value=yaml.safe_load(test_yaml_content)):
-            config = VmFlowConfig().load("fake_path")
+            config = ConfigManager().load("fake_path")
             vm_healthcheck = config.start_options[0].healthcheck
             assert isinstance(vm_healthcheck, HealthCheckOptions)
             assert vm_healthcheck.target_url == 'http://127.0.0.1/ping'

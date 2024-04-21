@@ -1,6 +1,6 @@
-class UnknownHealthcheckException(Exception):
+class UnknownHealthcheckError(Exception):
     pass
 
 
-class ProxmoxException(Exception):
+class ProxmoxError(Exception):
     pass

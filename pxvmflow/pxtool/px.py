@@ -4,7 +4,7 @@ import proxmoxer
 from proxmoxer import ProxmoxAPI, ResourceException
 
 from pxvmflow.consts import ProxmoxCommand, VMType
-from pxvmflow.exceptions import ProxmoxException
+from pxvmflow.exceptions import ProxmoxError
 
 __all__ = ["ProxmoxVMInfo", "ProxmoxClient"]
 
@@ -52,7 +52,7 @@ class ProxmoxClient:
         try:
             return self._proxmox(command).get()
         except ResourceException as ex:
-            raise ProxmoxException(ex.content)
+            raise ProxmoxError(ex.content)
 
     def px_post(self, command):
         """ Execute POST request using proxmoxer """
@@ -60,7 +60,7 @@ class ProxmoxClient:
         try:
             return self._proxmox(command).post()
         except ResourceException as ex:
-            raise ProxmoxException(ex.content)
+            raise ProxmoxError(ex.content)
 
     def start_vm(self, node, type, id):
         """

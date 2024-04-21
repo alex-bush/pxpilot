@@ -1,12 +1,15 @@
 from typing import Protocol
 
 
-class NotificationMessage(Protocol):
+class NotificationMessage:
+    def __init__(self):
+        self._notification_message = str()
+
     def get(self) -> str:
-        pass
+        return self._notification_message
 
     def append(self, string: str):
-        pass
+        self._notification_message += string
 
 
 class Notifier(Protocol):

@@ -2,7 +2,7 @@ import requests
 from pythonping import ping
 
 from pxvmflow.config import HealthCheckOptions, ValidationType
-from pxvmflow.exceptions import UnknownHealthcheckException
+from pxvmflow.exceptions import UnknownHealthcheckError
 from pxvmflow.logging_config import LOGGER
 
 
@@ -16,7 +16,7 @@ class HostValidator:
         elif healthcheck.check_method.value == ValidationType.HTTP.value:
             return self._validate_request(healthcheck)
 
-        raise UnknownHealthcheckException(f"Unknown healthcheck type: {healthcheck.check_method}")
+        raise UnknownHealthcheckError(f"Unknown healthcheck type: {healthcheck.check_method}")
 
     def _validate_ping(self, healthcheck: HealthCheckOptions) -> bool:
         """

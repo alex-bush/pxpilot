@@ -100,13 +100,13 @@ class NotificationOptions:
     chat_id: int | str
 
 
-class VmFlowConfig:
+class ConfigManager:
     def load(self, file_path: str) -> Optional[ProxmoxConfig]:
         """Load configuration from a YAML file into a ProxmoxConfig object."""
 
-        def load_yaml_config(file_path: str) -> Dict[str, Any]:
+        def load_yaml_config(path: str) -> Dict[str, Any]:
             """Helper function to load a YAML configuration file."""
-            with open(file_path, "r") as file:
+            with open(path, "r") as file:
                 return yaml.safe_load(file)
 
         def parse_healthcheck(healthcheck_data: Dict[str, Any]) -> Optional[HealthCheckOptions]:

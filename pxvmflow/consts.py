@@ -1,4 +1,4 @@
-from enum import Enum, StrEnum
+from enum import StrEnum
 
 STATUS_POLL_INTERVAL = 2
 

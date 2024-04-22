@@ -1,9 +1,9 @@
 import warnings
 
+from pxvmflow.logging_config import LOGGER
 from config import ConfigManager
 from executor import Executor
 from pxvmflow.host_validator import HostValidator
-from pxvmflow.logging_config import LOGGER
 from pxvmflow.notifications import NotificationManager
 from pxvmflow.pxtool import ProxmoxClient
 
@@ -30,6 +30,5 @@ def main():
 
             notification_manager.send()
 
-
-if __name__ == "__main__":
-    main()
+    else:
+        print("Config not loaded.")

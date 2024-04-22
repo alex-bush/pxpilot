@@ -62,24 +62,24 @@ class ProxmoxClient:
         except ResourceException as ex:
             raise ProxmoxError(ex.content)
 
-    def start_vm(self, node, type, id):
+    def start_vm(self, node, vm_type, vm_id):
         """
         Start virtual machine.
         :param node: The cluster node name.
-        :param type: lxc/qemu
-        :param id: The (unique) ID of the VM.
+        :param vm_type: lxc/qemu
+        :param vm_id: The (unique) ID of the VM.
         """
-        self.px_post(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.START}")
+        self.px_post(f"nodes/{node}/{vm_type}/{vm_id}/status/{ProxmoxCommand.START}")
 
-    def stop_vm(self, node, type, id):
-        self.px_post(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.SHUTDOWN}")
+    def stop_vm(self, node, vm_type, vm_id):
+        self.px_post(f"nodes/{node}/{vm_type}/{vm_id}/status/{ProxmoxCommand.SHUTDOWN}")
 
-    def get_status(self, node, type, id):
+    def get_status(self, node, vm_type, vm_id):
         """
         Get virtual machine status.
         :param node: The cluster node name.
-        :param type: lxc/qemu
-        :param id: The (unique) ID of the VM.
+        :param vm_type: lxc/qemu
+        :param vm_id: The (unique) ID of the VM.
         :return: Status of requested LXC/VM(qemu)
         """
-        return self.px_get(f"nodes/{node}/{type}/{id}/status/{ProxmoxCommand.CURRENT}")
+        return self.px_get(f"nodes/{node}/{vm_type}/{vm_id}/status/{ProxmoxCommand.CURRENT}")

@@ -18,7 +18,7 @@ class NotificationManager:
         :param start_time:
         """
         for message in self._message_notifier_map.keys():
-            msg = f"{ROCKET_SYMBOL} *Proxmox VMs Startup Summary* - Start Time: _{start_time.strftime("%d-%b-%Y %H:%M:%S")}_\n\n"
+            msg = f"{ROCKET_SYMBOL} *Proxmox VMs Startup Summary*\n Start Time: _{start_time.strftime("%d-%b-%Y %H:%M:%S")}_\n\n"
             message.append(msg)
 
     def append_status(self, vm_type, vm_id, vm_name, vm_status, start_time, duration: timedelta):

@@ -1,5 +1,8 @@
+from dataclasses import dataclass
 import time
 from datetime import datetime
+from enum import Enum, auto
+from typing import List, Optional
 
 from pxvmflow.config import HealthCheckOptions, VMStartOptions
 from pxvmflow.consts import VMType, VMState, STATUS_POLL_INTERVAL
@@ -8,6 +11,24 @@ from pxvmflow.logging_config import LOGGER
 from pxvmflow.notifications import NotificationManager
 from pxvmflow.pxtool import *
 from pxvmflow.host_validator import HostValidator
+
+
+class StartStatus(Enum):
+    UNKNOWN = auto()
+    ALREADY_STARTED = auto()
+    STARTING = auto()
+    STARTED = auto()
+    STOPPED = auto()
+    TIMEOUT = auto()
+    FAILED = auto()
+
+
+@dataclass
+class FlowItem:
+    vm_id: int
+    start_options: Optional[VMStartOptions]
+    vm_info: Optional[ProxmoxVMInfo]
+    status: StartStatus = StartStatus.UNKNOWN
 
 
 class Executor:
@@ -49,13 +70,13 @@ class Executor:
         if self._notification_manager is not None:
             self._notification_manager.start(datetime.now())
 
-        sta = self.get_vms_to_start(self._start_options)
-
         px_vms = self.get_all_vm(self._px_client.px_get("nodes")[0]["node"])
 
-        self.start_vms(sta, px_vms)
+        sta = self.get_vms_to_start(self._start_options, px_vms)
 
-        self.clean_up(sta, px_vms)
+        self.start_vms(sta)
+
+        self.clean_up(sta)
 
     def get_all_vm(self, node) -> dict[int, ProxmoxVMInfo]:
         """
@@ -82,12 +103,12 @@ class Executor:
 
         return entities
 
-    def start_vms(self, start_options: [VMStartOptions], px_vms: [int, ProxmoxVMInfo]) -> None:
+    def start_vms(self, vm_flow_items: List[FlowItem]) -> None:
         """
         Attempts to start a list of virtual machines based on their start options and current state.
 
         Args:
-            start_options (List[VMStartOptions]): List of configurations detailing which VMs to start and their respective settings.
+            vm_flow_items (List[VMStartOptions]): List of configurations detailing which VMs to start and their respective settings.
             px_vms (Dict[int, ProxmoxVMInfo]): Dictionary containing the current state of VMs fetched from Proxmox, keyed by VM ID.
 
         This method iterates through the list of start options, checking each VM's current state against the desired state
@@ -96,28 +117,32 @@ class Executor:
         If a health check is specified, it also verifies the VM's operational status post-start using the specified health check.
         """
 
-        for start_item in start_options:
-            if start_item.vm_id not in px_vms:
-                LOGGER.info(f"VM [{start_item.vm_id}]: Id not found in startup configuration. Skipped.")
+        for flow_item in vm_flow_items:
+            start_item = flow_item.start_options
+            vm_to_start = flow_item.vm_info
+
+            if start_item is None:
+                LOGGER.info(f"VM ID [{vm_to_start.vm_id}]: not found in startup configuration. Skipped.")
                 continue
 
-            vm_to_start = px_vms[start_item.vm_id]
+            if vm_to_start is None:
+                LOGGER.info(f"VM ID [{start_item.vm_id}]: not found on Proxmox server. Skipped.")
+                continue
 
             if not start_item.enabled:
-                LOGGER.info(f"VM [{vm_to_start.vm_id}]: Starting disabled in config. Skipped.")
+                LOGGER.info(f"VM ID [{vm_to_start.vm_id}]: Starting disabled in config. Skipped.")
                 continue
 
             if vm_to_start.status != VMState.STOPPED:
-                self.notification_log(vm_to_start, "running", datetime.now(), 0)
-                LOGGER.info(f"VM [{vm_to_start.vm_id}]: Virtual machine already started. No action needed.")
+                self.notification_log(flow_item, "running", datetime.now(), 0)
+                LOGGER.info(f"VM ID [{vm_to_start.vm_id}]: Virtual machine already started. No action needed.")
+                flow_item.status = StartStatus.ALREADY_STARTED
                 continue
 
-            LOGGER.debug(f"VM [{vm_to_start.vm_id}]: Starting virtual machine.")
+            LOGGER.debug(f"VM ID [{vm_to_start.vm_id}]: Starting virtual machine.")
             start_time = datetime.now()
+            flow_item.status = StartStatus.STARTING
             self.start_vm(vm_to_start)
-
-            # if start_item.run_timeout is not None:
-            #     time.sleep(start_item.run_timeout)
 
             flag = True
             while flag:
@@ -125,12 +150,13 @@ class Executor:
                 if self.is_running(vm_to_start, start_item.healthcheck):
                     flag = False
                     end_time = datetime.now()
-                    self.notification_log(vm_to_start, "started", end_time, end_time - start_time)
+                    self.notification_log(flow_item, "started", end_time, end_time - start_time)
 
                     LOGGER.info(f"VM [{vm_to_start.vm_id}]: Virtual machine successfully started.")
                 elif start_item.startup_parameters is not None and (
                         end_time - start_time).seconds > start_item.startup_parameters.startup_timeout:
-                    self.notification_log(vm_to_start, "timeout", end_time, end_time - start_time)
+                    flow_item.status = StartStatus.TIMEOUT
+                    self.notification_log(flow_item, "timeout", end_time, end_time - start_time)
                     flag = False
 
                     LOGGER.warn("Timeout exceed")
@@ -182,32 +208,39 @@ class Executor:
 
         self._px_client.start_vm(vm.node, vm.vm_type, vm.vm_id)
 
-    def get_vms_to_start(self, start_options: [VMStartOptions]) -> [VMStartOptions]:
+    def get_vms_to_start(self, start_options: [VMStartOptions], px_vms: dict[int, ProxmoxVMInfo]) -> [FlowItem]:
         """
         Filters and returns a list of VMs that are enabled and ready to be started based on dependencies.
 
-        Args:
-            start_options (List[VMStartOptions]): List of VM startup options.
-
-        Returns:
-            List[VMStartOptions]: VMs ready to be started.
+        :param start_options: List of VM startup options.
+        :param px_vms:
+        :return: VMs ready to be started.
         """
+        sos = []
+        for so in start_options:
+            si = FlowItem(vm_id=so.vm_id, start_options=so, status=StartStatus.UNKNOWN, vm_info=None)
+            if so.vm_id in px_vms:
+                si.vm_info = px_vms.pop(so.vm_id)
+            sos.append(si)
 
-        return start_options
+        for vm_id, vm in px_vms.items():
+            si = FlowItem(vm_id=vm_id, vm_info=vm, status=StartStatus.UNKNOWN, start_options=None)
+            sos.append(si)
+        return sos
 
-    def clean_up(self, start_options, px_vms: [int, ProxmoxVMInfo]) -> None:
+    def clean_up(self, start_options: List[FlowItem]) -> None:
         for start_item in start_options:
-            if start_item.vm_id not in px_vms:
+            if start_item.start_options is None or start_item.vm_info is None:
                 continue
 
             LOGGER.debug(f"VM [{start_item.vm_id}]: Shutdown.")
 
-            vm_to_start = px_vms[start_item.vm_id]
+            vm_to_start = start_item.vm_info
             try:
                 self._px_client.stop_vm(vm_to_start.node, vm_to_start.vm_type, vm_to_start.vm_id)
             except ProxmoxError as ex:
                 LOGGER.warn(f"Error occurred during stop vm: {ex}")
 
-    def notification_log(self, vm: ProxmoxVMInfo, status, start_time, duration):
+    def notification_log(self, flow_item: FlowItem, status, start_time, duration):
         if self._notification_manager is not None:
-            self._notification_manager.append_status(vm.vm_type, vm.vm_id, vm.name, status, start_time, duration)
+            self._notification_manager.append_status(flow_item.vm_info.vm_type, flow_item.vm_id, flow_item.vm_info.name, status, start_time, duration)

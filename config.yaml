@@ -4,9 +4,14 @@ proxmox_config:
   realm: "pam"
   token_id: ""
   token_secret: ""
-  user: ""
-  password: ""
+  user: "root@pam"
+  password: "123456789"
   verify_ssl: false
+
+notification_options:
+  - telegram:
+      token:
+      chat_id:
 
 vms:
   - vm_id: 100
@@ -14,26 +19,27 @@ vms:
     dependencies: []
     startup_parameters:
       await_running: true
-      startup_timeout: 300
+      startup_timeout: 60
     healthcheck:
-      target_url: "192.168.1.61"
+      target_url: "192.168.1.2"
       check_method: "ping"
 
   - vm_id: 301
     node: px-test
     startup_parameters:
       await_running: true
-      startup_timeout: 300
+      startup_timeout: 60
     enabled: true
     dependencies:
-      - 101
+      - 100
     healthcheck:
-      target_url: "http://192.168.1.77/"
+      target_url: "http://192.168.1.3/"
       check_method: "http"
 
   - vm_id: 124
     node: px-test
     dependencies:
-      - 101
+      - 100
       - 301
+
 

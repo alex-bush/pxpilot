@@ -18,7 +18,7 @@ class TelegramNotifier(Notifier):
         return TelegramMessage()
 
     def send(self, notification_message: NotificationMessage):
-        url = f'https://api.telegram.org/bot{self._config['token']}/sendMessage?chat_id={self._config['chat_id']}&parse_mode=MarkdownV2'
+        url = f"https://api.telegram.org/bot{self._config['token']}/sendMessage?chat_id={self._config['chat_id']}&parse_mode=MarkdownV2"
 
         msg = self._escape(notification_message.get())
 

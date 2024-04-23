@@ -8,6 +8,10 @@ proxmox_config:
   password: "123456789"
   verify_ssl: false
 
+settings:
+  auto_start_dependency: false
+  auto_shutdown: false
+
 notification_options:
   - telegram:
       token:

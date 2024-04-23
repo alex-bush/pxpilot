@@ -8,7 +8,7 @@ from pxvmflow.consts import VMType
 
 @pytest.fixture
 def mock_config():
-    return ProxmoxConfig(
+    return ProxmoxSettings(
         url='http://fake-url.com',
         port=8006,
         realm='pam',

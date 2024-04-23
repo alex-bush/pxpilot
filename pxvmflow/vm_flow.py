@@ -1,8 +1,8 @@
 import warnings
 
 from pxvmflow.logging_config import LOGGER
-from config import ConfigManager
-from executor import Executor
+from pxvmflow.config import ConfigManager
+from pxvmflow.executor import Executor
 from pxvmflow.host_validator import HostValidator
 from pxvmflow.notifications import NotificationManager
 from pxvmflow.pxtool import ProxmoxClient
@@ -16,13 +16,16 @@ def main():
         LOGGER.info("Config loaded.")
 
         notification_manager = None
-        if app_config.notification_options is not None and len(app_config.notification_options) > 0:
-            notification_manager = NotificationManager(app_config.notification_options)
+        if app_config.notification_settings is not None and len(app_config.notification_settings) > 0:
+            notification_manager = NotificationManager(app_config.notification_settings)
 
-        px_client = ProxmoxClient(host=app_config.url, port=app_config.port, user=app_config.user,
-                                  realm=app_config.realm, password=app_config.password, verify_ssl=app_config.verify_ssl)
+        px_client = ProxmoxClient(host=app_config.proxmox_config.url, port=app_config.proxmox_config.port,
+                                  user=app_config.proxmox_config.user, realm=app_config.proxmox_config.realm,
+                                  password=app_config.proxmox_config.password,
+                                  verify_ssl=app_config.proxmox_config.verify_ssl)
 
-        executor = Executor(px_client, app_config.start_options, HostValidator(), notification_manager)
+        executor = Executor(px_client, app_config.proxmox_config.start_options, app_config.app_settings,
+                            HostValidator(), notification_manager)
         executor.start()
 
         if notification_manager is not None:

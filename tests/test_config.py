@@ -4,7 +4,7 @@ from unittest.mock import patch, mock_open
 import yaml
 from yaml.parser import ParserError
 
-from pxvmflow.config import ConfigManager, ValidationType, HealthCheckOptions, ProxmoxConfig
+from pxvmflow.config import ConfigManager, ValidationType, HealthCheckOptions, ProxmoxSettings
 
 
 def test_successful_load():
@@ -29,7 +29,7 @@ vms:
     with patch("builtins.open", mock_open(read_data=test_yaml_content)):
         with patch("yaml.safe_load", return_value=yaml.safe_load(test_yaml_content)):
             config = ConfigManager().load("fake_path")
-            assert isinstance(config, ProxmoxConfig)
+            assert isinstance(config, ProxmoxSettings)
             assert config.url == 'http://example.com'
             assert len(config.start_options) == 1
             assert config.start_options[0].healthcheck.check_method == ValidationType.PING

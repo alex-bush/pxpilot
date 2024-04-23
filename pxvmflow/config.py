@@ -65,7 +65,7 @@ class VMStartOptions:
 
 
 @dataclass
-class ProxmoxConfig:
+class ProxmoxSettings:
     """
     Contains the configuration for connecting and managing a Proxmox server environment.
 
@@ -91,17 +91,29 @@ class ProxmoxConfig:
     verify_ssl: bool
 
     start_options: List[VMStartOptions] = field(default_factory=list)
-    notification_options: List[Dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
-class NotificationOptions:
+class NotificationSettings:
     token: str
     chat_id: int | str
 
 
+@dataclass
+class AppSettings:
+    auto_start_dependency: bool = False
+    auto_shutdown: bool = False
+
+
+@dataclass
+class AppConfig:
+    app_settings: AppSettings
+    proxmox_config: ProxmoxSettings
+    notification_settings: List[Dict[str, Any]] = field(default_factory=list)
+
+
 class ConfigManager:
-    def load(self, file_path: str) -> Optional[ProxmoxConfig]:
+    def load(self, file_path: str) -> Optional[AppConfig]:
         """Load configuration from a YAML file into a ProxmoxConfig object."""
 
         def load_yaml_config(path: str) -> Dict[str, Any]:
@@ -125,7 +137,7 @@ class ConfigManager:
                 )
             return None
 
-        def parse_notification_parameters(notification_data: Dict[str, Any]) -> Dict[str, Any]:
+        def parse_notification_parameters(notification_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             return notification_data
 
         try:
@@ -134,9 +146,11 @@ class ConfigManager:
             LOGGER.exception("Failed to parse configuration file: %s", e)
             return None
 
-        app_config = ProxmoxConfig(**config_data["proxmox_config"])
+        proxmox_config = ProxmoxSettings(**config_data["proxmox_config"])
 
-        app_config.notification_options = parse_notification_parameters(config_data["notification_options"])
+        settings = AppSettings(**config_data["settings"])
+
+        notification_settings = parse_notification_parameters(config_data["notification_options"])
 
         vms = []
         for vm_data in config_data["vms"]:
@@ -154,6 +168,8 @@ class ConfigManager:
             )
             vms.append(vm)
 
-        app_config.start_options = vms
+        proxmox_config.start_options = vms
 
-        return app_config
+        app_settings = AppConfig(app_settings=settings, proxmox_config=proxmox_config, notification_settings=notification_settings)
+
+        return app_settings

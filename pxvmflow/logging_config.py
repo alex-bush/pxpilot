@@ -1,6 +1,6 @@
 import logging
 import sys
-from notifications import log
+from .notifications import log
 
 
 def setup_logging():

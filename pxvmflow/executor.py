@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum, auto
 from typing import List, Optional
 
-from pxvmflow.config import HealthCheckOptions, VMStartOptions
+from pxvmflow.config import HealthCheckOptions, VMStartOptions, AppSettings
 from pxvmflow.consts import VMType, VMState, STATUS_POLL_INTERVAL
 from pxvmflow.exceptions import UnknownHealthcheckError, ProxmoxError
 from pxvmflow.logging_config import LOGGER
@@ -38,7 +38,7 @@ class Executor:
     """
 
     def __init__(self, proxmox_client: ProxmoxClient, start_options: [VMStartOptions],
-                 host_validator: HostValidator = None,
+                 settings: AppSettings, host_validator: HostValidator = None,
                  notification_manager: NotificationManager = None):
         """
         Initializes the Executor with necessary components.
@@ -54,6 +54,7 @@ class Executor:
         self._start_options = start_options
         self._notification_manager = notification_manager
         self._host_validator = host_validator
+        self._settings = settings
 
     def start(self):
         """
@@ -68,7 +69,7 @@ class Executor:
             raise AttributeError("proxmox client is not set")
 
         if self._notification_manager is not None:
-            self._notification_manager.start(datetime.now())
+            self._notification_manager.start(self._px_client.px_get("nodes")[0]["node"], datetime.now())
 
         px_vms = self.get_all_vm(self._px_client.px_get("nodes")[0]["node"])
 
@@ -139,31 +140,56 @@ class Executor:
                 flow_item.status = StartStatus.ALREADY_STARTED
                 continue
 
-            LOGGER.debug(f"VM ID [{vm_to_start.vm_id}]: Starting virtual machine.")
-            start_time = datetime.now()
-            flow_item.status = StartStatus.STARTING
-            self.start_vm(vm_to_start)
+            ready_to_go = True
+            if len(start_item.dependencies) > 0:
+                deps = dict([(item.vm_id, False) for item in vm_flow_items if item.vm_id in start_item.dependencies])
+                for f in [item for item in vm_flow_items if item.vm_id in start_item.dependencies]:
+                    if self.get_status(f.vm_info) == VMState.STOPPED:
+                        if self._settings.auto_start_dependency:
+                            LOGGER.info(f"VM ID [{vm_to_start.vm_id}]: Going to start dependency [{f.vm_id}].")
+                            self.start_and_wait(f)
+                            if f.status == StartStatus.STARTED:
+                                deps[f.vm_id] = True
+                        else:
+                            LOGGER.warn(f"VM ID [{vm_to_start.vm_id}]: dependency [{f.vm_id}] is not running! Start is aborted.")
+                            #ready_to_go = False
+                            continue
+                    else:
+                        LOGGER.warn(f"VM ID [{vm_to_start.vm_id}]: dependency [{f.vm_id}] is running. Continue to start.")
 
-            flag = True
-            while flag:
-                end_time = datetime.now()
-                if self.is_running(vm_to_start, start_item.healthcheck):
-                    flag = False
-                    end_time = datetime.now()
-                    self.notification_log(flow_item, "started", end_time, end_time - start_time)
+                if not all(deps.values()):
+                    ready_to_go = False
 
-                    LOGGER.info(f"VM [{vm_to_start.vm_id}]: Virtual machine successfully started.")
-                elif start_item.startup_parameters is not None and (
-                        end_time - start_time).seconds > start_item.startup_parameters.startup_timeout:
-                    flow_item.status = StartStatus.TIMEOUT
-                    self.notification_log(flow_item, "timeout", end_time, end_time - start_time)
-                    flag = False
+            if ready_to_go:
+                self.start_and_wait(flow_item)
+            else:
+                LOGGER.warn(f"VM ID [{vm_to_start.vm_id}]: something gone wrong, Not ready to go.")
 
-                    LOGGER.warn("Timeout exceed")
-                else:
-                    LOGGER.info(f"VM [{vm_to_start.vm_id}]: The host is not yet available. Waiting...")
-
-                time.sleep(STATUS_POLL_INTERVAL)
+            # LOGGER.debug(f"VM ID [{vm_to_start.vm_id}]: Starting virtual machine.")
+            # start_time = datetime.now()
+            # flow_item.status = StartStatus.STARTING
+            # self.start_vm(vm_to_start)
+            #
+            # flag = True
+            # while flag:
+            #     end_time = datetime.now()
+            #     if self.is_running(vm_to_start, start_item.healthcheck):
+            #         flag = False
+            #         end_time = datetime.now()
+            #         self.notification_log(flow_item, "started", end_time, end_time - start_time)
+            #
+            #         LOGGER.info(f"VM [{vm_to_start.vm_id}]: Virtual machine successfully started.")
+            #     elif start_item.startup_parameters is not None and (
+            #             end_time - start_time).seconds > start_item.startup_parameters.startup_timeout:
+            #         flow_item.status = StartStatus.TIMEOUT
+            #         self.notification_log(flow_item, "timeout", end_time, end_time - start_time)
+            #         flag = False
+            #
+            #         LOGGER.warn("Timeout exceed")
+            #     else:
+            #         LOGGER.info(f"VM [{vm_to_start.vm_id}]: The host is not yet available. Waiting...")
+            #
+            #     time.sleep(STATUS_POLL_INTERVAL)
 
     def is_running(self, vm: ProxmoxVMInfo, hc: HealthCheckOptions) -> bool:
         """
@@ -197,6 +223,40 @@ class Executor:
         """ Return current running status of VM """
 
         return self._px_client.get_status(vm.node, vm.vm_type, vm.vm_id)["status"]
+
+    def start_and_wait(self, flow_item):
+        LOGGER.debug(f"VM ID [{flow_item.vm_id}]: Starting virtual machine.")
+
+        vm_to_start = flow_item.vm_info
+        start_item = flow_item.start_options
+
+        start_time = datetime.now()
+        flow_item.status = StartStatus.STARTING
+
+        self.start_vm(vm_to_start)
+
+        flag = True
+        while flag:
+            end_time = datetime.now()
+            if self.is_running(vm_to_start, start_item.healthcheck):
+                flag = False
+                end_time = datetime.now()
+                self.notification_log(flow_item, "started", end_time, end_time - start_time)
+                flow_item.status = StartStatus.STARTED
+
+                LOGGER.info(f"VM [{vm_to_start.vm_id}]: Virtual machine successfully started.")
+            elif start_item.startup_parameters is not None and (
+                    end_time - start_time).seconds > start_item.startup_parameters.startup_timeout:
+                flag = False
+                self.notification_log(flow_item, "timeout", end_time, end_time - start_time)
+
+                flow_item.status = StartStatus.TIMEOUT
+
+                LOGGER.warn("Timeout exceed")
+            else:
+                LOGGER.info(f"VM [{vm_to_start.vm_id}]: The host is not yet available. Waiting...")
+
+            time.sleep(STATUS_POLL_INTERVAL)
 
     def start_vm(self, vm: ProxmoxVMInfo) -> None:
         """

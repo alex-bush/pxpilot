@@ -12,13 +12,13 @@ class NotificationManager:
         self._notifiers = [self._create_notifier(n) for n in config]
         self._message_notifier_map = {n.get_message(): n for n in self._notifiers}
 
-    def start(self, start_time: datetime):
+    def start(self, name, start_time: datetime):
         """
 
         :param start_time:
         """
         for message in self._message_notifier_map.keys():
-            msg = f"{ROCKET_SYMBOL} *Proxmox VMs Startup Summary*\n Start Time: _{start_time.strftime("%d-%b-%Y %H:%M:%S")}_\n\n"
+            msg = f"{ROCKET_SYMBOL} *Proxmox VMs Startup Summary: [{name}] *\n Start Time: _{start_time.strftime("%d-%b-%Y %H:%M:%S")}_\n\n"
             message.append(msg)
 
     def append_status(self, vm_type, vm_id, vm_name, vm_status, start_time, duration: timedelta):

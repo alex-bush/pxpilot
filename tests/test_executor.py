@@ -1,9 +1,9 @@
 import pytest
 from unittest.mock import Mock, patch
 
-from pxvmflow.config import *
-from pxvmflow.executor import Executor
-from pxvmflow.consts import VMType
+from pxpilot.config import *
+from pxpilot.executor import Executor
+from pxpilot.consts import VMType
 
 
 @pytest.fixture
@@ -33,7 +33,7 @@ class TestExecutor:
 
     @pytest.fixture
     def mock_px_client(self):
-        with patch('pxvmflow.pxtool.ProxmoxClient', autospec=True) as mock:
+        with patch('pxpilot.pxtool.ProxmoxClient', autospec=True) as mock:
             yield mock
 
     def test_init(self, executor):

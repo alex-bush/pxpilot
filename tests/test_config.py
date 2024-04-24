@@ -4,7 +4,7 @@ from unittest.mock import patch, mock_open
 import yaml
 from yaml.parser import ParserError
 
-from pxvmflow.config import ConfigManager, ValidationType, HealthCheckOptions, ProxmoxSettings
+from pxpilot.config import ConfigManager, ValidationType, HealthCheckOptions, ProxmoxSettings
 
 
 def test_successful_load():
@@ -38,7 +38,7 @@ vms:
 def test_yaml_parse_error():
     with patch("builtins.open", mock_open(read_data="invalid_yaml: :")):
         with patch("yaml.safe_load", side_effect=ParserError):
-            #with patch("pxvmflow. logging_config") as mock_logger:
+            #with patch("pxpilot. logging_config") as mock_logger:
             config = ConfigManager().load("fake_path")
             assert config is None
                 #mock_logger.exception.assert_called_once()

@@ -1,11 +1,11 @@
 import warnings
 
-from pxvmflow.logging_config import LOGGER
-from pxvmflow.config import ConfigManager
-from pxvmflow.executor import Executor
-from pxvmflow.host_validator import HostValidator
-from pxvmflow.notifications import NotificationManager
-from pxvmflow.pxtool import ProxmoxClient
+from pxpilot.logging_config import LOGGER
+from pxpilot.config import ConfigManager
+from pxpilot.executor import Executor
+from pxpilot.host_validator import HostValidator
+from pxpilot.notifications import NotificationManager
+from pxpilot.pxtool import ProxmoxClient
 
 warnings.filterwarnings("ignore")
 

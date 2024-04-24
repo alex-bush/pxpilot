@@ -1,9 +1,9 @@
 from distutils.core import setup
 
 setup(
-    name='pxvmflow',
+    name='pxpilot',
     version='',
-    packages=['tests', 'pxvmflow', 'pxvmflow.pxtool', 'pxvmflow.notifications'],
+    packages=['tests', 'pxpilot', 'pxpilot.pxtool', 'pxpilot.notifications'],
     url='',
     license='',
     author='termit',

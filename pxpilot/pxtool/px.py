@@ -3,8 +3,8 @@ from dataclasses import dataclass
 import proxmoxer
 from proxmoxer import ProxmoxAPI, ResourceException
 
-from pxvmflow.consts import ProxmoxCommand, VMType
-from pxvmflow.exceptions import ProxmoxError
+from pxpilot.consts import ProxmoxCommand, VMType
+from pxpilot.exceptions import ProxmoxError
 
 __all__ = ["ProxmoxVMInfo", "ProxmoxClient"]
 

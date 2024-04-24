@@ -142,7 +142,7 @@ class Executor:
 
             ready_to_go = True
             if len(start_item.dependencies) > 0:
-                deps = dict([(item.vm_id, False) for item in vm_flow_items if item.vm_id in start_item.dependencies])
+                deps = {item.vm_id: False for item in vm_flow_items if item.vm_id in start_item.dependencies}
                 for f in [item for item in vm_flow_items if item.vm_id in start_item.dependencies]:
                     if self.get_status(f.vm_info) == VMState.STOPPED:
                         if self._settings.auto_start_dependency:

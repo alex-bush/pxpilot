@@ -4,13 +4,13 @@ from datetime import datetime
 from enum import Enum, auto
 from typing import List, Optional
 
-from pxvmflow.config import HealthCheckOptions, VMStartOptions, AppSettings
-from pxvmflow.consts import VMType, VMState, STATUS_POLL_INTERVAL
-from pxvmflow.exceptions import UnknownHealthcheckError, ProxmoxError
-from pxvmflow.logging_config import LOGGER
-from pxvmflow.notifications import NotificationManager
-from pxvmflow.pxtool import *
-from pxvmflow.host_validator import HostValidator
+from pxpilot.config import HealthCheckOptions, VMStartOptions, AppSettings
+from pxpilot.consts import VMType, VMState, STATUS_POLL_INTERVAL
+from pxpilot.exceptions import UnknownHealthcheckError, ProxmoxError
+from pxpilot.logging_config import LOGGER
+from pxpilot.notifications import NotificationManager
+from pxpilot.pxtool import *
+from pxpilot.host_validator import HostValidator
 
 
 class StartStatus(Enum):
@@ -142,7 +142,7 @@ class Executor:
 
             ready_to_go = True
             if len(start_item.dependencies) > 0:
-                deps = dict([(item.vm_id, False) for item in vm_flow_items if item.vm_id in start_item.dependencies])
+                deps = {item.vm_id: False for item in vm_flow_items if item.vm_id in start_item.dependencies}
                 for f in [item for item in vm_flow_items if item.vm_id in start_item.dependencies]:
                     if self.get_status(f.vm_info) == VMState.STOPPED:
                         if self._settings.auto_start_dependency:

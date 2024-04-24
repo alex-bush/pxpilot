@@ -4,7 +4,7 @@ from .notifications import log
 
 
 def setup_logging():
-    logger = logging.getLogger('pxvmflow')
+    logger = logging.getLogger('pxpilot')
     logger.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')

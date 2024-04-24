@@ -6,7 +6,7 @@ from typing import Dict, Any
 
 from yaml.parser import ParserError
 
-from pxvmflow.logging_config import LOGGER
+from pxpilot.logging_config import LOGGER
 
 
 class ValidationType(Enum):

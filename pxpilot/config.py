@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional
-import yaml
 from typing import Dict, Any
+from typing import List, Optional
 
+import yaml
 from yaml.parser import ParserError
 
 from pxpilot.logging_config import LOGGER

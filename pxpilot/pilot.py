@@ -1,9 +1,9 @@
 import warnings
 
-from pxpilot.logging_config import LOGGER
 from pxpilot.config import ConfigManager
 from pxpilot.executor import Executor
 from pxpilot.host_validator import HostValidator
+from pxpilot.logging_config import LOGGER
 from pxpilot.notifications import NotificationManager
 from pxpilot.pxtool import ProxmoxClient
 

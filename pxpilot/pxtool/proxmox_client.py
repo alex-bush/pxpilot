@@ -2,9 +2,9 @@ import proxmoxer
 from proxmoxer import ProxmoxAPI, ResourceException
 
 from .models import ProxmoxCommand, VMType, VirtualMachine, VMState
-from pxpilot.exceptions import ProxmoxError
+from .exceptions import ProxmoxError
 
-from pxpilot.pxtool.models import ProxmoxVMFields
+from .models import ProxmoxVMFields
 from .vm_service import VMService
 
 

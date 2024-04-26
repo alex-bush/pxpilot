@@ -3,7 +3,7 @@ from typing import List
 
 from pxpilot.config import VMLaunchSettings, AppSettings
 from pxpilot.models import VMContext, StartStatus
-from pxpilot.exceptions import ProxmoxError
+from pxpilot.pxtool.exceptions import ProxmoxError
 from pxpilot.logging_config import LOGGER
 from pxpilot.notifications import NotificationManager
 from pxpilot.pxtool import VMService

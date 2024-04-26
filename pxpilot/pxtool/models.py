@@ -1,6 +1,11 @@
+from dataclasses import dataclass
 from enum import StrEnum
 
-STATUS_POLL_INTERVAL = 2
+
+class ProxmoxVMFields:
+    VM_ID = "vmid"
+    VM_NAME = "name"
+    VM_STATUS = "status"
 
 
 class VMType(StrEnum):
@@ -27,6 +32,15 @@ class VMState(StrEnum):
 
     RUNNING = "running"
     STOPPED = "stopped"
+
+
+@dataclass
+class VirtualMachine:
+    vm_id: int
+    vm_type: VMType
+    name: str
+    status: VMState
+    node: str
 
 
 class ProxmoxCommand(StrEnum):

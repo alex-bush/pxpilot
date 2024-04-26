@@ -1,3 +1,6 @@
-from pxpilot.pxtool.px import ProxmoxVMInfo, ProxmoxClient
+from pxpilot.pxtool.proxmox_client import VirtualMachine, ProxmoxClient
+from pxpilot.pxtool.vm_service import VMService
 
-__all__ = ["ProxmoxVMInfo", "ProxmoxClient"]
+__all__ = ["VMService", "VirtualMachine", "ProxmoxClient"]
+
+

@@ -12,28 +12,37 @@ class NotificationManager:
         self._notifiers = [self._create_notifier(n) for n in config]
         self._message_notifier_map = {n.get_message(): n for n in self._notifiers}
 
-    def start(self, name, start_time: datetime):
-        """
-
-        :param start_time:
-        """
+    def start(self, node_name, start_time: datetime):
         for message in self._message_notifier_map.keys():
-            msg = f"{ROCKET_SYMBOL} *Proxmox VMs Startup Summary: [{name}] *\n Start Time: _{start_time.strftime('%d-%b-%Y %H:%M:%S')}_\n\n"
+            msg = f"{ROCKET_SYMBOL} [{node_name}] *Proxmox VMs Startup Summary* _{start_time.strftime('%d-%b-%Y %H:%M:%S')}_\n\n"
             message.append(msg)
 
     def append_status(self, vm_type, vm_id, vm_name, vm_status, start_time, duration: timedelta):
-        if vm_status == "started":
-            status_icon = CHECK_MARK_SYMBOL
-            duration_str = f"{duration.seconds} seconds"
-            status_str = "Successfully started"
-        elif vm_status == "timeout":
-            status_icon = CROSS_SIGN_SYMBOL
-            duration_str = f"{duration.seconds} seconds"
-            status_str = "Timeout"
-        else:
-            status_icon = BLUE_CIRCLE_SYMBOL
-            duration_str = f"Already running"
-            status_str = "No action needed"
+
+        status_icon = CHECK_MARK_SYMBOL
+        duration_str = f"{duration.seconds} seconds"
+        status_str = "Successfully started"
+
+        match vm_status:
+            case "timeout":
+                status_icon = CROSS_SIGN_SYMBOL
+                duration_str = f"{duration.seconds} seconds"
+                status_str = "Timeout"
+
+            case "already_started":
+                status_icon = BLUE_CIRCLE_SYMBOL
+                duration_str = f"Already running"
+                status_str = "No action needed"
+
+            case "dependency_failed":
+                status_icon = FORBIDDEN_SIGN_SYMBOL
+                duration_str = f"Dependency is not running"
+                status_str = "Not started"
+
+            case "disabled":
+                status_icon = WARNING_SIGN_SYMBOL
+                duration_str = f"Disabled in settings"
+                status_str = "No action needed"
 
         msg = f"{DIGITS_SYMBOLS[self._status_count]} *{vm_type} {vm_id} ({vm_name})*:\n"
         msg += f"    - Start time: _{start_time.strftime('%H:%M:%S')}_\n"

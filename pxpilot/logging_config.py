@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from .notifications import log
+from .notifications import log as notifications_log
 
 
 def setup_logging():
@@ -16,7 +16,7 @@ def setup_logging():
 
     logger.addHandler(stream_handler)
 
-    log.setup_logging(stream_handler)
+    notifications_log.setup_logging(stream_handler)
 
     logging.getLogger('requests').setLevel(logging.WARNING)
 

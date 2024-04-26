@@ -10,15 +10,28 @@ class NotificationManager:
     def __init__(self, config):
         self._status_count = 0
         self._notifiers = [self._create_notifier(n) for n in config]
-        self._message_notifier_map = {n.get_message(): n for n in self._notifiers}
+        self._message_notifier_map = {n.create_message(): n for n in self._notifiers}
 
     def start(self, node_name, start_time: datetime):
+        """
+        Initialize the notification messages with the start summary.
+        :param node_name: name of the node where VMs are hosted.
+        :param start_time: start time of the starting VM.
+        """
         for message in self._message_notifier_map.keys():
             msg = f"{ROCKET_SYMBOL} [{node_name}] *Proxmox VMs Startup Summary* _{start_time.strftime('%d-%b-%Y %H:%M:%S')}_\n\n"
             message.append(msg)
 
     def append_status(self, vm_type, vm_id, vm_name, vm_status, start_time, duration: timedelta):
-
+        """
+        Append a status update for a VM to all notification messages.
+        :param vm_type: type of the VM (e.g., QEMU, LXC).
+        :param vm_id: identifier of the VM.
+        :param vm_name: name of the VM.
+        :param vm_status: current status of the VM (e.g., 'running', 'stopped').
+        :param start_time: start time of the VM operation.
+        :param duration: duration of the operation.
+        """
         status_icon = CHECK_MARK_SYMBOL
         duration_str = f"{duration.seconds} seconds"
         status_str = "Successfully started"

@@ -10,7 +10,7 @@ class VMService(Protocol):
     def start_vm(self, vm: VirtualMachine) -> None:
         pass
 
-    def stop_sm(self, vm: VirtualMachine) -> None:
+    def stop_vm(self, vm: VirtualMachine) -> None:
         pass
 
     def get_all_vms(self, node: str | None = None) -> dict[int, VirtualMachine]:

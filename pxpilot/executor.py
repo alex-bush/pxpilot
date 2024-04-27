@@ -135,16 +135,15 @@ class Executor:
             sos.append(si)
         return sos
 
-    def clean_up(self, start_options: List[VMContext]) -> None:
-        for start_item in start_options:
-            if start_item.vm_launch_settings is None or start_item.vm_info is None:
+    def clean_up(self, vm_contexts: List[VMContext]) -> None:
+        for vm in vm_contexts:
+            if vm.vm_launch_settings is None or vm.vm_info is None:
                 continue
 
-            LOGGER.debug(f"VM [{start_item.vm_id}]: Shutdown.")
+            LOGGER.debug(f"VM [{vm.vm_id}]: Shutdown.")
 
-            vm_to_start = start_item.vm_info
             try:
-                self._vm_service.stop_vm(vm_to_start.node, vm_to_start.vm_type, vm_to_start.vm_id)
+                self._vm_service.stop_vm(vm.vm_info)
             except ProxmoxError as ex:
                 LOGGER.warn(f"Error occurred during stop vm: {ex}")
 

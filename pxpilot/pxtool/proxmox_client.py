@@ -89,8 +89,8 @@ class ProxmoxClient(VMService):
 
         return vms
 
-    def stop_vm(self, node, vm_type, vm_id):
-        self._px_post(f"nodes/{node}/{vm_type}/{vm_id}/status/{ProxmoxCommand.SHUTDOWN}")
+    def stop_vm(self, vm: VirtualMachine):
+        self._px_post(f"nodes/{vm.node}/{vm.vm_type}/{vm.vm_id}/status/{ProxmoxCommand.SHUTDOWN}")
 
     def _px_get(self, command):
         """ Execute GET request using proxmoxer """

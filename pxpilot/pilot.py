@@ -20,7 +20,7 @@ def build_executor(app_config, notification_manager) -> Executor:
     starter = VMStarter(px_client, HostValidator())
 
     executor = Executor(px_client, app_config.proxmox_config.start_options, app_config.app_settings,
-                        starter, notification_manager)
+                        starter, notification_manager, False)
 
     return executor
 
@@ -38,7 +38,7 @@ def main():
         executor.start()
 
         if notification_manager is not None:
-            LOGGER.debug("Notification Manager is non None. Try to send notifications")
+            LOGGER.debug("Send notifications...")
 
             notification_manager.send()
 

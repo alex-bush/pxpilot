@@ -19,7 +19,7 @@ class Executor:
 
     def __init__(self, vm_service: VMService, start_options: [VMLaunchSettings],
                  settings: AppSettings, starter: VMStarter = None,
-                 notification_manager: NotificationManager = None):
+                 notification_manager: NotificationManager = None, is_debug=False):
         """
         Initializes the Executor with necessary components.
 
@@ -31,50 +31,60 @@ class Executor:
         """
 
         self._vm_service = vm_service
-        self.launch_settings_list = start_options
+        self._launch_settings_list = start_options
         self._notification_manager = notification_manager
         self._app_settings = settings
         self._vm_starter = starter
-        self._is_debug = True
+        self._is_debug = is_debug
 
     def start(self):
         """
         Starts the execution process for all enabled VMs as specified in the start options.
         """
+        LOGGER.debug("Start.")
 
-        if len(self.launch_settings_list) == 0 or sum(1 for item in self.launch_settings_list if item.enabled) == 0:
+        if len(self._launch_settings_list) == 0 or sum(1 for item in self._launch_settings_list if item.enabled) == 0:
             LOGGER.info(F"There is no available virtual machine to start in configuration. Exiting...")
             return
 
         if self._vm_service is None:
             raise AttributeError("proxmox client is not set")
 
-        #default_node = self._vm_service._px_get("nodes")[0]["node"]  # cousing an issue in case of cluster
         if self._notification_manager is not None:
-            self._notification_manager.start("defaultnode", datetime.now())
+            self._notification_manager.start(datetime.now())
 
         proxmox_vms = self._vm_service.get_all_vms()
-        LOGGER.debug(f"Found {len(proxmox_vms)} virtual machines.")
+        LOGGER.debug(f"Found {len(proxmox_vms)} virtual machines: {proxmox_vms}")
 
-        vm_context_list = self.get_vms_to_start(self.launch_settings_list, proxmox_vms)
-        LOGGER.debug(f"Found {len(vm_context_list)} start VM options.")
+        vm_context_list = self.get_vms_to_start(self._launch_settings_list, proxmox_vms)
+        LOGGER.debug(f"Loaded {len(vm_context_list)} start VM options.")
 
         self.main_loop(vm_context_list)
+        LOGGER.debug(f"{vm_context_list}")
 
         if self._is_debug:
             self.clean_up(vm_context_list)
 
+        if self._app_settings.auto_shutdown:
+            self.self_shutdown(self._app_settings.self_host)
+
     def main_loop(self, vm_context_list: List[VMContext]) -> None:
-        for vm_context in vm_context_list:
+        for vm_context in (vm_context for vm_context in vm_context_list
+                           if vm_context.vm_launch_settings is not None):
+            LOGGER.debug(f"VM ID [{vm_context.vm_id}]: begin.")
             duration = 0
 
             ready_to_go = self.is_ready_to_go(vm_context, vm_context_list)
+            LOGGER.debug(f"Ready to go: {ready_to_go}.")
             if ready_to_go == StartStatus.DEPENDENCY_FAILED:
+                LOGGER.debug(f"VM ID [{vm_context.vm_id}]: dependency failed.")
                 self.notification_log(vm_context, "dependency_failed", datetime.now(), duration)
                 continue
             elif ready_to_go == StartStatus.INFO_MISSED:
+                LOGGER.debug(f"VM ID [{vm_context.vm_id}]: VM not found on Proxmox.")
                 continue
             elif ready_to_go == StartStatus.ALREADY_STARTED:
+                LOGGER.debug(f"VM ID [{vm_context.vm_id}]: complete.")
                 self.notification_log(vm_context, "already_started", datetime.now(), 0)
                 continue
 
@@ -93,6 +103,8 @@ class Executor:
                 case StartStatus.DISABLED:
                     self.notification_log(vm_context, "disabled", start_result.start_time, duration)
 
+            LOGGER.debug(f"VM ID [{vm_context.vm_id}]: complete.")
+
     def is_ready_to_go(self, vm_context: VMContext, vm_context_list: List[VMContext]) -> StartStatus:
         if vm_context.vm_info is None or vm_context.vm_launch_settings is None:
             return StartStatus.INFO_MISSED
@@ -101,10 +113,12 @@ class Executor:
             return StartStatus.ALREADY_STARTED
 
         if len(vm_context.vm_launch_settings.dependencies) > 0:
-            deps = {item.vm_id: False for item in vm_context_list if item.vm_id in vm_context.vm_launch_settings.dependencies}
+            deps = {}
 
-            for dep_vm_context in [item for item in vm_context_list if item.vm_id in vm_context.vm_launch_settings.dependencies]:
-                if self._vm_starter.check_healthcheck(dep_vm_context) == VMState.RUNNING:
+            for dep_vm_context in [item for item in vm_context_list if
+                                   item.vm_id in vm_context.vm_launch_settings.dependencies]:
+                dep_status = self._vm_starter.check_healthcheck(dep_vm_context)
+                if dep_status:
                     LOGGER.debug(f"VM ID [{vm_context.vm_id}]: dependency [{dep_vm_context.vm_id}] is running.")
                     deps[dep_vm_context.vm_id] = True
                 else:
@@ -136,6 +150,7 @@ class Executor:
         return sos
 
     def clean_up(self, vm_contexts: List[VMContext]) -> None:
+        LOGGER.debug("Cleaning up - shutdown all started vms.")
         for vm in vm_contexts:
             if vm.vm_launch_settings is None or vm.vm_info is None:
                 continue
@@ -150,4 +165,12 @@ class Executor:
     def notification_log(self, flow_item: VMContext, status, start_time, duration):
         if self._notification_manager is not None:
             self._notification_manager.append_status(flow_item.vm_info.vm_type, flow_item.vm_id,
-                                                     flow_item.vm_info.name, status, start_time, duration)
+                                                     f"{flow_item.vm_info.node}: {flow_item.vm_info.name}", status,
+                                                     start_time, duration)
+
+    def self_shutdown(self, target):
+        LOGGER.debug(f"VM [{target["vm_id"]}]: Shutdown.")
+        try:
+            self._vm_service.stop_vm(VirtualMachine(vm_id=target["vm_id"], vm_type=target["type"], name="", status=None, node=target["node"]))
+        except ProxmoxError as ex:
+            LOGGER.warn(f"Error occurred during stop vm: {ex}")

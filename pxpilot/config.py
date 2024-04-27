@@ -103,6 +103,7 @@ class NotificationSettings:
 class AppSettings:
     auto_start_dependency: bool = False
     auto_shutdown: bool = False
+    self_host: Optional[Dict[str, Any]] = None
 
 
 @dataclass

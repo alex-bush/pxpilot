@@ -1,8 +1,7 @@
 import time
 from datetime import datetime
 
-from .models import VMContext, StartResult
-from .executor import StartStatus
+from .models import VMContext, StartResult, StartStatus
 from .host_validator import HostValidator, UnknownHealthcheckError
 from .logging_config import LOGGER
 from .pxtool.models import VMState

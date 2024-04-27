@@ -7,7 +7,7 @@ from pxpilot.pxtool.exceptions import ProxmoxError
 from pxpilot.logging_config import LOGGER
 from pxpilot.notifications import NotificationManager
 from pxpilot.pxtool import VMService
-from pxpilot.pxtool.models import VirtualMachine, VMState
+from pxpilot.pxtool.models import VirtualMachine
 from pxpilot.vm_starter import VMStarter
 
 

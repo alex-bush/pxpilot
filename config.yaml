@@ -10,7 +10,11 @@ proxmox_config:
 
 settings:
   auto_start_dependency: false
-  auto_shutdown: false
+  auto_shutdown: true
+  self_host:
+    vm_id: 100
+    node: "px-test"
+    type: "lxc"
 
 notification_options:
   - telegram:

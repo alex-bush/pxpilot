@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional
-import yaml
 from typing import Dict, Any
+from typing import List, Optional
 
+import yaml
 from yaml.parser import ParserError
 
 from pxpilot.logging_config import LOGGER
@@ -43,7 +43,7 @@ class StartupParameters:
 
 
 @dataclass
-class VMStartOptions:
+class VMLaunchSettings:
     """
     Represents configuration options for initializing a VM or container on a Proxmox node.
 
@@ -78,7 +78,7 @@ class ProxmoxSettings:
         user (str): Username used for server authentication.
         password (str): Password for the user account.
         verify_ssl (bool): If True, SSL certificate verification is performed during connection. Defaults to False.
-        start_options (List[VMStartOptions]): A list of VM start configurations to be managed.
+        start_options (List[VMLaunchSettings]): A list of VM start configurations to be managed.
     """
 
     url: str
@@ -90,7 +90,7 @@ class ProxmoxSettings:
     password: str
     verify_ssl: bool
 
-    start_options: List[VMStartOptions] = field(default_factory=list)
+    start_options: List[VMLaunchSettings] = field(default_factory=list)
 
 
 @dataclass
@@ -103,6 +103,7 @@ class NotificationSettings:
 class AppSettings:
     auto_start_dependency: bool = False
     auto_shutdown: bool = False
+    self_host: Optional[Dict[str, Any]] = None
 
 
 @dataclass
@@ -161,7 +162,7 @@ class ConfigManager:
             healthcheck = parse_healthcheck(healthcheck_data)
             startup_parameters = parse_startup_parameters(startup_data)
 
-            vm = VMStartOptions(
+            vm = VMLaunchSettings(
                 **vm_data,
                 healthcheck=healthcheck,
                 startup_parameters=startup_parameters

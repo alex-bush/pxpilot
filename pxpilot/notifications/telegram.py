@@ -11,10 +11,12 @@ class TelegramMessage(NotificationMessage):
 
 
 class TelegramNotifier(Notifier):
+    """ Implements the Notifier protocol to send notifications via Telegram. """
+
     def __init__(self, config):
         self._config = config
 
-    def get_message(self) -> NotificationMessage:
+    def create_message(self) -> NotificationMessage:
         return TelegramMessage()
 
     def send(self, notification_message: NotificationMessage):
@@ -32,7 +34,11 @@ class TelegramNotifier(Notifier):
             case 401:
                 LOGGER.warn("Cannot access to noti")
 
-    def _escape(self, text):
+    @staticmethod
+    def _escape(text):
+        """
+        Escape special characters in the text to conform to Telegram Markdown V2.
+        """
         special_chars = "[]()~`>#+-=|{}.!"
         pattern = re.compile(r'([' + re.escape(special_chars) + '])')
         return pattern.sub(r'\\\1', text)

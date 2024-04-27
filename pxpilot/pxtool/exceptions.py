@@ -1,0 +1,2 @@
+class ProxmoxError(Exception):
+    pass

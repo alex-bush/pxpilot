@@ -1,2 +1,1 @@
-class UnknownHealthcheckError(Exception):
-    pass
+

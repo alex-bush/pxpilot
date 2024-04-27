@@ -32,11 +32,12 @@ class NotificationManager:
         :param start_time: start time of the VM operation.
         :param duration: duration of the operation.
         """
-        status_icon = CHECK_MARK_SYMBOL
-        duration_str = f"{duration.seconds} seconds"
-        status_str = "Successfully started"
 
         match vm_status:
+            case "started":
+                status_icon = CHECK_MARK_SYMBOL
+                duration_str = f"{duration.seconds} seconds"
+                status_str = "Successfully started"
             case "timeout":
                 status_icon = CROSS_SIGN_SYMBOL
                 duration_str = f"{duration.seconds} seconds"

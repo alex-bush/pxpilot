@@ -49,13 +49,15 @@ class Executor:
         if self._vm_service is None:
             raise AttributeError("proxmox client is not set")
 
-        default_node = self._vm_service._px_get("nodes")[0]["node"]  # cousing an issue in case of cluster
+        #default_node = self._vm_service._px_get("nodes")[0]["node"]  # cousing an issue in case of cluster
         if self._notification_manager is not None:
-            self._notification_manager.start(default_node, datetime.now())
+            self._notification_manager.start("defaultnode", datetime.now())
 
-        proxmox_vms = self._vm_service.get_all_vms(default_node)
+        proxmox_vms = self._vm_service.get_all_vms()
+        LOGGER.debug(f"Found {len(proxmox_vms)} virtual machines.")
 
         vm_context_list = self.get_vms_to_start(self.launch_settings_list, proxmox_vms)
+        LOGGER.debug(f"Found {len(vm_context_list)} start VM options.")
 
         self.main_loop(vm_context_list)
 
@@ -95,14 +97,14 @@ class Executor:
         if vm_context.vm_info is None or vm_context.vm_launch_settings is None:
             return StartStatus.INFO_MISSED
 
-        if self._vm_starter._check_healthcheck(vm_context):
+        if self._vm_starter.check_healthcheck(vm_context):
             return StartStatus.ALREADY_STARTED
 
         if len(vm_context.vm_launch_settings.dependencies) > 0:
             deps = {item.vm_id: False for item in vm_context_list if item.vm_id in vm_context.vm_launch_settings.dependencies}
 
             for dep_vm_context in [item for item in vm_context_list if item.vm_id in vm_context.vm_launch_settings.dependencies]:
-                if self._vm_service.get_vm_status(dep_vm_context.vm_info) == VMState.RUNNING:
+                if self._vm_starter.check_healthcheck(dep_vm_context) == VMState.RUNNING:
                     LOGGER.debug(f"VM ID [{vm_context.vm_id}]: dependency [{dep_vm_context.vm_id}] is running.")
                     deps[dep_vm_context.vm_id] = True
                 else:

@@ -2,9 +2,8 @@ import time
 from datetime import datetime
 
 from .models import VMContext, StartResult
-from .exceptions import UnknownHealthcheckError
 from .executor import StartStatus
-from .host_validator import HostValidator
+from .host_validator import HostValidator, UnknownHealthcheckError
 from .logging_config import LOGGER
 from .pxtool.models import VMState
 from .pxtool.vm_service import VMService
@@ -50,7 +49,7 @@ class VMStarter:
 
         still_starting = True
         while still_starting:
-            if self._check_healthcheck(flow_item):
+            if self.check_healthcheck(flow_item):
                 LOGGER.info(f"VM [{vm_info.vm_id}]: Virtual machine successfully started.")
                 return StartResult(status=StartStatus.STARTED, start_time=start_time, end_time=datetime.now())
             elif (vm_launch_settings.startup_parameters is not None
@@ -62,7 +61,7 @@ class VMStarter:
 
             time.sleep(5)
 
-    def _check_healthcheck(self, flow_item: VMContext) -> bool:
+    def check_healthcheck(self, flow_item: VMContext) -> bool:
         hc = flow_item.vm_launch_settings.healthcheck
         vm = flow_item.vm_info
 

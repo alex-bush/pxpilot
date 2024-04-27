@@ -13,5 +13,5 @@ class VMService(Protocol):
     def stop_sm(self, vm: VirtualMachine) -> None:
         pass
 
-    def get_all_vms(self, node) -> dict[int, VirtualMachine]:
+    def get_all_vms(self, node: str | None = None) -> dict[int, VirtualMachine]:
         pass

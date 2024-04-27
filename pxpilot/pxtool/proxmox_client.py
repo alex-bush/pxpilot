@@ -52,7 +52,7 @@ class ProxmoxClient(VMService):
         status = self._px_get(f"nodes/{vm.node}/{vm.vm_type}/{vm.vm_id}/status/{ProxmoxCommand.CURRENT}")
         return VMState(status[ProxmoxVMFields.VM_STATUS])
 
-    def get_all_vms(self, node) -> dict[int, VirtualMachine]:
+    def get_all_vms(self, node: str | None = None) -> dict[int, VirtualMachine]:
         """
         Retrieves a list of all VMs from a specified node.
 
@@ -63,17 +63,29 @@ class ProxmoxClient(VMService):
             Dict[int, ProxmoxVMInfo]: Dictionary of VM information indexed by VM IDs.
         """
 
-        def fetch_entities(vm_type):
+        def fetch_by_type(vm_type, node_name):
             return [
                 VirtualMachine(vm_id=int(vm[ProxmoxVMFields.VM_ID]), vm_type=vm_type, name=vm[ProxmoxVMFields.VM_NAME],
-                               status=VMState(vm[ProxmoxVMFields.VM_STATUS]), node=node)
-                for vm in self._px_get(f"nodes/{node}/{vm_type}")]
+                               status=VMState(vm[ProxmoxVMFields.VM_STATUS]), node=node_name)
+                for vm in self._px_get(f"nodes/{node_name}/{vm_type}")]
+
+        def fetch_all(node_name):
+            result = dict()
+            for lxc in fetch_by_type(VMType.LXC, node_name):
+                result[lxc.vm_id] = lxc
+            for qemu in fetch_by_type(VMType.QEMU, node_name):
+                result[qemu.vm_id] = qemu
+            return result
 
         vms = dict()
-        for lxc in fetch_entities(VMType.LXC):
-            vms[lxc.vm_id] = lxc
-        for qemu in fetch_entities(VMType.QEMU):
-            vms[qemu.vm_id] = qemu
+        px_nodes = []
+        if node is None:
+            px_nodes.extend([px_node["node"] for px_node in self._px_get(f"nodes")])
+        else:
+            px_nodes.append(node)
+
+        for n in px_nodes:
+            vms.update(fetch_all(n))
 
         return vms
 

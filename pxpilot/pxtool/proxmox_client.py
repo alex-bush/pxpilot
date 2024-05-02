@@ -1,8 +1,9 @@
 import proxmoxer
 from proxmoxer import ProxmoxAPI, ResourceException
+from requests.exceptions import SSLError
 
 from .models import ProxmoxCommand, VMType, VirtualMachine, VMState
-from .exceptions import ProxmoxError
+from .exceptions import ProxmoxError, ProxmoxConfigurationError, FatalProxmoxError
 
 from .models import ProxmoxVMFields
 from .vm_service import VMService
@@ -11,30 +12,19 @@ from .vm_service import VMService
 class ProxmoxClient(VMService):
     _proxmox: ProxmoxAPI
 
-    def __init__(self, host, port, user, realm, password, verify_ssl):
-        self._host = host
-        self._port = port
-        self._user = user
-        self._realm = realm
-        self._password = password
-        self._verify_ssl = verify_ssl
+    def __init__(self, **kwargs):
+        self._build_client(**kwargs)
 
-        self._build_client()
+    def _build_client(self, **kwargs) -> None:
+        if "token" in kwargs:
+            try:
+                user, token_name = kwargs.pop("token").split("!")
+                kwargs["user"] = user
+                kwargs["token_name"] = token_name
+            except ValueError:
+                raise ProxmoxConfigurationError(f"Configuration problem: error on parsing token. Expected format: 'user@pve!token'.")
 
-    def _build_client(self) -> None:
-        if "@" in self._user:
-            user_id = self._user
-        else:
-            user_id = f"{self._user}@{self._realm}"
-
-        self._proxmox = proxmoxer.ProxmoxAPI(
-            self._host,
-            port=self._port,
-            user=user_id,
-            password=self._password,
-            verify_ssl=self._verify_ssl,
-            timeout=30,
-        )
+        self._proxmox = proxmoxer.ProxmoxAPI(host=kwargs.pop("host"), **kwargs)
 
     def start_vm(self, vm: VirtualMachine) -> None:
         """
@@ -97,8 +87,10 @@ class ProxmoxClient(VMService):
 
         try:
             return self._proxmox(command).get()
+        except SSLError as ex:
+            raise FatalProxmoxError("An SSL error occurred.")
         except ResourceException as ex:
-            raise ProxmoxError(ex.content)
+            raise ProxmoxError(ex)
 
     def _px_post(self, command):
         """ Execute POST request using proxmoxer """

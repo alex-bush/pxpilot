@@ -70,26 +70,10 @@ class ProxmoxSettings:
     Contains the configuration for connecting and managing a Proxmox server environment.
 
     Attributes:
-        url (str): The URL of the Proxmox server.
-        port (int): The port number on which the Proxmox server is accessible.
-        realm (str): Authentication realm for Proxmox server access.
-        token_id (str): The API token ID used for authentication.
-        token_secret (str): The secret associated with the API token.
-        user (str): Username used for server authentication.
-        password (str): Password for the user account.
-        verify_ssl (bool): If True, SSL certificate verification is performed during connection. Defaults to False.
         start_options (List[VMLaunchSettings]): A list of VM start configurations to be managed.
     """
 
-    url: str
-    port: int
-    realm: str
-    token_id: str
-    token_secret: str
-    user: str
-    password: str
-    verify_ssl: bool
-
+    px_settings: Any = None
     start_options: List[VMLaunchSettings] = field(default_factory=list)
 
 
@@ -147,7 +131,8 @@ class ConfigManager:
             LOGGER.exception("Failed to parse configuration file: %s", e)
             return None
 
-        proxmox_config = ProxmoxSettings(**config_data["proxmox_config"])
+        proxmox_config = ProxmoxSettings()
+        proxmox_config.px_settings = config_data["proxmox_config"]
 
         settings = AppSettings(**config_data["settings"])
 

@@ -1,8 +1,8 @@
 import requests
 from pythonping import ping
 
-from pxpilot.config import HealthCheckOptions, ValidationType
 from pxpilot.logging_config import LOGGER
+from pxpilot.vm_management.models import HealthCheckOptions, ValidationType
 
 
 class UnknownHealthcheckError(Exception):

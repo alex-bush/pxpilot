@@ -3,9 +3,9 @@ from datetime import datetime
 
 from .models import VMContext, StartResult, StartStatus
 from .host_validator import HostValidator, UnknownHealthcheckError
-from .logging_config import LOGGER
-from .pxtool.models import VMState
-from .pxtool.vm_service import VMService
+from pxpilot.logging_config import LOGGER
+from pxpilot.pxtool.models import VMState
+from pxpilot.pxtool.vm_service import VMService
 
 
 class VMStarter:

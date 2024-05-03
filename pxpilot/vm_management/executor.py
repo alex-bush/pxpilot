@@ -1,14 +1,13 @@
 from datetime import datetime
 from typing import List
 
-from pxpilot.config import VMLaunchSettings, AppSettings
-from pxpilot.models import VMContext, StartStatus
-from pxpilot.pxtool.exceptions import ProxmoxError
+from pxpilot.vm_management.models import VMContext, StartStatus, VMLaunchSettings, AppSettings
+from pxpilot.pxtool.exceptions import ProxmoxError, FatalProxmoxError
 from pxpilot.logging_config import LOGGER
 from pxpilot.notifications import NotificationManager
 from pxpilot.pxtool import VMService
 from pxpilot.pxtool.models import VirtualMachine
-from pxpilot.vm_starter import VMStarter
+from pxpilot.vm_management.vm_starter import VMStarter
 
 
 class Executor:
@@ -24,10 +23,11 @@ class Executor:
         Initializes the Executor with necessary components.
 
         Args:
-            proxmox_client (ProxmoxClient): Client to interact with the Proxmox API.
+            vm_service (VMService): Client to interact with the Proxmox API.
             start_options (List[VMLaunchSettings]): Configuration options for VM startup.
-            host_validator (HostValidator):
             notification_manager (NotificationManager, optional): Manager for handling notifications. Defaults to None.
+            :type starter: VMStarter
+            :type settings: AppSettings
         """
 
         self._vm_service = vm_service
@@ -53,16 +53,26 @@ class Executor:
         if self._notification_manager is not None:
             self._notification_manager.start(datetime.now())
 
-        proxmox_vms = self._vm_service.get_all_vms()
-        LOGGER.debug(f"Found {len(proxmox_vms)} virtual machines: {proxmox_vms}")
+        vm_context_list = None
+        try:
+            proxmox_vms = self._vm_service.get_all_vms()
+            LOGGER.debug(f"Found {len(proxmox_vms)} virtual machines on Proxmox server: {proxmox_vms}")
 
-        vm_context_list = self.get_vms_to_start(self._launch_settings_list, proxmox_vms)
-        LOGGER.debug(f"Loaded {len(vm_context_list)} start VM options.")
+            vm_context_list = self.get_vms_to_start(self._launch_settings_list, proxmox_vms)
+            LOGGER.debug(f"Loaded {len(vm_context_list)} start VM options from config.")
 
-        self.main_loop(vm_context_list)
-        LOGGER.debug(f"{vm_context_list}")
+            self.main_loop(vm_context_list)
+            LOGGER.debug(f"{vm_context_list}")
+        except FatalProxmoxError as ex:
+            LOGGER.exception(ex)
+            self._notification_manager.append_error(str(ex))
 
-        if self._is_debug:
+            return
+        except ProxmoxError as ex:
+            LOGGER.exception(ex)
+            self._notification_manager.append_error(str(ex))
+
+        if self._is_debug and vm_context_list:
             self.clean_up(vm_context_list)
 
         if self._app_settings.auto_shutdown:

@@ -67,12 +67,28 @@ class NotificationManager:
         for message in self._message_notifier_map.keys():
             message.append(msg)
 
+    def append_error(self, error_message: str) -> None:
+        for message in self._message_notifier_map.keys():
+            msg = f"{STOP_SIGN_SYMBOL} *Failed*: {error_message}"
+
+            message.append(msg)
+
+    def fatal(self, error_message: str) -> None:
+        for message in self._message_notifier_map.keys():
+            message.clear()
+
+            msg = f"{STOP_SIGN_SYMBOL} *Proxmox VMs Startup Failed* _{datetime.now().strftime('%d-%b-%Y %H:%M:%S')}_\n\n"
+            msg += error_message
+
+            message.append(msg)
+
     def send(self):
         for message, notifier in self._message_notifier_map.items():
             LOGGER.debug(f"Send notification to {notifier}")
             notifier.send(message)
 
-    def _create_notifier(self, notifier_config) -> Notifier:
+    @staticmethod
+    def _create_notifier(notifier_config) -> Notifier:
         for key in notifier_config.keys():
             if key in notifier_types:
                 LOGGER.debug(f"Creating '{key}' notifier.")

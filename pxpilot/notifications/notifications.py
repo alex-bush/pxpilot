@@ -21,6 +21,9 @@ class NotificationMessage:
         """
         self._notification_message += string
 
+    def clear(self) -> None:
+        self._notification_message = ""
+
 
 class Notifier(Protocol):
     def create_message(self) -> NotificationMessage:

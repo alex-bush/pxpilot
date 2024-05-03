@@ -1,21 +1,21 @@
 import warnings
 
 from pxpilot.config import ConfigManager
-from pxpilot.executor import Executor
-from pxpilot.host_validator import HostValidator
+from pxpilot.vm_management.executor import Executor
+from pxpilot.vm_management.host_validator import HostValidator
+from pxpilot.vm_management.vm_starter import VMStarter
+
 from pxpilot.logging_config import LOGGER
 from pxpilot.notifications import NotificationManager
 from pxpilot.pxtool import ProxmoxClient
-from pxpilot.vm_starter import VMStarter
+from pxpilot.pxtool.exceptions import ProxmoxConfigurationError
+
 
 warnings.filterwarnings("ignore")
 
 
 def build_executor(app_config, notification_manager) -> Executor:
-    px_client = ProxmoxClient(host=app_config.proxmox_config.url, port=app_config.proxmox_config.port,
-                              user=app_config.proxmox_config.user, realm=app_config.proxmox_config.realm,
-                              password=app_config.proxmox_config.password,
-                              verify_ssl=app_config.proxmox_config.verify_ssl)
+    px_client = ProxmoxClient(**app_config.proxmox_config.px_settings)
 
     starter = VMStarter(px_client, HostValidator())
 
@@ -34,8 +34,12 @@ def main():
         if app_config.notification_settings is not None and len(app_config.notification_settings) > 0:
             notification_manager = NotificationManager(app_config.notification_settings)
 
-        executor = build_executor(app_config, notification_manager)
-        executor.start()
+        try:
+            executor = build_executor(app_config, notification_manager)
+            executor.start()
+        except ProxmoxConfigurationError as ex:
+            notification_manager.fatal(str(ex))
+            LOGGER.error(ex)
 
         if notification_manager is not None:
             LOGGER.debug("Send notifications...")

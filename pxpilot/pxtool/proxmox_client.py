@@ -22,7 +22,7 @@ class ProxmoxClient(VMService):
                 kwargs["user"] = user
                 kwargs["token_name"] = token_name
             except ValueError:
-                raise ProxmoxConfigurationError(f"Configuration problem: error on parsing token. Expected format: 'user@pve!token'.")
+                raise ProxmoxConfigurationError("Configuration problem: error on parsing token. Expected format: 'user@pve!token'.")
 
         self._proxmox = proxmoxer.ProxmoxAPI(host=kwargs.pop("host"), **kwargs)
 
@@ -70,7 +70,7 @@ class ProxmoxClient(VMService):
         vms = dict()
         px_nodes = []
         if node is None:
-            px_nodes.extend([px_node["node"] for px_node in self._px_get(f"nodes")])
+            px_nodes.extend([px_node["node"] for px_node in self._px_get("nodes")])
         else:
             px_nodes.append(node)
 

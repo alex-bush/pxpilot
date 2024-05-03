@@ -44,7 +44,7 @@ class Executor:
         LOGGER.debug("Start.")
 
         if len(self._launch_settings_list) == 0 or sum(1 for item in self._launch_settings_list if item.enabled) == 0:
-            LOGGER.info(F"There is no available virtual machine to start in configuration. Exiting...")
+            LOGGER.info("There is no available virtual machine to start in configuration. Exiting...")
             return
 
         if self._vm_service is None:

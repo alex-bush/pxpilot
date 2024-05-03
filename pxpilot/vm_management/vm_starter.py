@@ -76,4 +76,3 @@ class VMStarter:
             return True
         else:
             return False
-

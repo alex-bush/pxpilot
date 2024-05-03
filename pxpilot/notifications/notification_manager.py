@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 
 from . import Notifier
-from .consts import *
+from .consts import ROCKET_SYMBOL, CHECK_MARK_SYMBOL, CROSS_SIGN_SYMBOL, BLUE_CIRCLE_SYMBOL, FORBIDDEN_SIGN_SYMBOL, \
+    WARNING_SIGN_SYMBOL, DIGITS_SYMBOLS, STOP_SIGN_SYMBOL
 from .log import LOGGER
 from .notifier_types import notifier_types
 
@@ -44,17 +45,17 @@ class NotificationManager:
 
             case "already_started":
                 status_icon = BLUE_CIRCLE_SYMBOL
-                duration_str = f"Already running"
+                duration_str = "Already running"
                 status_str = "No action needed"
 
             case "dependency_failed":
                 status_icon = FORBIDDEN_SIGN_SYMBOL
-                duration_str = f"Dependency is not running"
+                duration_str = "Dependency is not running"
                 status_str = "Not started"
 
             case "disabled":
                 status_icon = WARNING_SIGN_SYMBOL
-                duration_str = f"Disabled in settings"
+                duration_str = "Disabled in settings"
                 status_str = "No action needed"
 
         msg = f"{DIGITS_SYMBOLS[self._status_count]} *{vm_type} {vm_id} ({vm_name})*:\n"

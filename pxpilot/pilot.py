@@ -1,13 +1,15 @@
 import warnings
 
 from pxpilot.config import ConfigManager
-from pxpilot.executor import Executor
-from pxpilot.host_validator import HostValidator
+from pxpilot.vm_management.executor import Executor
+from pxpilot.vm_management.host_validator import HostValidator
+from pxpilot.vm_management.vm_starter import VMStarter
+
 from pxpilot.logging_config import LOGGER
 from pxpilot.notifications import NotificationManager
 from pxpilot.pxtool import ProxmoxClient
-from pxpilot.pxtool.exceptions import ProxmoxConfigurationError, ProxmoxError
-from pxpilot.vm_starter import VMStarter
+from pxpilot.pxtool.exceptions import ProxmoxConfigurationError
+
 
 warnings.filterwarnings("ignore")
 

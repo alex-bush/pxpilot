@@ -23,10 +23,11 @@ class Executor:
         Initializes the Executor with necessary components.
 
         Args:
-            proxmox_client (ProxmoxClient): Client to interact with the Proxmox API.
+            vm_service (VMService): Client to interact with the Proxmox API.
             start_options (List[VMLaunchSettings]): Configuration options for VM startup.
-            host_validator (HostValidator):
             notification_manager (NotificationManager, optional): Manager for handling notifications. Defaults to None.
+            :type starter: VMStarter
+            :type settings: AppSettings
         """
 
         self._vm_service = vm_service

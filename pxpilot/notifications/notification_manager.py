@@ -9,7 +9,7 @@ from .notifier_types import notifier_types
 class NotificationManager:
     def __init__(self, config):
         self._status_count = 0
-        self._notifiers = [self._create_notifier(n) for n in config]
+        self._notifiers = [notifier for notifier in (self._create_notifier(n) for n in config) if notifier is not None]
         self._message_notifier_map = {n.create_message(): n for n in self._notifiers}
 
     def start(self, start_time: datetime):

@@ -99,12 +99,6 @@ class ProxmoxSettings:
 
 
 @dataclass
-class NotificationSettings:
-    token: str
-    chat_id: int | str
-
-
-@dataclass
 class AppSettings:
     auto_start_dependency: bool = False
     auto_shutdown: bool = False

@@ -125,8 +125,8 @@ class Executor:
         if len(vm_context.vm_launch_settings.dependencies) > 0:
             deps = {}
 
-            for dep_vm_context in [item for item in vm_context_list if
-                                   item.vm_id in vm_context.vm_launch_settings.dependencies]:
+            for dep_vm_context in (item for item in vm_context_list if
+                                   item.vm_id in vm_context.vm_launch_settings.dependencies):
                 dep_status = self._vm_starter.check_healthcheck(dep_vm_context)
                 if dep_status:
                     LOGGER.debug(f"VM ID [{vm_context.vm_id}]: dependency [{dep_vm_context.vm_id}] is running.")

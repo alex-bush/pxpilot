@@ -34,7 +34,7 @@ class ConfigManager:
                 )
             return None
 
-        def parse_notification_parameters(notification_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        def parse_notification_parameters(notification_data: Dict[str, Any]) -> Dict[str, Any]:
             return notification_data
 
         try:

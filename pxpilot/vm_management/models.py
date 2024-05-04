@@ -109,7 +109,7 @@ class AppSettings:
 class AppConfig:
     app_settings: AppSettings
     proxmox_config: ProxmoxSettings
-    notification_settings: List[Dict[str, Any]] = field(default_factory=list)
+    notification_settings: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

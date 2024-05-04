@@ -1,72 +1,86 @@
-import pytest
 from unittest.mock import patch, mock_open
 
+import pytest
 import yaml
-from yaml.parser import ParserError
 
-from pxpilot.config import ConfigManager, ValidationType, HealthCheckOptions, ProxmoxSettings
+from pxpilot.config import ConfigManager
+from pxpilot.vm_management.models import AppConfig
 
+HOST_VALUE = "192.168.1.1:8006"
+TOKEN_NAME_VALUE = "pxpilot@pve!pilot"
+TOKEN_VALUE = "123"
 
-def test_successful_load():
-    test_yaml_content = """
+VALID_CONFIG = f"""
 proxmox_config:
-  url: 'http://example.com'
-  port: 8006
-  realm: 'test_realm'
-  token_id: 'test_token'
-  token_secret: 'secret'
-  user: 'admin'
-  password: 'password'
-  verify_ssl: False
+  host: "{HOST_VALUE}"
+  token: "{TOKEN_NAME_VALUE}"
+  token_value: "{TOKEN_VALUE}"
+  verify_ssl: false
+
+settings:
+  auto_start_dependency: false
+  auto_shutdown: true
+  self_host:
+    vm_id: 100
+    node: "px-test"
+    type: "lxc"
+
+notification_options:
+  telegram:
+    token: 1
+    chat_id: 2
+  email:
+    email: test@email.com
+
 vms:
-  - vm_id: 1
-    node: 'node1'
+  - vm_id: 100
+    node: px-test
+    dependencies: []
+    enabled: true
+    startup_parameters:
+      await_running: true
+      startup_timeout: 60
     healthcheck:
-      target_url: 'http://127.0.0.1/ping'
-      check_method: 'ping'
+      target_url: "192.168.1.2"
+      check_method: "ping"
+
+  - vm_id: 101
+    node: px-test
+    startup_parameters:
+      await_running: true
+      startup_timeout: 10
+    enabled: true
+    dependencies: []
+    healthcheck:
+      target_url: "http://192.168.1.3/"
+      check_method: "http"
+
+  - vm_id: 102
+    node: px-test
+    enabled: true
+    dependencies:
+      - 101
 """
 
-    with patch("builtins.open", mock_open(read_data=test_yaml_content)):
-        with patch("yaml.safe_load", return_value=yaml.safe_load(test_yaml_content)):
-            config = ConfigManager().load("fake_path")
-            assert isinstance(config, ProxmoxSettings)
-            assert config.url == 'http://example.com'
-            assert len(config.start_options) == 1
-            assert config.start_options[0].healthcheck.check_method == ValidationType.PING
+
+@pytest.fixture
+def mock_file_open():
+    with patch("builtins.open", mock_open(read_data=VALID_CONFIG)) as mock_file:
+        with patch("yaml.safe_load", return_value=yaml.safe_load(VALID_CONFIG)) as mock_load:
+            yield mock_file, mock_load
 
 
-def test_yaml_parse_error():
-    with patch("builtins.open", mock_open(read_data="invalid_yaml: :")):
-        with patch("yaml.safe_load", side_effect=ParserError):
-            #with patch("pxpilot. logging_config") as mock_logger:
-            config = ConfigManager().load("fake_path")
-            assert config is None
-                #mock_logger.exception.assert_called_once()
+def test_load(mock_file_open):
+    cman = ConfigManager()
+    config = cman.load('fake_path')
 
+    assert isinstance(config, AppConfig)
+    assert config.proxmox_config.px_settings['host'] == HOST_VALUE
+    assert config.proxmox_config.px_settings['token'] == TOKEN_NAME_VALUE
+    assert config.proxmox_config.px_settings['token_value'] == TOKEN_VALUE
 
-def test_healthcheck_parsing():
-    test_yaml_content = """
-proxmox_config:
-  url: 'http://example.com'
-  port: 8006
-  realm: 'test_realm'
-  token_id: 'test_token'
-  token_secret: 'secret'
-  user: 'admin'
-  password: 'password'
-  verify_ssl: False
-vms:
-  - vm_id: 1
-    node: 'node1'
-    healthcheck:
-      target_url: 'http://127.0.0.1/ping'
-      check_method: 'ping'
-"""
+    assert len(config.notification_settings) == 2
+    assert config.notification_settings['telegram']['token'] == 1
+    assert config.notification_settings['telegram']["chat_id"] == 2
 
-    with patch("builtins.open", mock_open(read_data=test_yaml_content)):
-        with patch("yaml.safe_load", return_value=yaml.safe_load(test_yaml_content)):
-            config = ConfigManager().load("fake_path")
-            vm_healthcheck = config.start_options[0].healthcheck
-            assert isinstance(vm_healthcheck, HealthCheckOptions)
-            assert vm_healthcheck.target_url == 'http://127.0.0.1/ping'
-            assert vm_healthcheck.check_method == ValidationType.PING
+    assert len(config.proxmox_config.start_options) == 3

@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  linter:
+  pr_check:
     strategy:
       fail-fast: false
       matrix:

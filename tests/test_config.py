@@ -4,7 +4,7 @@ import pytest
 import yaml
 
 from pxpilot.config import ConfigManager
-from pxpilot.vm_management.models import AppConfig
+from pxpilot.vm_management.models import AppConfig, VMLaunchSettings
 
 HOST_VALUE = "192.168.1.1:8006"
 TOKEN_NAME_VALUE = "pxpilot@pve!pilot"
@@ -84,3 +84,8 @@ def test_load(mock_file_open):
     assert config.notification_settings['telegram']["chat_id"] == 2
 
     assert len(config.proxmox_config.start_options) == 3
+    assert isinstance(config.proxmox_config.start_options[0], VMLaunchSettings)
+
+    assert config.app_settings is not None
+
+    mock_file_open[1].assert_called_once()

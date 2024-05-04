@@ -24,7 +24,7 @@ jobs:
           flake8 .
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r requirements.txt -r requirements-test.txt
       - name: Run Tests
         run: |
           pytest .

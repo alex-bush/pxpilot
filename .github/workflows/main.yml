@@ -22,3 +22,9 @@ jobs:
         run: |
           pip install flake8
           flake8 .
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Run Tests
+        run: |
+          pytest .

@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from typing import List, Optional
+from typing import Optional
 
 import yaml
 from yaml.parser import ParserError

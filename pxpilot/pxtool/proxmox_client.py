@@ -87,7 +87,7 @@ class ProxmoxClient(VMService):
 
         try:
             return self._proxmox(command).get()
-        except SSLError as ex:
+        except SSLError:
             raise FatalProxmoxError("An SSL error occurred.")
         except ResourceException as ex:
             raise ProxmoxError(ex)

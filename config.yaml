@@ -1,46 +1,25 @@
 proxmox_config:
-  host: "192.168.1.2:8006"
-  token: "pxpilot@pve!pilot"
-  token_value: "c5f6f8e9-4627-4345-83a4-ee7cf6b4c0b4"
+  host: ""
+  token: ""
+  token_value: ""
   verify_ssl: false
 
 settings:
   auto_start_dependency: false
   auto_shutdown: true
-  self_host:
-    vm_id: 100
-    node: "px-test"
-    type: "lxc"
 
 notification_options:
   - telegram:
-      token: 7022444766:BAH8pbAE8RueAGui43zO5wPjB5XJUWOxTwo
-      chat_id: -4182361141
-#  - email:
-#      email: test@test.com
+      token: 0
+      chat_id: 0
 
 vms:
   - vm_id: 100
-    node: px-test
+    node: ""
     dependencies: []
     startup_parameters:
       await_running: true
       startup_timeout: 60
     healthcheck:
-      target_url: "192.168.1.61"
+      target_url: "127.0.0.1"
       check_method: "ping"
-
-  - vm_id: 301
-    node: px-test
-    startup_parameters:
-      await_running: true
-      startup_timeout: 60
-    dependencies: []
-    healthcheck:
-      target_url: "http://192.168.1.77/"
-      check_method: "http"
-
-  - vm_id: 124
-    node: px-test
-    dependencies:
-      - 301

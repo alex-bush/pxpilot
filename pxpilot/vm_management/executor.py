@@ -170,7 +170,7 @@ class Executor:
             try:
                 self._vm_service.stop_vm(vm.vm_info)
             except ProxmoxError as ex:
-                LOGGER.warn(f"Error occurred during stop vm: {ex}")
+                LOGGER.warning(f"Error occurred during stop vm: {ex}")
 
     def notification_log(self, flow_item: VMContext, status, start_time, duration):
         if self._notification_manager is not None:
@@ -183,4 +183,4 @@ class Executor:
         try:
             self._vm_service.stop_vm(VirtualMachine(vm_id=target["vm_id"], vm_type=target["type"], name="", status=None, node=target["node"]))
         except ProxmoxError as ex:
-            LOGGER.warn(f"Error occurred during stop vm: {ex}")
+            LOGGER.warning(f"Error occurred during stop vm: {ex}")

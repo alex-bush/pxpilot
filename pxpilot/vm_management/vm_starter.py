@@ -65,7 +65,7 @@ class VMStarter:
                 LOGGER.info(f"VM [{vm_info.vm_id}]: Virtual machine successfully started.")
                 return StartResult(status=StartStatus.STARTED, start_time=start_time, end_time=self._get_now())
             elif ((end_time := self._get_now()) - start_time).seconds > timeout:
-                LOGGER.warn(f"Timeout {timeout} exceed")
+                LOGGER.warning(f"Timeout {timeout} exceed")
                 return StartResult(status=StartStatus.TIMEOUT, start_time=start_time, end_time=end_time)
             else:
                 LOGGER.info(f"VM [{vm_info.vm_id}]: The host is not yet available. Waiting...")

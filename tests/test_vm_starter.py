@@ -37,12 +37,22 @@ def mock_logger1():
         yield logger
 
 
-def flow_item():
-    context = VMContext(vm_id=100, status=StartStatus.UNKNOWN,
-                        vm_info=VirtualMachine(vm_id=100, vm_type=VMType.LXC, node="test", name="test",
-                                               status=VMState.STOPPED),
-                        vm_launch_settings=VMLaunchSettings(vm_id=100, node="test",
-                                                            startup_parameters=StartupParameters(startup_timeout=5, await_running=True)))
+def get_full_valid_vm_context():
+    context = VMContext(vm_id=100,
+                        status=StartStatus.UNKNOWN,
+                        vm_info=VirtualMachine(
+                            vm_id=100,
+                            vm_type=VMType.LXC,
+                            node="test",
+                            name="test",
+                            status=VMState.STOPPED),
+                        vm_launch_settings=VMLaunchSettings(
+                            vm_id=100,
+                            node="test",
+                            startup_parameters=StartupParameters(
+                                startup_timeout=5,
+                                await_running=True)
+                        ))
     return context
 
 
@@ -51,7 +61,7 @@ class TestStartMethod:
         starter = VMStarter(mock_vm_service, mock_host_validator)
         with patch.object(starter, '_start_vm_and_wait',
                           return_value=StartResult(status=StartStatus.STARTED)) as mock_start_wait:
-            result = starter.start(flow_item())
+            result = starter.start(get_full_valid_vm_context())
 
             assert result.status == StartStatus.STARTED
             mock_start_wait.assert_called_once()
@@ -102,7 +112,7 @@ class TestStartAndWaitMethod:
         starter = VMStarter(mock_vm_service, mock_host_validator)
         starter.check_healthcheck = MagicMock(return_value=True)
 
-        result = starter._start_vm_and_wait(flow_item())
+        result = starter._start_vm_and_wait(get_full_valid_vm_context())
 
         assert result.status == StartStatus.STARTED
 
@@ -116,7 +126,7 @@ class TestStartAndWaitMethod:
                     datetime(2024, 1, 1, 12, 0, 0),
                     datetime(2024, 1, 1, 12, 0, 15)
                 ]
-                result = starter._start_vm_and_wait(flow_item())
+                result = starter._start_vm_and_wait(get_full_valid_vm_context())
 
         assert result.status == StartStatus.TIMEOUT
         mock_now.assert_called()
@@ -124,7 +134,7 @@ class TestStartAndWaitMethod:
     def test_start_without_wait(self, mock_logger1, mock_vm_service, mock_host_validator):
         starter = VMStarter(mock_vm_service, mock_host_validator)
         starter.check_healthcheck = MagicMock(return_value=False)
-        vm_context = flow_item()
+        vm_context = get_full_valid_vm_context()
         vm_context.vm_launch_settings.startup_parameters.await_running = False
 
         with patch('time.sleep', return_value=None) as mock_timer:

@@ -1,3 +1,6 @@
+![Static Badge](https://img.shields.io/badge/Project_status-In_development-green?logo=githubcopilot)
+![CI Status](https://img.shields.io/github/workflow/status/proxmoxer/proxmoxer/CI/develop)
+
 # PX Pilot. Proxmox virtual machine launcher
 **PXPilot**, an automation tool designed specifically for managing and orchestrating the startup of virtual machines in Proxmox environments. PXPilot streamlines complex startup sequences and ensures that dependencies between virtual machines are meticulously respected, addressing a gap in native Proxmox capabilities.
 

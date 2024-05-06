@@ -70,17 +70,15 @@ class VMLaunchSettings:
 
     Attributes:
         vm_id (int): The unique identifier of the VM or container.
-        node (str): The node within the Proxmox environment where the VM is hosted.
         enabled (bool): Indicates whether the VM should be started automatically. Defaults to True.
-        startup_parameters (Optional[StartupParameters]): Additional parameters that influence the VM's startup process.
+        startup_parameters (StartupParameters): Additional parameters that influence the VM's startup process.
         dependencies (List[int]): A list of VM IDs that this VM depends on before it can start.
         healthcheck (Optional[HealthCheckOptions]): Health check configuration to monitor the VM or container post-startup.
     """
 
     vm_id: int
-    node: str
     enabled: bool = True
-    startup_parameters: Optional[StartupParameters] = None
+    startup_parameters: StartupParameters = field(default_factory=StartupParameters)
     dependencies: List[int] = field(default_factory=list)
     healthcheck: Optional[HealthCheckOptions] = None
 

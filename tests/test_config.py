@@ -34,7 +34,6 @@ notification_options:
 
 vms:
   - vm_id: 100
-    node: px-test
     dependencies: []
     enabled: true
     startup_parameters:
@@ -45,7 +44,6 @@ vms:
       check_method: "ping"
 
   - vm_id: 101
-    node: px-test
     startup_parameters:
       await_running: true
       startup_timeout: 10
@@ -56,7 +54,6 @@ vms:
       check_method: "http"
 
   - vm_id: 102
-    node: px-test
     enabled: true
     dependencies:
       - 101

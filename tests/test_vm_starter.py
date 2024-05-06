@@ -48,7 +48,6 @@ def get_full_valid_vm_context():
                             status=VMState.STOPPED),
                         vm_launch_settings=VMLaunchSettings(
                             vm_id=100,
-                            node="test",
                             startup_parameters=StartupParameters(
                                 startup_timeout=5,
                                 await_running=True)
@@ -83,7 +82,7 @@ class TestStartMethod:
         context = VMContext(vm_id=100, status=StartStatus.UNKNOWN,
                             vm_info=VirtualMachine(vm_id=100, vm_type=VMType.LXC, node="test", name="test",
                                                    status=VMState.STOPPED),
-                            vm_launch_settings=VMLaunchSettings(vm_id=100, node="test", enabled=False))
+                            vm_launch_settings=VMLaunchSettings(vm_id=100, enabled=False))
 
         starter = VMStarter(mock_vm_service, mock_host_validator)
         with patch.object(starter, '_start_vm_and_wait', return_value=None) as mock_start_wait:
@@ -96,7 +95,7 @@ class TestStartMethod:
         context = VMContext(vm_id=100, status=StartStatus.STARTED,
                             vm_info=VirtualMachine(vm_id=100, vm_type=VMType.LXC, node="test", name="test",
                                                    status=VMState.RUNNING),
-                            vm_launch_settings=VMLaunchSettings(vm_id=100, node="test"))
+                            vm_launch_settings=VMLaunchSettings(vm_id=100))
 
         starter = VMStarter(mock_vm_service, mock_host_validator)
         with patch.object(starter, '_start_vm_and_wait', return_value=None) as mock_start_wait:

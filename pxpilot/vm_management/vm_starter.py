@@ -17,9 +17,9 @@ class VMStarter:
         self._vm_service = vm_service
         self._host_validator = host_validator
 
-    def start(self, flow_item: VMContext | None) -> StartResult:
-        vm_launch_settings = flow_item.vm_launch_settings
-        vm_info = flow_item.vm_info
+    def start(self, vm_cnt: VMContext | None) -> StartResult:
+        vm_launch_settings = vm_cnt.vm_launch_settings
+        vm_info = vm_cnt.vm_info
 
         if vm_launch_settings is None:
             LOGGER.info(f"VM ID [{vm_info.vm_id}]: not found in startup configuration. Skipped.")
@@ -35,10 +35,10 @@ class VMStarter:
 
         if vm_info.status != VMState.STOPPED:
             LOGGER.info(f"VM ID [{vm_info.vm_id}]: Virtual machine already started. No action needed.")
-            flow_item.status = StartStatus.ALREADY_STARTED
+            vm_cnt.status = StartStatus.ALREADY_STARTED
             return StartResult(StartStatus.ALREADY_STARTED, self._get_now())
 
-        return self._start_vm_and_wait(flow_item)
+        return self._start_vm_and_wait(vm_cnt)
 
     def _start_vm_and_wait(self, flow_item):
         LOGGER.debug(f"VM ID [{flow_item.vm_id}]: Starting virtual machine.")

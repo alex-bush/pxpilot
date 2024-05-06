@@ -8,6 +8,10 @@ from pxpilot.pxtool.models import VMState
 from pxpilot.pxtool.vm_service import VMService
 
 
+DEFAULT_START_TIMEOUT = 300
+CHECK_TIMEOUT = 5
+
+
 class VMStarter:
     def __init__(self, vm_service: VMService, host_validator: HostValidator = None):
         self._vm_service = vm_service
@@ -32,7 +36,7 @@ class VMStarter:
         if vm_info.status != VMState.STOPPED:
             LOGGER.info(f"VM ID [{vm_info.vm_id}]: Virtual machine already started. No action needed.")
             flow_item.status = StartStatus.ALREADY_STARTED
-            return StartResult(StartStatus.ALREADY_STARTED, datetime.now())
+            return StartResult(StartStatus.ALREADY_STARTED, self._get_now())
 
         return self._start_vm_and_wait(flow_item)
 
@@ -42,23 +46,31 @@ class VMStarter:
         vm_info = flow_item.vm_info
         vm_launch_settings = flow_item.vm_launch_settings
 
-        start_time = datetime.now()
+        start_time = self._get_now()
 
         self._vm_service.start_vm(vm_info)
+
+        if not vm_launch_settings.startup_parameters.await_running:
+            return StartResult(status=StartStatus.STARTED, start_time=start_time, end_time=start_time)
+
+        if (vm_launch_settings.startup_parameters is not None
+                and vm_launch_settings.startup_parameters.startup_timeout is not None):
+            timeout = vm_launch_settings.startup_parameters.startup_timeout
+        else:
+            timeout = DEFAULT_START_TIMEOUT
 
         still_starting = True
         while still_starting:
             if self.check_healthcheck(flow_item):
                 LOGGER.info(f"VM [{vm_info.vm_id}]: Virtual machine successfully started.")
-                return StartResult(status=StartStatus.STARTED, start_time=start_time, end_time=datetime.now())
-            elif (vm_launch_settings.startup_parameters is not None
-                  and ((end_time := datetime.now()) - start_time).seconds > vm_launch_settings.startup_parameters.startup_timeout):
-                LOGGER.warn("Timeout exceed")
+                return StartResult(status=StartStatus.STARTED, start_time=start_time, end_time=self._get_now())
+            elif ((end_time := self._get_now()) - start_time).seconds > timeout:
+                LOGGER.warning(f"Timeout {timeout} exceed")
                 return StartResult(status=StartStatus.TIMEOUT, start_time=start_time, end_time=end_time)
             else:
                 LOGGER.info(f"VM [{vm_info.vm_id}]: The host is not yet available. Waiting...")
 
-            time.sleep(5)
+            time.sleep(CHECK_TIMEOUT)
 
     def check_healthcheck(self, flow_item: VMContext) -> bool:
         hc = flow_item.vm_launch_settings.healthcheck
@@ -76,3 +88,7 @@ class VMStarter:
             return True
         else:
             return False
+
+    @staticmethod
+    def _get_now():
+        return datetime.now()

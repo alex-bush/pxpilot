@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  linter:
+  pr_check:
     strategy:
       fail-fast: false
       matrix:
@@ -24,7 +24,7 @@ jobs:
           flake8 .
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r requirements.txt -r requirements-test.txt
       - name: Run Tests
         run: |
           pytest .

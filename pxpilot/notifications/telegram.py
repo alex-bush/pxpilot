@@ -30,9 +30,9 @@ class TelegramNotifier(Notifier):
             case 200:
                 LOGGER.info("Notification has been send successfully.")
             case 400:
-                LOGGER.warn("Bad request. " + response.text)
+                LOGGER.warning("Bad request. " + response.text)
             case 401:
-                LOGGER.warn("Cannot access to noti")
+                LOGGER.warning("Cannot access to noti")
 
     @staticmethod
     def _escape(text):

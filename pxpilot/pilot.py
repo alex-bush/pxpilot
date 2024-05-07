@@ -38,7 +38,8 @@ def main():
             executor = build_executor(app_config, notification_manager)
             executor.start()
         except ProxmoxConfigurationError as ex:
-            notification_manager.fatal(str(ex))
+            if notification_manager is not None:
+                notification_manager.fatal(str(ex))
             LOGGER.error(ex)
 
         if notification_manager is not None:

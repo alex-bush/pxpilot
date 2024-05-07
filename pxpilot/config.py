@@ -32,7 +32,7 @@ class ConfigManager:
                     await_running=startup_data.get("await_running", False),
                     startup_timeout=startup_data.get("startup_timeout", 0)
                 )
-            return None
+            return StartupParameters()
 
         def parse_notification_parameters(notification_data: Dict[str, Any]) -> Dict[str, Any]:
             return notification_data

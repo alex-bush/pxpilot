@@ -1,5 +1,5 @@
-![Static Badge](https://img.shields.io/badge/Project_status-In_development-green?logo=githubcopilot)
-![CI Status](https://img.shields.io/github/workflow/status/proxmoxer/proxmoxer/CI/develop)
+![project status](https://img.shields.io/badge/Project_status-In_development-green?logo=githubcopilot)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ghostkaa/pxpilot/main.yml?branch=main)
 
 # PX Pilot. Proxmox virtual machine launcher
 **PXPilot**, an automation tool designed specifically for managing and orchestrating the startup of virtual machines in Proxmox environments. PXPilot streamlines complex startup sequences and ensures that dependencies between virtual machines are meticulously respected, addressing a gap in native Proxmox capabilities.
@@ -51,8 +51,6 @@ settings:
   auto_shutdown: true  # Automatically shutdown the host where the pxpilot is located
   self_host:
     vm_id: 100
-    node: "px-test"
-    type: "lxc"  # Specify the type of VM (e.g., LXC, QEMU)
 ```
 ## Notification Settings
 
@@ -73,7 +71,6 @@ Configure individual virtual machines with specific startup parameters, dependen
 ```yaml
 vms:
   - vm_id: 100
-    node: "px-test"
     dependencies: []  # List VM IDs that must start before this VM
     startup_parameters:
       await_running: true  # Wait for VM to be fully up before proceeding
@@ -83,7 +80,6 @@ vms:
       target_url: "127.0.0.1"
       check_method: "ping"  # Use 'ping' or 'http' to check VM health
   - vm_id: 102
-    node: "px-test"
     healthcheck:
       target_url: "http://127.0.0.1/"
       check_method: "http"
@@ -105,8 +101,6 @@ settings:
   auto_shutdown: true  # shutdown the host where pxpilot is located
   self_host:
     vm_id: 100
-    node: "px-test"
-    type: "lxc"
 
 notification_options:
   - telegram:
@@ -115,7 +109,6 @@ notification_options:
 
 vms:
   - vm_id: 100
-    node: px-test
     dependencies: []
     startup_parameters:
       await_running: true  # false for start and go
@@ -135,7 +128,6 @@ vms:
       check_method: "http"
 
   - vm_id: 102
-    node: px-test
     dependencies:
       - 101  # required to be run before try to run this VM. 
 ```

@@ -20,7 +20,7 @@ def build_executor(app_config, notification_manager) -> Executor:
     starter = VMStarter(px_client, HostValidator())
 
     executor = Executor(px_client, app_config.proxmox_config.start_options, app_config.app_settings,
-                        starter, notification_manager, False)
+                        starter, notification_manager, True)
 
     return executor
 
@@ -38,7 +38,8 @@ def main():
             executor = build_executor(app_config, notification_manager)
             executor.start()
         except ProxmoxConfigurationError as ex:
-            notification_manager.fatal(str(ex))
+            if notification_manager is not None:
+                notification_manager.fatal(str(ex))
             LOGGER.error(ex)
 
         if notification_manager is not None:

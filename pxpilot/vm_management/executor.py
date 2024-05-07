@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List
 
 from pxpilot.vm_management.models import VMContext, StartStatus, VMLaunchSettings, AppSettings
 from pxpilot.pxtool.exceptions import ProxmoxError, FatalProxmoxError
@@ -53,12 +52,12 @@ class Executor:
         if self._notification_manager is not None:
             self._notification_manager.start(datetime.now())
 
-        vm_context_list = None
+        vm_context_list: dict[int, VMContext] = {}
         try:
             proxmox_vms = self._vm_service.get_all_vms()
             LOGGER.debug(f"Found {len(proxmox_vms)} virtual machines on Proxmox server: {proxmox_vms}")
 
-            vm_context_list = self.get_vms_to_start(self._launch_settings_list, proxmox_vms)
+            vm_context_list.update(self.get_vms_to_start(self._launch_settings_list, proxmox_vms))
             LOGGER.debug(f"Loaded {len(vm_context_list)} start VM options from config.")
 
             self.main_loop(vm_context_list)
@@ -72,14 +71,15 @@ class Executor:
             LOGGER.exception(ex)
             self._notification_manager.append_error(str(ex))
 
-        if self._is_debug and vm_context_list:
+        if self._is_debug and vm_context_list is not None:
             self.clean_up(vm_context_list)
 
         if self._app_settings.auto_shutdown:
-            self.self_shutdown(self._app_settings.self_host)
+            localhost = vm_context_list[self._app_settings.self_host["vm_id"]].vm_info
+            self.self_shutdown(localhost)
 
-    def main_loop(self, vm_context_list: List[VMContext]) -> None:
-        for vm_context in (vm_context for vm_context in vm_context_list
+    def main_loop(self, vm_context_list: dict[int, VMContext]) -> None:
+        for vm_context in (vm_context for vm_context in vm_context_list.values()
                            if vm_context.vm_launch_settings is not None):
             LOGGER.debug(f"VM ID [{vm_context.vm_id}]: begin.")
             duration = 0
@@ -115,7 +115,7 @@ class Executor:
 
             LOGGER.debug(f"VM ID [{vm_context.vm_id}]: complete.")
 
-    def is_ready_to_go(self, vm_context: VMContext, vm_context_list: List[VMContext]) -> StartStatus:
+    def is_ready_to_go(self, vm_context: VMContext, vm_context_list: dict[int, VMContext]) -> StartStatus:
         if vm_context.vm_info is None or vm_context.vm_launch_settings is None:
             return StartStatus.INFO_MISSED
 
@@ -125,7 +125,7 @@ class Executor:
         if len(vm_context.vm_launch_settings.dependencies) > 0:
             deps = {}
 
-            for dep_vm_context in (item for item in vm_context_list if
+            for dep_vm_context in (item for item in vm_context_list.values() if
                                    item.vm_id in vm_context.vm_launch_settings.dependencies):
                 dep_status = self._vm_starter.check_healthcheck(dep_vm_context)
                 if dep_status:
@@ -139,29 +139,30 @@ class Executor:
 
         return StartStatus.OK
 
-    def get_vms_to_start(self, start_options: [VMLaunchSettings], px_vms: dict[int, VirtualMachine]) -> [VMContext]:
+    def get_vms_to_start(self, start_options: list[VMLaunchSettings], px_vms: dict[int, VirtualMachine]) -> dict[int, VMContext]:
         """
         Filters and returns a list of VMs that are enabled and ready to be started based on dependencies.
 
-        :param start_options: List of VM startup options.
-        :param px_vms:
+        :type start_options: list[VMLaunchSettings]
+        :param px_vms: dict[int, VirtualMachine]
         :return: VMs ready to be started.
         """
-        sos = []
+        contexts = dict()
         for so in start_options:
-            si = VMContext(vm_id=so.vm_id, vm_launch_settings=so, status=StartStatus.UNKNOWN, vm_info=None)
+            vmc = VMContext(vm_id=so.vm_id, vm_launch_settings=so, status=StartStatus.UNKNOWN, vm_info=None)
             if so.vm_id in px_vms:
-                si.vm_info = px_vms.pop(so.vm_id)
-            sos.append(si)
+                vmc.vm_info = px_vms.pop(so.vm_id)
+            contexts[so.vm_id] = vmc
 
         for vm_id, vm in px_vms.items():
-            si = VMContext(vm_id=vm_id, vm_info=vm, status=StartStatus.UNKNOWN, vm_launch_settings=None)
-            sos.append(si)
-        return sos
+            vmc = VMContext(vm_id=vm_id, vm_info=vm, status=StartStatus.UNKNOWN, vm_launch_settings=None)
+            contexts[vm_id] = vmc
 
-    def clean_up(self, vm_contexts: List[VMContext]) -> None:
+        return contexts
+
+    def clean_up(self, vm_contexts: dict[int, VMContext]) -> None:
         LOGGER.debug("Cleaning up - shutdown all started vms.")
-        for vm in vm_contexts:
+        for vm in vm_contexts.values():
             if vm.vm_launch_settings is None or vm.vm_info is None:
                 continue
 
@@ -178,9 +179,9 @@ class Executor:
                                                      f"{flow_item.vm_info.node}: {flow_item.vm_info.name}", status,
                                                      start_time, duration)
 
-    def self_shutdown(self, target):
-        LOGGER.debug(f"VM [{target["vm_id"]}]: Shutdown.")
+    def self_shutdown(self, target: VirtualMachine):
+        LOGGER.debug(f"VM [{target.vm_id}]: Shutdown.")
         try:
-            self._vm_service.stop_vm(VirtualMachine(vm_id=target["vm_id"], vm_type=target["type"], name="", status=None, node=target["node"]))
+            self._vm_service.stop_vm(target)
         except ProxmoxError as ex:
             LOGGER.warning(f"Error occurred during stop vm: {ex}")

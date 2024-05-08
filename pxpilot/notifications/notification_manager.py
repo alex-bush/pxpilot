@@ -15,7 +15,7 @@ class NotificationManager:
 
     def start(self, start_time: datetime):
         """
-        Initialize the notification messages with the start summary.
+        Initialize the notification messages with the default start summary.
         :param start_time: start time of the starting VM.
         """
         for message in self._message_notifier_map.keys():

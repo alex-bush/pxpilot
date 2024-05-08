@@ -31,7 +31,7 @@ class ProxmoxClient(VMService):
         Initiates the startup of a specific VM.
 
         Args:
-            vm (VirtualMachine): VM information including the type and ID.
+            vm (VirtualMachine): VM to start.
         """
 
         self._px_post(f"nodes/{vm.node}/{vm.vm_type}/{vm.vm_id}/status/{ProxmoxCommand.START}")
@@ -50,7 +50,7 @@ class ProxmoxClient(VMService):
             node (str): Node identifier in the Proxmox environment.
 
         Returns:
-            Dict[int, ProxmoxVMInfo]: Dictionary of VM information indexed by VM IDs.
+            Dict[int, VirtualMachine]: Dictionary of VM list.
         """
 
         def fetch_by_type(vm_type, node_name):
@@ -70,7 +70,7 @@ class ProxmoxClient(VMService):
         vms = dict()
         px_nodes = []
         if node is None:
-            px_nodes.extend([px_node["node"] for px_node in self._px_get("nodes")])
+            px_nodes.extend([px_node["node"] for px_node in self._px_get("nodes") if px_node["status"] == "online"])
         else:
             px_nodes.append(node)
 

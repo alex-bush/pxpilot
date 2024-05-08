@@ -11,8 +11,7 @@ from pxpilot.vm_management.vm_starter import VMStarter
 
 class Executor:
     """
-    Manages the execution processes for starting and monitoring virtual machines (VMs)
-    in a Proxmox environment using given Proxmox client and configuration options.
+    Manages the execution processes for starting virtual machines
     """
 
     def __init__(self, vm_service: VMService, start_options: [VMLaunchSettings],
@@ -22,11 +21,11 @@ class Executor:
         Initializes the Executor with necessary components.
 
         Args:
-            vm_service (VMService): Client to interact with the Proxmox API.
-            start_options (List[VMLaunchSettings]): Configuration options for VM startup.
-            notification_manager (NotificationManager, optional): Manager for handling notifications. Defaults to None.
-            :type starter: VMStarter
-            :type settings: AppSettings
+            :param vm_service: VMService: Client to interact with the Proxmox API.
+            :param start_options: [VMLaunchSettings]: Configuration options for VM startup.
+            :param notification_manager: NotificationManager, optional: Manager for handling notifications. Defaults to None.
+            :param starter: VMStarter
+            :param settings: AppSettings
         """
 
         self._vm_service = vm_service
@@ -143,9 +142,9 @@ class Executor:
         """
         Filters and returns a list of VMs that are enabled and ready to be started based on dependencies.
 
-        :type start_options: list[VMLaunchSettings]
-        :param px_vms: dict[int, VirtualMachine]
-        :return: VMs ready to be started.
+        :param start_options: list[VMLaunchSettings] launch settings
+        :param px_vms: dict[int, VirtualMachine] proxmox vm list
+        :return: Completed dict of VMs from proxmox and starting option from config
         """
         contexts = dict()
         for so in start_options:

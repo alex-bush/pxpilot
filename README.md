@@ -1,19 +1,17 @@
 ![project status](https://img.shields.io/badge/Project_status-In_development-green?logo=githubcopilot)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ghostkaa/pxpilot/main.yml?branch=main)
 
-# PX Pilot. Proxmox virtual machine launcher
-**PXPilot**, an automation tool designed specifically for managing and orchestrating the startup of virtual machines in Proxmox environments. PXPilot streamlines complex startup sequences and ensures that dependencies between virtual machines are meticulously respected, addressing a gap in native Proxmox capabilities.
+# PxPilot: Proxmox Virtual Machine Launcher
+**PxPilot** is a tool designed to start Proxmox virtual machines (VMs) in a specified order according to a configuration file. The main features of PxPilot include checking dependencies before starting a virtual machine and sending notifications via email or Telegram about the results of the startup process.
 
-# Project Overview
-PXPilot utilizes a configuration-driven approach to control the launch order and operational parameters of Proxmox virtual machines (VMs). This is especially useful in environments where the startup of certain VMs depends on the availability of others, such as ensuring a NAS storage server is running before initiating services that rely on it.
-
-# Key Features
-- Dependency Management: Ensures VMs start in the correct order based on predefined dependencies.
-- Automated Notifications: Sends status summaries to Telegram, providing notifications about VM startup processes.
-- Customizable Configuration: Users can easily define specific startup parameters and dependencies for each VM through a YAML configuration file.
+**PxPilot** manages the startup of VMs so that they only boot up after the VMs on which they depend are already running. For example, if a VM requires Network Attached Storage (NAS) to store data, and the NAS is also a VM, we need to ensure the NAS is running before starting the VM.  
+This project was created to address this challenge and, mainly, for educational purposes.
 
 # Installation
+For deployment, I chose to use either an LXC container on Proxmox or Docker. I decided against installing directly on the Proxmox host as I aim to keep the Proxmox instance clean and free of unnecessary installations. The main challenge is to detect the exact moment when Proxmox starts up; therefore, an LXC container with the auto-start option seemed like the perfect solution.  
+Additionally, if there is a VM with Docker installed, which has no dependencies and needs to always be running, it is also a good candidate for hosting **PxPilot**.
 
+Instructions coming soon...
 # Configuration
 The configuration for this application is located in the `config.yaml` file, which is formatted in YAML. This file contains all necessary settings to connect to your Proxmox server and manage virtual machines (VMs). Before launching the application, please ensure that you have correctly configured access to your Proxmox environment and defined the list of VMs you intend to operate.
 

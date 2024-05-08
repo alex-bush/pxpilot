@@ -13,7 +13,7 @@ Additionally, if there is a VM with Docker installed, which has no dependencies 
 
 Instructions coming soon...
 # Configuration
-The configuration for this application is located in the `config.yaml` file, which is formatted in YAML. This file contains all necessary settings to connect to your Proxmox server and manage virtual machines (VMs). Before launching the application, please ensure that you have correctly configured access to your Proxmox environment and defined the list of VMs you intend to operate.
+The configuration for this application is located in the `config.yaml` file. This file contains all necessary settings to connect to your Proxmox server and manage virtual machines (VMs). Before launching the application, please ensure that you have correctly configured access to your Proxmox environment and defined the list of VMs you intend to operate.
 
 Please follow the detailed sections below to configure your Proxmox access and VM management settings appropriately.
 
@@ -43,7 +43,8 @@ In configurations where both token and username/password details are provided, t
 
 ## General Settings
 
-General settings allow you to manage system behaviors such as automatic shutdowns and self-host settings.
+General settings allow you to manage system behaviors such as automatic shutdowns and self-host settings.  
+If PxPilot is deployed on a dedicated LXC container, there is no need to keep it running at all times. In this case, this option allows the container to be turned off after the application has finished running.
 ```yaml
 settings:
   auto_shutdown: true  # Automatically shutdown the host where the pxpilot is located

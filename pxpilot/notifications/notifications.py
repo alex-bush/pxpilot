@@ -2,7 +2,7 @@ from typing import Protocol
 
 
 class NotificationMessage:
-    """ Represents a container for building notification messages incrementally. """
+    """ Container for building notification messages incrementally. """
 
     def __init__(self):
         self._notification_message = str()

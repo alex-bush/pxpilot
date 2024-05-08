@@ -13,6 +13,9 @@ CHECK_TIMEOUT = 5
 
 
 class VMStarter:
+    """
+    Responsible for starting a specific virtual machine
+    """
     def __init__(self, vm_service: VMService, host_validator: HostValidator = None):
         self._vm_service = vm_service
         self._host_validator = host_validator

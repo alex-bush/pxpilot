@@ -24,6 +24,9 @@ class StartStatus(Enum):
 
 @dataclass
 class StartResult:
+    """
+    Start result with start status, error message and start/end time
+    """
     status: StartStatus
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
@@ -41,8 +44,8 @@ class HealthCheckOptions:
     Defines the options for performing health checks on a VM or container.
 
     Attributes:
-        target_url (str): The URL or IP address to be used for the health check.
-        check_method (ValidationType): The method of health check to be performed, such as PING or HTTP request.
+        target_url: str: The URL or IP address to be used for the health check.
+        check_method: ValidationType: The method of health check to be performed, such as PING or HTTP request.
     """
 
     target_url: str
@@ -112,6 +115,15 @@ class AppConfig:
 
 @dataclass
 class VMContext:
+    """
+    Combined object for storing all information about VM
+
+    Attributes:
+        vm_id (int): ID of virtual machine
+        vm_launch_settings (VMLaunchSettings): virtual machine startup settings
+        vm_info (VirtualMachine): virtual machine info from Proxmox
+        status: last known status or current vm status
+    """
     vm_id: int
     vm_launch_settings: Optional[VMLaunchSettings]
     vm_info: Optional[VirtualMachine]

@@ -10,7 +10,7 @@ class ProxmoxVMFields:
 
 class VMType(StrEnum):
     """
-    Enumerates the types of virtual environments managed by Proxmox.
+    Types of virtual environments managed by Proxmox.
 
     Attributes:
         LXC (str): Represents a Linux container managed by Proxmox.
@@ -23,7 +23,7 @@ class VMType(StrEnum):
 
 class VMState(StrEnum):
     """
-    Defines the possible states of virtual machines (VMs) or Linux containers (LXCs) managed by Proxmox.
+    Possible states of virtual machines managed by Proxmox.
 
     Attributes:
         RUNNING (str): The state indicating that the VM/LXC is currently active and running.
@@ -45,7 +45,7 @@ class VirtualMachine:
 
 class ProxmoxCommand(StrEnum):
     """
-    Lists the supported commands for managing the state of VMs/LXCs in a Proxmox environment.
+    Supported api commands for managing the state of VMs/LXCs in a Proxmox environment.
 
     Attributes:
         CURRENT (str): A command to retrieve the current status of a VM/LXC.

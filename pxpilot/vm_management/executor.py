@@ -73,7 +73,7 @@ class Executor:
         if self._is_debug and vm_context_list is not None:
             self.clean_up(vm_context_list)
 
-        if self._app_settings.auto_shutdown:
+        if self._app_settings.auto_shutdown and self._app_settings.self_host is not None:
             localhost = vm_context_list[self._app_settings.self_host["vm_id"]].vm_info
             self.self_shutdown(localhost)
 

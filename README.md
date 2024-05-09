@@ -1,5 +1,5 @@
 ![project status](https://img.shields.io/badge/Project_status-In_development-green?logo=githubcopilot)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ghostkaa/pxpilot/main.yml?branch=main)
+![GitHub Actions Workflow Status](https://github.com/ghostkaa/pxpilot/actions/workflows/main.yml/badge.svg?branch=main)
 
 # PxPilot: Proxmox Virtual Machine Launcher
 **PxPilot** is a tool designed to start Proxmox virtual machines (VMs) in a specified order according to a configuration file. The main features of PxPilot include checking dependencies before starting a virtual machine and sending notifications via email or Telegram about the results of the startup process.

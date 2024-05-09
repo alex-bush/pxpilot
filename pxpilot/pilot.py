@@ -20,7 +20,7 @@ def build_executor(app_config, notification_manager) -> Executor:
     starter = VMStarter(px_client, HostValidator())
 
     executor = Executor(px_client, app_config.proxmox_config.start_options, app_config.app_settings,
-                        starter, notification_manager, True)
+                        starter, notification_manager, False)
 
     return executor
 

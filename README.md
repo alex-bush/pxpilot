@@ -8,10 +8,24 @@
 This project was created to address this challenge and, mainly, for educational purposes.
 
 # Installation
-For deployment, I chose to use either an LXC container on Proxmox or Docker. I decided against installing directly on the Proxmox host as I aim to keep the Proxmox instance clean and free of unnecessary installations. The main challenge is to detect the exact moment when Proxmox starts up; therefore, an LXC container with the auto-start option seemed like the perfect solution.  
-Additionally, if there is a VM with Docker installed, which has no dependencies and needs to always be running, it is also a good candidate for hosting **PxPilot**.
+For deployment, I chose to use either an LXC container on Proxmox. I decided against installing directly on the Proxmox host as I aim to keep the Proxmox instance clean and free of unnecessary installations. The main challenge is to detect the exact moment when Proxmox starts up; therefore, an LXC container with the auto-start option seemed like the perfect solution.  
 
-Instructions coming soon...
+### Create an LXC container:  
+In the Proxmox environment, create a new LXC container, I chose Debian 12. Set the "Start at boot" option of the machine to "Yes" so that the container will automatically start with your Proxmox server.
+Make sure your LXC container has the appropriate network settings so that the Proxmox api is available
+### Install PxPilot:  
+Access your newly created LXC container via SSH or the Proxmox console.  
+Run the following command in the container's terminal:
+```
+bash -c "$(wget -qLO - https://github.com/ghostkaa/pxpilot/raw/main/misc/install.sh)"
+```
+This command performs the following actions:
+- Downloads the latest release of PxPilot.
+- Unpacks the release files into a newly created 'pxpilot' folder in the current directory.
+- Sets up a Python virtual environment (venv) and installs all required dependencies.
+- Configures PxPilot to start automatically whenever the container boots.
+After the installation is complete, you will need to configure PxPilot by adjusting the `config.yaml` file in the PxPilot installation directory.
+
 # Configuration
 The configuration for this application is located in the `config.yaml` file. This file contains all necessary settings to connect to your Proxmox server and manage virtual machines (VMs). Before launching the application, please ensure that you have correctly configured access to your Proxmox environment and defined the list of VMs you intend to operate.
 

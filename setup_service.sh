@@ -1,4 +1,8 @@
 #!/bin/bash
+# Copyright (c) 2024 ghostkaa
+# Author: ghostkaa
+# License: MIT
+# https://github.com/ghostkaa/pxpilot/raw/main/LICENSE
 
 if ! command -v sudo &>/dev/null; then
     apt-get update && apt-get install sudo -y
@@ -8,9 +12,10 @@ sudo apt-get install python3.11-venv python3-pip -y
 
 PROJECT_DIR=$(cd $(dirname "$0") && pwd)
 
+PROJECT_NAME="pxpilot"
 VENV_NAME="venv"
 PYTHON_PATH="$PROJECT_DIR/$VENV_NAME/bin/python3"
-SERVICE_NAME="pxpilot.service"
+SERVICE_NAME="$PROJECT_NAME.service"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 
 echo "Creating a virtual environment and installing dependencies..."
@@ -33,7 +38,7 @@ After=network.target
 Type=oneshot
 User=root
 WorkingDirectory=$PROJECT_DIR
-ExecStart=$PYTHON_PATH -m pxpilot
+ExecStart=$PYTHON_PATH -m $PROJECT_NAME
 RemainAfterExit=true
 
 [Install]

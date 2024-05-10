@@ -8,7 +8,7 @@ from pxpilot.pxtool import VirtualMachine
 
 class StartStatus(Enum):
     UNKNOWN = auto()
-    OK = auto
+    OK = auto()
 
     STARTING = auto()
     STARTED = auto()

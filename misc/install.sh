@@ -13,10 +13,10 @@ UNZIP_DIR="pxpilot"
 echo "Downloading the latest release from $RELEASE_URL ..."
 wget "$RELEASE_URL" -O $TAR_FILE
 
-mkdir @UNZIP_DIR
+mkdir $UNZIP_DIR
 
 echo "Extracting the downloaded file..."
-tar -xzf $TAR_FILE --strip-components=1 -C UNZIP_DIR
+tar -xzf $TAR_FILE --strip-components=1 -C $UNZIP_DIR
 
 echo "Changing directory to $UNZIP_DIR..."
 cd $UNZIP_DIR || exit

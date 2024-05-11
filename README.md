@@ -58,7 +58,7 @@ In configurations where both token and username/password details are provided, t
 ## General Settings
 
 General settings allow you to manage system behaviors such as automatic shutdowns and self-host settings.  
-If PxPilot is deployed on a dedicated LXC container, there is no need to keep it running at all times. In this case, this option allows the container to be turned off after the application has finished running.
+It is possible to shutdown the pxpilot host after start is completed. But be careful with this settings, it would be challenging to make some changes inside a container when this option is enabled) 
 ```yaml
 settings:
   auto_shutdown: true  # Automatically shutdown the host where the pxpilot is located

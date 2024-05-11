@@ -4,7 +4,7 @@
 # License: MIT
 # https://github.com/ghostkaa/pxpilot/raw/main/LICENSE
 
-VERSION="0.1.3"
+VERSION="0.1.4"
 GITHUB_REPO="https://github.com/ghostkaa/pxpilot"
 RELEASE_URL="$GITHUB_REPO/archive/refs/tags/v$VERSION.tar.gz"
 TAR_FILE="pxpilot.tar.gz"

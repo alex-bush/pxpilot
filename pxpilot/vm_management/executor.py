@@ -119,6 +119,7 @@ class Executor:
             return StartStatus.INFO_MISSED
 
         if self._vm_starter.check_healthcheck(vm_context):
+            LOGGER.debug(f"VM ID [{vm_context.vm_id}]: healthcheck pass. {StartStatus.ALREADY_STARTED}")
             return StartStatus.ALREADY_STARTED
 
         if len(vm_context.vm_launch_settings.dependencies) > 0:
@@ -136,6 +137,7 @@ class Executor:
 
             return StartStatus.OK if all(deps.values()) else StartStatus.DEPENDENCY_FAILED
 
+        LOGGER.debug(f"VM ID [{vm_context.vm_id}]: healthcheck not passed, no dependency. Return {StartStatus.OK}")
         return StartStatus.OK
 
     def get_vms_to_start(self, start_options: list[VMLaunchSettings], px_vms: dict[int, VirtualMachine]) -> dict[int, VMContext]:

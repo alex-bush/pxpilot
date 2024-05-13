@@ -4,14 +4,15 @@
 # License: MIT
 # https://github.com/ghostkaa/pxpilot/raw/main/LICENSE
 
-VERSION="0.1.4"
+#VERSION="0.1.4"
 GITHUB_REPO="https://github.com/ghostkaa/pxpilot"
-RELEASE_URL="$GITHUB_REPO/archive/refs/tags/v$VERSION.tar.gz"
+#RELEASE_URL="$GITHUB_REPO/archive/refs/tags/v$VERSION.tar.gz"
 TAR_FILE="pxpilot.tar.gz"
 UNZIP_DIR="pxpilot"
 
-echo "Downloading the latest release from $RELEASE_URL ..."
-wget "$RELEASE_URL" -O $TAR_FILE
+echo "Downloading the latest release..."
+bash download_latest.sh $GITHUB_REPO $TAR_FILE
+#wget "$RELEASE_URL" -O $TAR_FILE
 
 mkdir $UNZIP_DIR
 
@@ -22,7 +23,7 @@ echo "Changing directory to $UNZIP_DIR..."
 cd $UNZIP_DIR || exit
 
 echo "Running setup_service.sh script..."
-bash setup_service.sh
+  bash setup_service.sh
 
 echo "Cleanup downloaded and temporary files..."
 cd ..

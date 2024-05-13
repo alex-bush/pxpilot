@@ -1,6 +1,6 @@
 import argparse
 
-from pxpilot.pilot import main
+from pxpilot.pilot import main, validate_config
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -9,7 +9,5 @@ if __name__ == "__main__":
 
     if args.validate_config is None:
         main()
-        exit(0)
-
-    print("Validate config")
-    pass
+    else:
+        validate_config()

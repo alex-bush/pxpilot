@@ -25,6 +25,7 @@ fi
 
 ARCHIVE_URL="$1/archive/refs/tags/v$VERSION.tar.gz"
 
+echo "Downloading file $ARCHIVE_URL..."
 wget "$ARCHIVE_URL" -O "$2"
 
 if [ $? -ne 0 ]; then
@@ -32,4 +33,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "Downloaded $2"
+echo "Downloaded to $2"

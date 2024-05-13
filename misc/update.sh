@@ -57,6 +57,8 @@ fi
 mv $PROJECT_DIR $BACKUP_DIR
 mv $UPDATE_DIR $PROJECT_DIR
 
+cd $PROJECT_DIR || exit
+
 bash misc/create_venv.sh $VENV_NAME
 
 echo "All done"

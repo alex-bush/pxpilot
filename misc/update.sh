@@ -5,6 +5,7 @@
 # https://github.com/ghostkaa/pxpilot/raw/main/LICENSE
 
 VERSION="0.1.4"
+VENV_NAME="venv"
 GITHUB_REPO="https://github.com/ghostkaa/pxpilot"
 RELEASE_URL="$GITHUB_REPO/archive/refs/tags/v$VERSION.tar.gz"
 TAR_FILE="pxpilot.tar.gz"
@@ -34,4 +35,7 @@ fi
 
 mv $PROJECT_DIR $BACKUP_DIR
 mv $UPDATE_DIR $PROJECT_DIR
+
+bash misc/create_venv.sh $VENV_NAME
+
 echo "All done"

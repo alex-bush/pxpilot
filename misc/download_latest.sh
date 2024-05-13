@@ -23,7 +23,7 @@ if [ -z "$VERSION" ]; then
     exit 1
 fi
 
-ARCHIVE_URL="$1/archive/refs/tags/v$VERSION.tar.gz"
+ARCHIVE_URL="$1/archive/refs/tags/$VERSION.tar.gz"
 
 echo "Downloading file $ARCHIVE_URL..."
 wget "$ARCHIVE_URL" -O "$2"

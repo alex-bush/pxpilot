@@ -26,6 +26,11 @@ This command performs the following actions:
 - Configures PxPilot to start automatically whenever the container boots.
 After the installation is complete, you will need to configure PxPilot by adjusting the `config.yaml` file in the PxPilot installation directory.
 
+Update command:
+```commandline
+bash -c "$(wget -qLO - https://github.com/ghostkaa/pxpilot/raw/main/misc/update.sh)"
+```
+
 # Configuration
 The configuration for this application is located in the `config.yaml` file. This file contains all necessary settings to connect to your Proxmox server and manage virtual machines (VMs). Before launching the application, please ensure that you have correctly configured access to your Proxmox environment and defined the list of VMs you intend to operate.
 

@@ -15,7 +15,6 @@ notification_options:
 
 vms:
   - vm_id: 100
-    node: ""
     dependencies: []
     startup_parameters:
       await_running: true

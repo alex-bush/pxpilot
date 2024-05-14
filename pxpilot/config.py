@@ -51,9 +51,9 @@ class ConfigManager:
         proxmox_config = ProxmoxSettings()
         proxmox_config.px_settings = config_data.get("proxmox_config", None)
 
-        settings = AppSettings(**config_data["settings"])
+        settings = AppSettings(**config_data.get("settings", {}))
 
-        notification_settings = parse_notification_parameters(config_data["notification_options"])
+        notification_settings = parse_notification_parameters(config_data.get("notification_options", {}))
 
         vms = []
         for vm_data in config_data.get("vms", []):

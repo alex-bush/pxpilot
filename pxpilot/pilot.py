@@ -1,8 +1,10 @@
 import warnings
+from typing import List
 
 from pxpilot.config import ConfigManager
 from pxpilot.vm_management.executor import Executor
 from pxpilot.vm_management.host_validator import HostValidator
+from pxpilot.vm_management.models import VMLaunchSettings
 from pxpilot.vm_management.vm_starter import VMStarter
 
 from pxpilot.logging_config import LOGGER
@@ -61,23 +63,28 @@ def validate_config():
 
         if app_config.proxmox_config is None or app_config.proxmox_config.px_settings is None:
             valid = False
-            print("Proxmox access config is missing.")
+            print("(!) Proxmox access config is missing.")
 
         if app_config.app_settings is None:
-            print("Optional App setting section is missing")
+            print("(!) Optional App setting section is missing")
 
         if app_config.proxmox_config is not None:
             if app_config.proxmox_config.start_options is None or len(app_config.proxmox_config.start_options) == 0:
-                print("There is no VM's to start in config")
+                print("(!) There is no VM's to start in config")
+
+        if app_config.notification_settings is None or len(app_config.notification_settings) == 0:
+            print("(!) Notification settings are missed")
 
         valid = validate_proxmox_config(app_config.proxmox_config.px_settings)
+
+        validate_vms(app_config.proxmox_config.start_options)
 
         if valid:
             print("Config validated successfully.")
         else:
             print("Config validated with errors.")
     except Exception as ex:
-        print(f"Error occurred during reading config: {ex}")
+        print(f"(!) Error occurred during reading config: {ex}")
 
 
 def validate_connection(px_settings):
@@ -87,11 +94,11 @@ def validate_connection(px_settings):
         px_client.get_all_vms()
         print("    Successfully connected.")
     except Exception as ex:
-        print(f"    Unable to connect to Proxmox: {ex}")
+        print(f"    (!) Unable to connect to Proxmox: {ex}")
 
 
 def validate_proxmox_config(px_settings) -> bool:
-    print(">> Proxmox settings validation: starting...")
+    print("⌜ Proxmox settings validation: starting...")
     host_status: str
     valid = False
     host = px_settings.get("host", None)
@@ -109,5 +116,19 @@ def validate_proxmox_config(px_settings) -> bool:
     if valid:
         validate_connection(px_settings)
 
-    print("<< Proxmox settings validation: completed...")
+    print("∟ Proxmox settings validation: completed...")
+    return valid
+
+
+def validate_vms(starts: List[VMLaunchSettings]):
+    print("⌜ Start settings validation: starting...")
+    valid = False
+
+    print(f"  Found {len(starts)} vm start settings.")
+
+    for vm in starts:
+        if vm.vm_id is None or vm.vm_id == 0 or not isinstance(vm.vm_id, int):
+            print(f"  (!) Wrong VM id: {vm.vm_id}")
+
+    print("∟ Start settings validation: completed...")
     return valid

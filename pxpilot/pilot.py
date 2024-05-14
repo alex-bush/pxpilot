@@ -87,7 +87,7 @@ def validate_config():
         print(f"(!) Error occurred during reading config: {ex}")
 
 
-def validate_connection(px_settings):
+def validate_connection(px_settings) -> bool:
     print("  Try to connect to Proxmox...")
     px_client = ProxmoxClient(**px_settings)
     try:
@@ -95,6 +95,8 @@ def validate_connection(px_settings):
         print("    Successfully connected.")
     except Exception as ex:
         print(f"    (!) Unable to connect to Proxmox: {ex}")
+        return False
+    return True
 
 
 def validate_proxmox_config(px_settings) -> bool:
@@ -113,8 +115,35 @@ def validate_proxmox_config(px_settings) -> bool:
 
     print(f"  Proxmox host: {host_status}")
 
+    token = px_settings.get("token", None)
+    token_value = px_settings.get("token_value", None)
+    user = px_settings.get("user", None)
+    password = px_settings.get("password", None)
+    realm = px_settings.get("realm", None)
+
+    auth_valid = False
+
+    if token and token_value:
+        if len(token) > 0 and len(token_value) > 0:
+            auth_valid = True
+            auth_status = "Ok (Token-based)"
+        else:
+            auth_status = "Invalid Token or Token Value"
+    elif user and password and realm:
+        if len(user) > 0 and len(password) > 0 and len(realm) > 0:
+            auth_valid = True
+            auth_status = "Ok (User-password-based)"
+        else:
+            auth_status = "Invalid User, Password, or Realm"
+    else:
+        auth_status = "Missing Authentication Information"
+
+    print(f"  Proxmox authentication: {auth_status}")
+
+    valid = valid and auth_valid
+
     if valid:
-        validate_connection(px_settings)
+        valid = valid and validate_connection(px_settings)
 
     print("∟ Proxmox settings validation: completed...")
     return valid

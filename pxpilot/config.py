@@ -11,6 +11,15 @@ from pxpilot.vm_management.models import AppConfig, HealthCheckOptions, Validati
 
 class ConfigManager:
     def load(self, file_path: str) -> Optional[AppConfig]:
+        try:
+            return self.load_internal(file_path)
+        except ParserError as pe:
+            error = str(pe.args)
+            LOGGER.exception("Failed to parse configuration file: %s", error)
+            raise Exception(error)
+
+    @staticmethod
+    def load_internal(file_path: str) -> Optional[AppConfig]:
         """Load configuration from a YAML file into a ProxmoxConfig object."""
 
         def load_yaml_config(path: str) -> Dict[str, Any]:
@@ -37,21 +46,17 @@ class ConfigManager:
         def parse_notification_parameters(notification_data: Dict[str, Any]) -> Dict[str, Any]:
             return notification_data
 
-        try:
-            config_data = load_yaml_config(file_path)
-        except ParserError as e:
-            LOGGER.exception("Failed to parse configuration file: %s", e)
-            return None
+        config_data = load_yaml_config(file_path)
 
         proxmox_config = ProxmoxSettings()
-        proxmox_config.px_settings = config_data["proxmox_config"]
+        proxmox_config.px_settings = config_data.get("proxmox_config", None)
 
-        settings = AppSettings(**config_data["settings"])
+        settings = AppSettings(**config_data.get("settings", {}))
 
-        notification_settings = parse_notification_parameters(config_data["notification_options"])
+        notification_settings = parse_notification_parameters(config_data.get("notification_options", {}))
 
         vms = []
-        for vm_data in config_data["vms"]:
+        for vm_data in config_data.get("vms", []):
             # Extract and parse nested configurations
             healthcheck_data = vm_data.pop("healthcheck", None)
             startup_data = vm_data.pop("startup_parameters", None)

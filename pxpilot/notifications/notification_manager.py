@@ -62,7 +62,6 @@ class NotificationManager:
                 duration_str = "Disabled in settings"
                 status_str = "No action needed"
 
-        #msg = f"{DIGITS_SYMBOLS[self._status_count]} *{vm_type} {vm_id} ({vm_name})*:\n"
         msg = f"{DIGITS_SYMBOLS[self._status_count]} *{vm_name}*:\n"
         msg += f"    - ID: {vm_id} ({vm_type})\n"
         msg += f"    - Start time: _{start_time.strftime('%H:%M:%S')}_\n"

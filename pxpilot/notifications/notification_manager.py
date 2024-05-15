@@ -36,7 +36,7 @@ class NotificationManager:
 
         status_icon = HOURGLASS_NOT_DONE_SYMBOL
         duration_str, status_str = "unknown" * 2
-        
+
         match vm_status:
             case "started":
                 status_icon = CHECK_MARK_SYMBOL

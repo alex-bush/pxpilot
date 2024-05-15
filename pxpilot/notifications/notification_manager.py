@@ -19,8 +19,8 @@ class NotificationManager:
         :param start_time: start time of the starting VM.
         """
         for message in self._message_notifier_map.keys():
-            message.append(f"{ROCKET_SYMBOL} *Proxmox VMs Startup Summary*")
-            message.append(f"Date: _{start_time.strftime('%d-%b-%Y')}_")
+            message.append(f"{ROCKET_SYMBOL} *Proxmox VMs Startup Summary*\n")
+            message.append(f"Date: _{start_time.strftime('%d-%b-%Y')}_\n")
             message.append(f"Time: _{start_time.strftime('%H:%M:%S')}_\n\n")
 
     def append_status(self, vm_type, vm_id, vm_name, vm_status, start_time, duration: timedelta):
@@ -35,7 +35,7 @@ class NotificationManager:
         """
 
         status_icon = HOURGLASS_NOT_DONE_SYMBOL
-        duration_str, status_str = "unknown" * 2
+        duration_str = status_str = "unknown"
 
         match vm_status:
             case "started":
@@ -62,7 +62,9 @@ class NotificationManager:
                 duration_str = "Disabled in settings"
                 status_str = "No action needed"
 
-        msg = f"{DIGITS_SYMBOLS[self._status_count]} *{vm_type} {vm_id} ({vm_name})*:\n"
+        #msg = f"{DIGITS_SYMBOLS[self._status_count]} *{vm_type} {vm_id} ({vm_name})*:\n"
+        msg = f"{DIGITS_SYMBOLS[self._status_count]} *{vm_name}*:\n"
+        msg += f"    - ID: {vm_id} ({vm_type})\n"
         msg += f"    - Start time: _{start_time.strftime('%H:%M:%S')}_\n"
         msg += f"    - Duration: _{duration_str}_\n"
         msg += f"    - Status: {status_icon} {status_str}\n\n"

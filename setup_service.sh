@@ -18,15 +18,6 @@ PYTHON_PATH="$PROJECT_DIR/$VENV_NAME/bin/python3"
 SERVICE_NAME="$PROJECT_NAME.service"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 
-#echo "Creating a virtual environment and installing dependencies..."
-#python3 -m venv $VENV_NAME
-#. $VENV_NAME/bin/activate
-#pip install -r requirements.txt
-#if [ $? -ne 0 ]; then
-#    echo "Failed to install Python dependencies."
-#    exit 1
-#fi
-#deactivate
 bash misc/create_venv.sh $VENV_NAME
 
 echo "Creating a systemd service file in $SERVICE_PATH"
@@ -53,10 +44,5 @@ if [ $? -ne 0 ]; then
     echo "Failed to enable the systemd service."
     exit 1
 fi
-#sudo systemctl start $SERVICE_NAME
-#if [ $? -ne 0 ]; then
-#    echo "Failed to start the systemd service."
-#    exit 1
-#fi
 
 echo "Installation is complete! Service $SERVICE_NAME is configured for autorun."

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from . import Notifier
 from .consts import ROCKET_SYMBOL, CHECK_MARK_SYMBOL, CROSS_SIGN_SYMBOL, BLUE_CIRCLE_SYMBOL, FORBIDDEN_SIGN_SYMBOL, \
-    WARNING_SIGN_SYMBOL, DIGITS_SYMBOLS, STOP_SIGN_SYMBOL
+    WARNING_SIGN_SYMBOL, DIGITS_SYMBOLS, STOP_SIGN_SYMBOL, HOURGLASS_NOT_DONE_SYMBOL
 from .log import LOGGER
 from .notifier_types import notifier_types
 
@@ -19,8 +19,9 @@ class NotificationManager:
         :param start_time: start time of the starting VM.
         """
         for message in self._message_notifier_map.keys():
-            msg = f"{ROCKET_SYMBOL} *Proxmox VMs Startup Summary* _{start_time.strftime('%d-%b-%Y %H:%M:%S')}_\n\n"
-            message.append(msg)
+            message.append(f"{ROCKET_SYMBOL} *Proxmox VMs Startup Summary*")
+            message.append(f"Date: _{start_time.strftime('%d-%b-%Y')}_")
+            message.append(f"Time: _{start_time.strftime('%H:%M:%S')}_\n\n")
 
     def append_status(self, vm_type, vm_id, vm_name, vm_status, start_time, duration: timedelta):
         """
@@ -33,6 +34,9 @@ class NotificationManager:
         :param duration: duration of the operation.
         """
 
+        status_icon = HOURGLASS_NOT_DONE_SYMBOL
+        duration_str, status_str = "unknown" * 2
+        
         match vm_status:
             case "started":
                 status_icon = CHECK_MARK_SYMBOL
@@ -78,10 +82,10 @@ class NotificationManager:
         for message in self._message_notifier_map.keys():
             message.clear()
 
-            msg = f"{STOP_SIGN_SYMBOL} *Proxmox VMs Startup Failed* _{datetime.now().strftime('%d-%b-%Y %H:%M:%S')}_\n\n"
-            msg += error_message
-
-            message.append(msg)
+            message.append(f"{STOP_SIGN_SYMBOL} *Proxmox VMs Startup Failed*\n")
+            message.append(f"Date: _{datetime.now().strftime('%d-%b-%Y')}_\n")
+            message.append(f"Time: _{datetime.now().strftime('%H:%M:%S')}_\n\n")
+            message.append(error_message)
 
     def send(self):
         for message, notifier in self._message_notifier_map.items():

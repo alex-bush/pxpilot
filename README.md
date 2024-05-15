@@ -2,45 +2,62 @@
 ![GitHub Actions Workflow Status](https://github.com/ghostkaa/pxpilot/actions/workflows/main.yml/badge.svg?branch=main)
 
 # PxPilot: Proxmox Virtual Machine Launcher
-**PxPilot** is a tool designed to start Proxmox virtual machines (VMs) in a specified order according to a configuration file. The main features of PxPilot include checking dependencies before starting a virtual machine and sending notifications via email or Telegram about the results of the startup process.
+PxPilot is a tool designed to start Proxmox virtual machines (VMs) in a specified order according to a configuration file. 
+It ensures VMs only boot up only if their dependencies are running, and sends notifications via email or Telegram about the startup process results.
+
+# Features
+- Dependency Management: Ensures VMs start in the correct order and start only if VMs on which they depend are already running.
+- Notifications: Sends startup results via email or Telegram.
+
+<details>
+<summary>Overview</summary>
 
 **PxPilot** manages the startup of VMs so that they only boot up after the VMs on which they depend are already running. For example, if a VM requires Network Attached Storage (NAS) to store data, and the NAS is also a VM, we need to ensure the NAS is running before starting the VM.  
-This project was created to address this challenge and, mainly, for educational purposes.
-
-# Installation
+This project was created to address this challenge and, mainly, for educational purposes.  
+  
 For deployment, I chose to use either an LXC container on Proxmox. I decided against installing directly on the Proxmox host as I aim to keep the Proxmox instance clean and free of unnecessary installations. The main challenge is to detect the exact moment when Proxmox starts up; therefore, an LXC container with the auto-start option seemed like the perfect solution.  
 
-### Create an LXC container:  
-In the Proxmox environment, create a new LXC container, I chose Debian 12. Set the "Start at boot" option of the machine to "Yes" so that the container will automatically start with your Proxmox server.
-Make sure your LXC container has the appropriate network settings so that the Proxmox api is available
-### Install PxPilot:  
-Access your newly created LXC container via SSH or the Proxmox console.  
-Run the following command in the container's terminal:
+</details>
+
+# Installation
+### Create an LXC Container
+- In Proxmox, create a new LXC container (Debian 12 recommended).
+- Set the "Start at boot" option to "Yes".
+- Ensure the LXC container has network access to the Proxmox API.
+### Install PxPilot
+Access your LXC container via SSH or the Proxmox console and run:
 ```
 bash -c "$(wget -qLO - https://github.com/ghostkaa/pxpilot/raw/main/misc/install.sh)"
 ```
 This command performs the following actions:
-- Downloads the latest release of PxPilot.
-- Unpacks the release files into a newly created 'pxpilot' folder in the current directory.
-- Sets up a Python virtual environment (venv) and installs all required dependencies.
-- Configures PxPilot to start automatically whenever the container boots.
-After the installation is complete, you will need to configure PxPilot by adjusting the `config.yaml` file in the PxPilot installation directory.
+- Downloads the latest release of **PxPilot** in current folder.
+- Install required packages: sudo(if not installed), python3.11-venv python3-pip
+- Unpacks the files into a **pxpilot** folder.
+- Sets up a Python virtual environment and installs dependencies.
+- Configures **PxPilot** to start on container boot.
 
-Update command:
-```commandline
+### Update PxPilot
+To update PxPilot to latest version, run:
+```
 bash -c "$(wget -qLO - https://github.com/ghostkaa/pxpilot/raw/main/misc/update.sh)"
 ```
+Previous version will be backed up into **pxpilot_backup** before updating.
 
 # Configuration
-The configuration for this application is located in the `config.yaml` file. This file contains all necessary settings to connect to your Proxmox server and manage virtual machines (VMs). Before launching the application, please ensure that you have correctly configured access to your Proxmox environment and defined the list of VMs you intend to operate.
+Configure PxPilot in the config.yaml file. This file contains settings for connecting to your Proxmox server and managing VMs.
 
-Please follow the detailed sections below to configure your Proxmox access and VM management settings appropriately.
+### Config validation
+To check the configuration file, you can run PxPilot in validation mode:
+```
+python3 -m pxpilot [-v | --validate_config]
+venv/bin/python3 -m pxpilot [-v | --validate_config]
+```
+In this mode, the configuration will be validated for the main parameters, and the connection to Proxmox will be checked.
 
 ### Proxmox authentication settings
 To interact with Proxmox services, ensure that the authentication credentials have the appropriate permissions. For detailed guidance on permissions, refer to the Proxmox documentation on (e.g. [PVE Permissions](https://pve.proxmox.com/wiki/User_Management#pveum_permission_management)).
 
 #### Token Authentication
-Use the following parameters to access Proxmox with a token:
 ```yaml
 proxmox_config:
   host: "192.168.1.2:8006"  # proxmox host address with port
@@ -49,21 +66,21 @@ proxmox_config:
   verify_ssl: false
 ```
 #### Username/Password Authentication
-Alternatively, you can use username and password for authentication by specifying the following parameters:
 ```yaml
 proxmox_config:
   host: "192.168.1.2:8006"  # Proxmox host address including port
   username: "user"
   realm: "pve"  # Authentication realm (e.g., 'pam', 'pve')
   password: "password"
-  verify_ssl: true
+  verify_ssl: false
 ```
 In configurations where both token and username/password details are provided, the system will default to using the token for authentication.
+For more information about setting up the connection, please refer to the [Proxmoxer Documentation](https://proxmoxer.github.io/docs/latest/authentication/)
 
 ## General Settings
 
 General settings allow you to manage system behaviors such as automatic shutdowns and self-host settings.  
-It is possible to shutdown the pxpilot host after start is completed. But be careful with this settings, it would be challenging to make some changes inside a container when this option is enabled) 
+It is possible to shutdown the pxpilot host(lxc) after start is completed. But be careful with this setting, it would be challenging to make some changes inside a container when this option is enabled 
 ```yaml
 settings:
   auto_shutdown: true  # Automatically shutdown the host where the pxpilot is located
@@ -79,8 +96,8 @@ Example configuration for Telegram notifications:
 ```yaml
 notification_options:
   - telegram:
-      token: "7022098123:BAH2pbAE5RueAGui43zO5wPjB5XJUWOxGsd"
-      chat_id: "-4182361654"
+      token: "7022098123:BAH2pbAE5RueAGui43zO5wPjB5XJUWOxGsd" #  telegram bot token
+      chat_id: "-4182361654" #  telegram chat id
 ```
 
 ## Virtual Machines (VMs) Configuration
@@ -136,7 +153,6 @@ vms:
       check_method: "ping"  # ping or http
 
   - vm_id: 101
-    node: px-test
     startup_parameters:
       await_running: true
       startup_timeout: 60
@@ -147,7 +163,7 @@ vms:
 
   - vm_id: 102
     dependencies:
-      - 101  # required to be run before try to run this VM. 
+      - 101  # vm with id 101 is required to be run before run this VM 
 ```
 
 </details>

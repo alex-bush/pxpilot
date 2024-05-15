@@ -46,6 +46,14 @@ Previous version will be backed up into **pxpilot_backup** before updating.
 # Configuration
 Configure PxPilot in the config.yaml file. This file contains settings for connecting to your Proxmox server and managing VMs.
 
+### Config validation
+To check the configuration file, you can run PxPilot in validation mode:
+```
+python3 -m pxpilot [-v | --validate_config]
+venv/bin/python3 -m pxpilot [-v | --validate_config]
+```
+In this mode, the configuration will be validated for the main parameters, and the connection to Proxmox will be checked.
+
 ### Proxmox authentication settings
 To interact with Proxmox services, ensure that the authentication credentials have the appropriate permissions. For detailed guidance on permissions, refer to the Proxmox documentation on (e.g. [PVE Permissions](https://pve.proxmox.com/wiki/User_Management#pveum_permission_management)).
 

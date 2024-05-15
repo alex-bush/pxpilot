@@ -10,7 +10,6 @@ from pxpilot.vm_management.vm_starter import VMStarter
 from pxpilot.logging_config import LOGGER
 from pxpilot.notifications import NotificationManager
 from pxpilot.pxtool import ProxmoxClient
-from pxpilot.pxtool.exceptions import ProxmoxConfigurationError
 
 warnings.filterwarnings("ignore")
 
@@ -40,7 +39,7 @@ def main():
         try:
             executor = build_executor(app_config, notification_manager)
             executor.start()
-        except ProxmoxConfigurationError as ex:
+        except Exception as ex:
             if notification_manager is not None:
                 notification_manager.fatal(str(ex))
             LOGGER.error(ex)
@@ -145,7 +144,7 @@ def validate_proxmox_config(px_settings) -> bool:
     if valid:
         valid = valid and validate_connection(px_settings)
 
-    print("∟ Proxmox settings validation: completed...")
+    print("∟ Proxmox settings validation: completed.")
     return valid
 
 
@@ -159,5 +158,5 @@ def validate_vms(starts: List[VMLaunchSettings]):
         if vm.vm_id is None or vm.vm_id == 0 or not isinstance(vm.vm_id, int):
             print(f"  (!) Wrong VM id: {vm.vm_id}")
 
-    print("∟ Start settings validation: completed...")
+    print("∟ Start settings validation: completed.")
     return valid

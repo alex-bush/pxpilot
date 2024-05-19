@@ -115,7 +115,7 @@ vms:
     dependencies: []  # List VM IDs that must start before this VM
     startup_parameters:
       await_running: true  # Wait for VM to be fully up before proceeding
-      startup_timeout: 60  # Timeout in seconds
+      startup_timeout: 60  # Timeout in seconds. If the VM does not start within this time, the startup status will be set to 'failed'.
     #dependencies: [] # Dependencies are optional
     healthcheck:
       target_url: "127.0.0.1"

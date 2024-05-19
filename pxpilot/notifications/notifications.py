@@ -1,3 +1,5 @@
+import html
+
 from datetime import datetime, timedelta
 from typing import Protocol
 
@@ -83,7 +85,8 @@ class ProxmoxMessage(NotificationMessage):
         self.message += msg
 
     def append_error(self, error_message: str) -> None:
-        msg = f"{STOP_SIGN_SYMBOL} <b>Failed</b>: {error_message}"
+        msg_escaped = html.escape(error_message)
+        msg = f"{STOP_SIGN_SYMBOL} <b>Failed</b>: {msg_escaped}"
         self.message += msg
 
     def fatal(self, error_message: str) -> None:
@@ -92,7 +95,7 @@ class ProxmoxMessage(NotificationMessage):
         self.message += f"{STOP_SIGN_SYMBOL} <b>Proxmox VMs Startup Failed</b>\n"
         self.message += f"Date: <i>{datetime.now().strftime('%d-%b-%Y')}</i>\n"
         self.message += f"Time: <i>{datetime.now().strftime('%H:%M:%S')}</i>\n\n"
-        self.message += error_message
+        self.message += html.escape(error_message)
 
 
 class Notifier(Protocol):

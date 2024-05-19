@@ -20,7 +20,12 @@ class TelegramNotifier(Notifier):
         return TelegramMessage()
 
     def send(self, notification_message: NotificationMessage):
-        url = f"https://api.telegram.org/bot{self._config['token']}/sendMessage?chat_id={self._config['chat_id']}&parse_mode={notification_message.mode}"
+
+        base_url = "https://api.telegram.org/bot"
+        send_url = f"{self._config['token']}/sendMessage?chat_id"
+        parse_url = f"parse_mode={notification_message.mode}"
+
+        url = f"{base_url}{send_url}={self._config['chat_id']}&{parse_url}"
 
         if notification_message.mode == "HTML":
             msg = notification_message.message

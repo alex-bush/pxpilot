@@ -12,6 +12,13 @@ notification_options:
   - telegram:
       token: 0
       chat_id: 0
+  - email:
+      smtp_server: "example.com"
+      smtp_port: 587
+      smtp_user: "user"
+      smtp_password: "pwd"
+      from_email: "pxpilot@example.com"
+      to_email: "myemail@example.com"
 
 vms:
   - vm_id: 100

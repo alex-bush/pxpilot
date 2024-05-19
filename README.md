@@ -1,4 +1,3 @@
-![project status](https://img.shields.io/badge/Project_status-In_development-green?logo=githubcopilot)
 ![GitHub Actions Workflow Status](https://github.com/ghostkaa/pxpilot/actions/workflows/main.yml/badge.svg?branch=main)
 
 # PxPilot: Proxmox Virtual Machine Launcher

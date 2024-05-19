@@ -4,13 +4,6 @@ from setuptools import find_packages, setup
 
 
 def read(*paths, **kwargs):
-    """Read the contents of a text file safely.
-    >>> read("project_name", "VERSION")
-    '0.1.0'
-    >>> read("README.md")
-    ...
-    """
-
     content = ""
     with io.open(
         os.path.join(os.path.dirname(__file__), *paths),
@@ -28,14 +21,18 @@ def read_requirements(path):
     ]
 
 
+about = {}
+with open(os.path.join('pxpilot', '__about__.py')) as f:
+    exec(f.read(), about)
+
 setup(
-    name="pxpilot",
-    version="0.1.0",  # read("pxpilot", "VERSION"),
-    description="Proxmox virtual machines launcher",
-    url="https://github.com/ghostkaa/pxpilot/",
+    name=about["__title__"],
+    version=about["__version__"],
+    description=about["__description__"],
+    url=about["__url__"],
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
-    author="ghostkaa",
+    author=about["__author__"],
     packages=find_packages(exclude=["tests", ".github"]),
     install_requires=read_requirements("requirements.txt"),
     entry_points={

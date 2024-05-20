@@ -3,10 +3,10 @@ import re
 import requests
 
 from .log import LOGGER
-from .notifications import NotificationMessage, Notifier
+from .notifications import NotificationMessage, Notifier, ProxmoxMessage
 
 
-class TelegramMessage(NotificationMessage):
+class TelegramMessage(ProxmoxMessage):
     pass
 
 
@@ -20,9 +20,17 @@ class TelegramNotifier(Notifier):
         return TelegramMessage()
 
     def send(self, notification_message: NotificationMessage):
-        url = f"https://api.telegram.org/bot{self._config['token']}/sendMessage?chat_id={self._config['chat_id']}&parse_mode=MarkdownV2"
 
-        msg = self._escape(notification_message.get())
+        base_url = "https://api.telegram.org/bot"
+        send_url = f"{self._config['token']}/sendMessage?chat_id"
+        parse_url = f"parse_mode={notification_message.mode}"
+
+        url = f"{base_url}{send_url}={self._config['chat_id']}&{parse_url}"
+
+        if notification_message.mode == "HTML":
+            msg = notification_message.message
+        else:
+            msg = self._escape(notification_message.message)
 
         response = requests.post(url, json={'text': msg}, timeout=10)
 

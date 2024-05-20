@@ -2,6 +2,7 @@ import warnings
 from typing import List
 
 from pxpilot.config import ConfigManager
+from pxpilot.notifications.notifier_types import NOTIFIER_TYPES
 from pxpilot.vm_management.executor import Executor
 from pxpilot.vm_management.host_validator import HostValidator
 from pxpilot.vm_management.models import VMLaunchSettings
@@ -27,14 +28,18 @@ def build_executor(app_config, notification_manager) -> Executor:
     return executor
 
 
+def build_notification_manager(app_config) -> NotificationManager | None:
+    if app_config.notification_settings is not None and len(app_config.notification_settings) > 0:
+        return NotificationManager(app_config.notification_settings, NOTIFIER_TYPES)
+    return None
+
+
 def main():
     app_config = ConfigManager().load(CONFIG_FILE)
     if app_config is not None:
         LOGGER.info("Config loaded.")
 
-        notification_manager = None
-        if app_config.notification_settings is not None and len(app_config.notification_settings) > 0:
-            notification_manager = NotificationManager(app_config.notification_settings)
+        notification_manager = build_notification_manager(app_config)
 
         try:
             executor = build_executor(app_config, notification_manager)

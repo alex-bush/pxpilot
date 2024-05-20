@@ -1,4 +1,3 @@
-![project status](https://img.shields.io/badge/Project_status-In_development-green?logo=githubcopilot)
 ![GitHub Actions Workflow Status](https://github.com/ghostkaa/pxpilot/actions/workflows/main.yml/badge.svg?branch=main)
 
 # PxPilot: Proxmox Virtual Machine Launcher
@@ -82,34 +81,42 @@ For more information about setting up the connection, please refer to the [Proxm
 General settings allow you to manage system behaviors such as automatic shutdowns and self-host settings.  
 It is possible to shutdown the pxpilot host(lxc) after start is completed. But be careful with this setting, it would be challenging to make some changes inside a container when this option is enabled 
 ```yaml
-settings:
+settings: #  optional
   auto_shutdown: true  # Automatically shutdown the host where the pxpilot is located
   self_host:
     vm_id: 100
 ```
 ## Notification Settings
 
-Configure notifications to be sent through different channels, enhancing monitoring and response capabilities.
+Configure notifications to be sent through telegram or email.
 
-Example configuration for Telegram notifications:
+Example configuration for Telegram and email notifications:
 
 ```yaml
 notification_options:
   - telegram:
       token: "7022098123:BAH2pbAE5RueAGui43zO5wPjB5XJUWOxGsd" #  telegram bot token
       chat_id: "-4182361654" #  telegram chat id
+  - email:
+      disabled: True # Optional, if set to "true", this notification setting will not be used.
+      smtp_server: "example.com"
+      smtp_port: 587
+      smtp_user: "user"
+      smtp_password: "pwd"
+      from_email: "pxpilot@example.com"
+      to_email: "myemail@example.com"
 ```
 
 ## Virtual Machines (VMs) Configuration
 
-Configure individual virtual machines with specific startup parameters, dependencies, and health checks to ensure operational reliability.
+Configure individual virtual machines with specific startup parameters, dependencies, and health checks.
 ```yaml
 vms:
   - vm_id: 100
     dependencies: []  # List VM IDs that must start before this VM
     startup_parameters:
       await_running: true  # Wait for VM to be fully up before proceeding
-      startup_timeout: 60  # Timeout in seconds
+      startup_timeout: 60  # Timeout in seconds. If the VM does not start within this time, the startup status will be set to 'failed'.
     #dependencies: [] # Dependencies are optional
     healthcheck:
       target_url: "127.0.0.1"

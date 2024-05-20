@@ -31,7 +31,12 @@ class NotificationManager:
     def send(self):
         for message, notifier in self._message_to_notifier_map.items():
             LOGGER.debug(f"Send notification to {notifier}")
-            notifier.send(message)
+            try:
+                notifier.send(message)
+            except KeyError as ke:
+                LOGGER.error(f"Missing parameter in config for {notifier.__class__}: {ke}")
+            except Exception as ex:
+                LOGGER.error(f"Error on sending using {notifier.__class__}: {ex}")
 
     def _build_notifiers(self, config) -> List[Notifier]:
         return [notifier for notifier in
@@ -47,4 +52,3 @@ class NotificationManager:
                 if not notifier_config[key].get("disabled", False):
                     return NOTIFIER_TYPES[key](config)
         return None
-

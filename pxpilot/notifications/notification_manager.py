@@ -3,12 +3,13 @@ from typing import List
 
 from . import Notifier
 from .log import LOGGER
-from .notifier_types import NOTIFIER_TYPES
 
 
 class NotificationManager:
-    def __init__(self, config):
+    def __init__(self, config, notifier_types):
         self._status_count = 0
+        self._notifier_types = notifier_types
+
         self._notifiers = self._build_notifiers(config)
         self._message_to_notifier_map = {n.create_message(): n for n in self._notifiers}
 
@@ -43,12 +44,11 @@ class NotificationManager:
                 (self._create_notifier(n) for n in config)
                 if notifier is not None]
 
-    @staticmethod
-    def _create_notifier(notifier_config) -> Notifier | None:
+    def _create_notifier(self, notifier_config) -> Notifier | None:
         for key in notifier_config.keys():
-            if key in NOTIFIER_TYPES:
+            if key in self._notifier_types:
                 LOGGER.debug(f"Creating '{key}' notifier.")
                 config = notifier_config[key]
                 if not notifier_config[key].get("disabled", False):
-                    return NOTIFIER_TYPES[key](config)
+                    return self._notifier_types[key](config)
         return None

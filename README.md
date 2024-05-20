@@ -98,6 +98,7 @@ notification_options:
       token: "7022098123:BAH2pbAE5RueAGui43zO5wPjB5XJUWOxGsd" #  telegram bot token
       chat_id: "-4182361654" #  telegram chat id
   - email:
+      disabled: True # Optional, if set to "true", this notification setting will not be used.
       smtp_server: "example.com"
       smtp_port: 587
       smtp_user: "user"

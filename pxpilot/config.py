@@ -8,6 +8,8 @@ from pxpilot.logging_config import LOGGER
 from pxpilot.vm_management.models import AppConfig, HealthCheckOptions, ValidationType, StartupParameters, \
     ProxmoxSettings, AppSettings, VMLaunchSettings
 
+CONFIG_FILE = "config.yaml"
+
 
 class ConfigManager:
     def load(self, file_path: str) -> Optional[AppConfig]:

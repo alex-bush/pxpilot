@@ -15,7 +15,12 @@ def setup_logging():
     stream_handler.setLevel(logging.DEBUG)
     stream_handler.setFormatter(formatter)
 
+    file_handler = logging.FileHandler('pxpilot.log')
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+
     logger.addHandler(stream_handler)
+    logger.addHandler(file_handler)
 
     notifications_log.set_metadata(__title__, __version__)
     notifications_log.setup_logging(stream_handler)

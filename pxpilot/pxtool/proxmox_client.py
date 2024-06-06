@@ -8,6 +8,8 @@ from .exceptions import ProxmoxError, ProxmoxConfigurationError, FatalProxmoxErr
 from .models import ProxmoxVMFields
 from .vm_service import VMService
 
+from pxpilot.tools.retry import retry
+
 
 class ProxmoxClient(VMService):
     _proxmox: ProxmoxAPI
@@ -82,6 +84,7 @@ class ProxmoxClient(VMService):
     def stop_vm(self, vm: VirtualMachine):
         self._px_post(f"nodes/{vm.node}/{vm.vm_type}/{vm.vm_id}/status/{ProxmoxCommand.SHUTDOWN}")
 
+    @retry(tries=5, delay=5, excludes=(SSLError, ResourceException, ProxmoxError,))
     def _px_get(self, command):
         """ Execute GET request using proxmoxer """
 
@@ -92,6 +95,7 @@ class ProxmoxClient(VMService):
         except ResourceException as ex:
             raise ProxmoxError(ex)
 
+    @retry(tries=5, delay=5, excludes=(SSLError, ResourceException, ProxmoxError,))
     def _px_post(self, command):
         """ Execute POST request using proxmoxer """
 

@@ -35,6 +35,8 @@ def build_notification_manager(app_config) -> NotificationManager | None:
 
 
 def main():
+    LOGGER.info("pilot is starting")
+
     app_config = ConfigManager().load(CONFIG_FILE)
     if app_config is not None:
         LOGGER.info("Config loaded.")
@@ -56,6 +58,8 @@ def main():
 
     else:
         print("Config not loaded.")
+
+    LOGGER.info("pilot completed.")
 
 
 def validate_config():

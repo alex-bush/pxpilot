@@ -1,5 +1,6 @@
 import logging
 import sys
+from logging.handlers import RotatingFileHandler
 
 from .__about__ import __title__, __version__
 from .notifications import log as notifications_log
@@ -15,7 +16,7 @@ def setup_logging():
     stream_handler.setLevel(logging.DEBUG)
     stream_handler.setFormatter(formatter)
 
-    file_handler = logging.FileHandler('pxpilot.log')
+    file_handler = RotatingFileHandler('pxpilot.log', maxBytes=1*1024*1024, backupCount=5)
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
 

@@ -1,12 +1,12 @@
 import time
 from datetime import datetime
 
-from .models import VMContext, StartResult, StartStatus
+from .models import StartStatus, StartResult
 from .host_validator import HostValidator, UnknownHealthcheckError
 from pxpilot.logging_config import LOGGER
 from pxpilot.pxtool.models import VMState
 from pxpilot.pxtool.vm_service import VMService
-
+from ..models.px.vms import VMContext
 
 DEFAULT_START_TIMEOUT = 300
 CHECK_TIMEOUT = 5

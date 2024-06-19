@@ -1,13 +1,15 @@
-from datetime import datetime, timedelta
+import logging
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-import logging
 import pytest
 
+from pxpilot.models.configuration.vm_start_settings import VmStartOptions, StartOptions
+from pxpilot.models.px.vms import VMContext
 from pxpilot.pxtool import VMService, VirtualMachine
 from pxpilot.pxtool.models import VMType, VMState
 from pxpilot.vm_management.host_validator import HostValidator
-from pxpilot.vm_management.models import VMContext, StartStatus, VMLaunchSettings, StartResult, StartupParameters
+from pxpilot.vm_management.models import StartStatus, StartResult
 from pxpilot.vm_management.vm_starter import VMStarter
 
 
@@ -46,9 +48,9 @@ def get_full_valid_vm_context():
                             node="test",
                             name="test",
                             status=VMState.STOPPED),
-                        vm_launch_settings=VMLaunchSettings(
+                        vm_launch_settings=VmStartOptions(
                             vm_id=100,
-                            startup_parameters=StartupParameters(
+                            startup_parameters=StartOptions(
                                 startup_timeout=5,
                                 await_running=True)
                         ))
@@ -82,7 +84,7 @@ class TestStartMethod:
         context = VMContext(vm_id=100, status=StartStatus.UNKNOWN,
                             vm_info=VirtualMachine(vm_id=100, vm_type=VMType.LXC, node="test", name="test",
                                                    status=VMState.STOPPED),
-                            vm_launch_settings=VMLaunchSettings(vm_id=100, enabled=False))
+                            vm_launch_settings=VmStartOptions(vm_id=100, enabled=False))
 
         starter = VMStarter(mock_vm_service, mock_host_validator)
         with patch.object(starter, '_start_vm_and_wait', return_value=None) as mock_start_wait:
@@ -95,7 +97,7 @@ class TestStartMethod:
         context = VMContext(vm_id=100, status=StartStatus.STARTED,
                             vm_info=VirtualMachine(vm_id=100, vm_type=VMType.LXC, node="test", name="test",
                                                    status=VMState.RUNNING),
-                            vm_launch_settings=VMLaunchSettings(vm_id=100))
+                            vm_launch_settings=VmStartOptions(vm_id=100))
 
         starter = VMStarter(mock_vm_service, mock_host_validator)
         with patch.object(starter, '_start_vm_and_wait', return_value=None) as mock_start_wait:

@@ -3,3 +3,4 @@ max-line-length = 145
 exclude =
     tests
     .venv
+    venv

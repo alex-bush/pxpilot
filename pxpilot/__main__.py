@@ -1,9 +1,11 @@
 import argparse
 
+import pxpilot
+from pxpilot.common import config_validator
 from .__about__ import __version__
-from pxpilot.pilot import main
-from pxpilot.config_validator import validate_config
 
+
+CONFIG_FILE = "config.yaml"
 
 if __name__ == "__main__":
     print(f"Running pxpilot version '{__version__}'")
@@ -14,6 +16,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.validate_config:
-        validate_config()
+        config_validator.validate_config(CONFIG_FILE)
     else:
-        main(args.status_mode)
+        pxpilot.start(CONFIG_FILE)

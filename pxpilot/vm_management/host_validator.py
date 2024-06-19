@@ -2,7 +2,7 @@ import requests
 from pythonping import ping
 
 from pxpilot.logging_config import LOGGER
-from pxpilot.vm_management.models import HealthCheckOptions, ValidationType
+from pxpilot.models.configuration.vm_start_settings import HealthCheckOptions, HealthcheckType
 
 
 class UnknownHealthcheckError(Exception):
@@ -14,9 +14,9 @@ class HostValidator:
     _REQUEST_TIMEOUT = 2
 
     def validate(self, healthcheck: HealthCheckOptions) -> bool:
-        if healthcheck.check_method.value == ValidationType.PING.value:
+        if healthcheck.check_method.value == HealthcheckType.PING.value:
             return self._validate_ping(healthcheck)
-        elif healthcheck.check_method.value == ValidationType.HTTP.value:
+        elif healthcheck.check_method.value == HealthcheckType.HTTP.value:
             return self._validate_request(healthcheck)
 
         raise UnknownHealthcheckError(f"Unknown healthcheck type: {healthcheck.check_method}")

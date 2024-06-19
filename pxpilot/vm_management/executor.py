@@ -1,6 +1,9 @@
 from datetime import datetime
 
-from pxpilot.vm_management.models import VMContext, StartStatus, VMLaunchSettings, AppSettings
+from pxpilot.models.configuration.app_settings import AppSettings
+from pxpilot.models.configuration.vm_start_settings import VmStartOptions
+from pxpilot.models.px.vms import VMContext
+from pxpilot.vm_management.models import StartStatus
 from pxpilot.pxtool.exceptions import ProxmoxError, FatalProxmoxError
 from pxpilot.logging_config import LOGGER
 from pxpilot.notifications import NotificationManager
@@ -14,7 +17,7 @@ class Executor:
     Manages the execution processes for starting virtual machines
     """
 
-    def __init__(self, vm_service: VMService, start_options: [VMLaunchSettings],
+    def __init__(self, vm_service: VMService, start_options: [VmStartOptions],
                  settings: AppSettings, starter: VMStarter = None,
                  notification_manager: NotificationManager = None, is_debug=False):
         """
@@ -140,7 +143,7 @@ class Executor:
         LOGGER.debug(f"VM ID [{vm_context.vm_id}]: healthcheck not passed, no dependency. Return {StartStatus.OK}")
         return StartStatus.OK
 
-    def get_vms_to_start(self, start_options: list[VMLaunchSettings], px_vms: dict[int, VirtualMachine]) -> dict[int, VMContext]:
+    def get_vms_to_start(self, start_options: list[VmStartOptions], px_vms: dict[int, VirtualMachine]) -> dict[int, VMContext]:
         """
         Filters and returns a list of VMs that are enabled and ready to be started based on dependencies.
 

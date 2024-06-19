@@ -1,37 +1,27 @@
 import warnings
-from datetime import datetime
 
-from pxpilot.config import ConfigManager
-from pxpilot.config_validator import CONFIG_FILE
+from pxpilot.common.i_config import ConfigType
 from pxpilot.logging_config import LOGGER
+from pxpilot.models.configuration import config_builder
 from pxpilot.notifications import NotificationManager
 from pxpilot.notifications.notifier_types import NOTIFIER_TYPES
 from pxpilot.pxtool import ProxmoxClient
 from pxpilot.vm_management.executor import Executor
 from pxpilot.vm_management.host_validator import HostValidator
 from pxpilot.vm_management.vm_starter import VMStarter
-from pxpilot.vm_status.executor import VmStatusChecker
 
 warnings.filterwarnings("ignore")
 
 
 def build_executor(app_config, notification_manager) -> Executor:
-    px_client = ProxmoxClient(**app_config.proxmox_config.px_settings)
+    px_client = ProxmoxClient(**app_config.proxmox_settings.px_settings)
 
     starter = VMStarter(px_client, HostValidator())
 
-    executor = Executor(px_client, app_config.proxmox_config.start_options, app_config.app_settings,
+    executor = Executor(px_client, app_config.start_vms_settings, app_config.app_settings,
                         starter, notification_manager, False)
 
     return executor
-
-
-def build_status_checker(app_config, notification_manager):
-    px_client = ProxmoxClient(**app_config.proxmox_config.px_settings)
-
-    status_checker = VmStatusChecker(px_client, notification_manager)
-
-    return status_checker
 
 
 def build_notification_manager(app_config) -> NotificationManager | None:
@@ -40,19 +30,18 @@ def build_notification_manager(app_config) -> NotificationManager | None:
     return None
 
 
-def main(is_status_mode=False):
+def start(config_file):
     LOGGER.info("pilot is starting")
 
-    app_config = ConfigManager().load(CONFIG_FILE)
+    config = config_builder.get_config_provider(ConfigType.ruamel, config_file)
+    app_config = config.get_app_config()
+
     if app_config is not None:
         LOGGER.info("Config loaded.")
 
         notification_manager = build_notification_manager(app_config)
 
-        if is_status_mode:
-            status(app_config, notification_manager)
-        else:
-            execute(app_config, notification_manager)
+        execute(app_config, notification_manager)
 
         if notification_manager is not None:
             LOGGER.debug("Send notifications...")
@@ -73,12 +62,3 @@ def execute(app_config, notification_manager):
             notification_manager.fatal(str(ex))
         LOGGER.error(ex)
 
-
-def status(app_config, notification_manager: NotificationManager):
-    try:
-        st = build_status_checker(app_config, notification_manager)
-        st.start()
-    except Exception as ex:
-        if notification_manager is not None:
-            notification_manager.fatal(str(ex))
-        LOGGER.error(ex)

@@ -7,11 +7,15 @@ class MockNotifier:
     def __init__(self, config):
         self.config = config
 
-    def create_message(self):
+    @staticmethod
+    def create_message():
         return MockMessage()
 
 
 class MockMessage:
+    def __init__(self):
+        self.start_time = None
+
     def add_header(self, start_time):
         self.start_time = start_time
 
@@ -24,8 +28,8 @@ NOTIFIER_TYPES = {
 
 @pytest.fixture
 def notifier_config(request):
-    tg = {"token": "token_value", "chat_id": "chan_id_value"}
-    mail = {
+    telegram = {"token": "token_value", "chat_id": "chan_id_value"}
+    email = {
         "smtp_server": "",
         "smtp_port": "",
         "smtp_user": "",
@@ -35,12 +39,11 @@ def notifier_config(request):
     }
 
     if request.param == "disabled":
-        mail["disabled"] = True
+        email["disabled"] = True
 
-    config = [
-        {"telegram": tg},
-        {"email": mail}
-    ]
+    config = dict()
+    config["telegram"] = telegram
+    config["email"] = email
     return config
 
 

@@ -1,34 +1,39 @@
 from typing import List
 
-from pxpilot.config import ConfigManager, CONFIG_FILE
+from pxpilot.common.config_provider import IConfig, ConfigProvider
+from pxpilot.models.configuration.vm_start_settings import VmStartOptions
 from pxpilot.pxtool import ProxmoxClient
-from pxpilot.vm_management.models import VMLaunchSettings
 
 
-def validate_config():
-    print(f"Start validating '{CONFIG_FILE}'...")
+def validate_config(config_file, config: IConfig = None):
+    if config is None:
+        config = ConfigProvider(config_file)
+
+    print(f"Start validating '{config_file}'...")
     valid = True
     try:
-        app_config = ConfigManager().load(CONFIG_FILE)
         print("Config loaded.")
 
-        if app_config.proxmox_config is None or app_config.proxmox_config.px_settings is None:
+        proxmox_config = config.load_px_settings()
+        if proxmox_config is None or proxmox_config.px_settings is None:
             valid = False
             print("(!) Proxmox access config is missing.")
 
-        if app_config.app_settings is None:
-            print("(!) Optional App setting section is missing")
+        # app_settings = config.load_app_settings()
+        # if app_config.app_settings is None:
+        #     print("(!) Optional App setting section is missing")
 
-        if app_config.proxmox_config is not None:
-            if app_config.proxmox_config.start_options is None or len(app_config.proxmox_config.start_options) == 0:
-                print("(!) There is no VM's to start in config")
+        start_vms_options = config.load_start_vms_settings()
+        if start_vms_options is None or len(start_vms_options) == 0:
+            print("(!) There is no VM's to start in config")
 
-        if app_config.notification_settings is None or len(app_config.notification_settings) == 0:
+        notification_settings = config.load_notifications_settings()
+        if notification_settings is None or len(notification_settings) == 0:
             print("(!) Notification settings are missed")
 
-        valid = validate_proxmox_config(app_config.proxmox_config.px_settings)
+        valid = validate_proxmox_config(proxmox_config.px_settings)
 
-        validate_vms(app_config.proxmox_config.start_options)
+        validate_vms(start_vms_options)
 
         if valid:
             print("Config validated successfully.")
@@ -100,7 +105,7 @@ def validate_proxmox_config(px_settings) -> bool:
     return valid
 
 
-def validate_vms(starts: List[VMLaunchSettings]):
+def validate_vms(starts: List[VmStartOptions]):
     print("⌜ Start settings validation: starting...")
     valid = False
 

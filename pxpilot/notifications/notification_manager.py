@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Dict, Any
 
 from . import Notifier
 from .log import LOGGER
@@ -39,16 +39,11 @@ class NotificationManager:
             except Exception as ex:
                 LOGGER.error(f"Error on sending using {notifier.__class__}: {ex}")
 
-    def _build_notifiers(self, config) -> List[Notifier]:
-        return [notifier for notifier in
-                (self._create_notifier(n) for n in config)
-                if notifier is not None]
-
-    def _create_notifier(self, notifier_config) -> Notifier | None:
-        for key in notifier_config.keys():
+    def _build_notifiers(self, notifications_settings: Dict[str, Any]) -> List[Notifier]:
+        notifiers = []
+        for key, value in notifications_settings.items():
             if key in self._notifier_types:
-                LOGGER.debug(f"Creating '{key}' notifier.")
-                config = notifier_config[key]
-                if not notifier_config[key].get("disabled", False):
-                    return self._notifier_types[key](config)
-        return None
+                if not value.get("disabled", False):
+                    notifiers.append(self._notifier_types[key](value))
+
+        return notifiers

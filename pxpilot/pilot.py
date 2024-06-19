@@ -61,4 +61,3 @@ def execute(app_config, notification_manager):
         if notification_manager is not None:
             notification_manager.fatal(str(ex))
         LOGGER.error(ex)
-

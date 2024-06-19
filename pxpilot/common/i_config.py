@@ -24,4 +24,3 @@ class IConfig(Protocol):
     def save_notifications_settings(self): pass
 
     def save_start_vms_settings(self, vms: List[VmStartOptions]): pass
-

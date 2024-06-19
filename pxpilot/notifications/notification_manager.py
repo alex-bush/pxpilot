@@ -1,8 +1,10 @@
+import logging
 from datetime import datetime, timedelta
 from typing import List, Dict, Any
 
 from . import Notifier
-from .log import LOGGER
+
+logger = logging.getLogger(__name__)
 
 
 class NotificationManager:
@@ -31,13 +33,13 @@ class NotificationManager:
 
     def send(self):
         for message, notifier in self._message_to_notifier_map.items():
-            LOGGER.debug(f"Send notification to {notifier}")
+            logger.debug(f"Send notification to {notifier}")
             try:
                 notifier.send(message)
             except KeyError as ke:
-                LOGGER.error(f"Missing parameter in config for {notifier.__class__}: {ke}")
+                logger.error(f"Missing parameter in config for {notifier.__class__}: {ke}")
             except Exception as ex:
-                LOGGER.error(f"Error on sending using {notifier.__class__}: {ex}")
+                logger.error(f"Error on sending using {notifier.__class__}: {ex}")
 
     def _build_notifiers(self, notifications_settings: Dict[str, Any]) -> List[Notifier]:
         notifiers = []

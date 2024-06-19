@@ -1,15 +1,5 @@
-import logging
-
-LOGGER = logging.getLogger(__name__)
-
-
 __version__ = ""
 __title__ = ""
-
-
-def setup_logging(handler):
-    # LOGGER.addHandler(handler)
-    LOGGER.setLevel(logging.DEBUG)
 
 
 def set_metadata(title, version):

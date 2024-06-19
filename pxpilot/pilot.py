@@ -1,7 +1,7 @@
+import logging
 import warnings
 
 from pxpilot.common.i_config import ConfigType
-from pxpilot.logging_config import LOGGER
 from pxpilot.models.configuration import config_builder
 from pxpilot.notifications import NotificationManager
 from pxpilot.notifications.notifier_types import NOTIFIER_TYPES
@@ -11,6 +11,7 @@ from pxpilot.vm_management.host_validator import HostValidator
 from pxpilot.vm_management.vm_starter import VMStarter
 
 warnings.filterwarnings("ignore")
+logger = logging.getLogger(__name__)
 
 
 def build_executor(app_config, notification_manager) -> Executor:
@@ -31,26 +32,26 @@ def build_notification_manager(app_config) -> NotificationManager | None:
 
 
 def start(config_file):
-    LOGGER.info("pilot is starting")
+    logger.info("pilot is starting")
 
     config = config_builder.get_config_provider(ConfigType.ruamel, config_file)
     app_config = config.get_app_config()
 
     if app_config is not None:
-        LOGGER.info("Config loaded.")
+        logger.info("Config loaded.")
 
         notification_manager = build_notification_manager(app_config)
 
         execute(app_config, notification_manager)
 
         if notification_manager is not None:
-            LOGGER.debug("Send notifications...")
+            logger.debug("Send notifications...")
 
             notification_manager.send()
     else:
         print("Config not loaded.")
 
-    LOGGER.info("pilot completed.")
+    logger.info("pilot completed.")
 
 
 def execute(app_config, notification_manager):
@@ -60,4 +61,4 @@ def execute(app_config, notification_manager):
     except Exception as ex:
         if notification_manager is not None:
             notification_manager.fatal(str(ex))
-        LOGGER.error(ex)
+        logger.error(ex)

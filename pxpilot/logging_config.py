@@ -7,7 +7,7 @@ from .notifications import log as notifications_log
 
 
 def setup_logging():
-    logger = logging.getLogger('pxpilot')
+    logger = logging.getLogger(__title__)
     logger.setLevel(logging.DEBUG)
 
     # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -25,11 +25,5 @@ def setup_logging():
     logger.addHandler(file_handler)
 
     notifications_log.set_metadata(__title__, __version__)
-    notifications_log.setup_logging(stream_handler)
 
     logging.getLogger('requests').setLevel(logging.WARNING)
-
-    return logger
-
-
-LOGGER = setup_logging()

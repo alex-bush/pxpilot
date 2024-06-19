@@ -1,5 +1,7 @@
+import logging
 import time
-from pxpilot.logging_config import LOGGER
+
+logger = logging.getLogger(__name__)
 
 
 def retry(tries, delay, excludes):
@@ -20,11 +22,11 @@ def retry(tries, delay, excludes):
                     return f(*args, **kwargs)
                 except Exception as e:
                     if isinstance(e, excludes):
-                        LOGGER.debug(f"Skipped exception: {e}")
+                        logger.debug(f"Skipped exception: {e}")
                         raise e
 
-                    LOGGER.exception(f"During execution {f.__name__} exception occurred: {e}")
-                    LOGGER.warning(f"Retry #{i + 1}")
+                    logger.exception(f"During execution {f.__name__} exception occurred: {e}")
+                    logger.warning(f"Retry #{i + 1}")
                     time.sleep(delay)
             raise Exception(f"Function {f.__name__} failed after {tries} attempts")
 

@@ -1,10 +1,13 @@
+import logging
 import smtplib
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from .log import LOGGER, get_metadata
+from .log import get_metadata
 from .notifications import NotificationMessage, Notifier, ProxmoxMessage
+
+logger = logging.getLogger(__name__)
 
 
 class EmailMessage(ProxmoxMessage):
@@ -53,8 +56,9 @@ class EmailNotifier(Notifier):
             smtp.send_message(msg)
 
         except Exception as ex:
-            LOGGER.error(f"{ex}")
+            logger.error(f"{ex}")
         finally:
-            smtp.quit()
+            if smtp is not None:
+                smtp.quit()
 
-        LOGGER.info("Email has been send successfully.")
+        logger.info("Email has been send successfully.")

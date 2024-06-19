@@ -1,8 +1,11 @@
+import logging
+
 import requests
 from pythonping import ping
 
-from pxpilot.logging_config import LOGGER
 from pxpilot.models.configuration.vm_start_settings import HealthCheckOptions, HealthcheckType
+
+logger = logging.getLogger(__name__)
 
 
 class UnknownHealthcheckError(Exception):
@@ -32,11 +35,11 @@ class HostValidator:
 
         """
         try:
-            LOGGER.debug(f"Ping: {healthcheck.target_url}")
+            logger.debug(f"Ping: {healthcheck.target_url}")
             response = ping(healthcheck.target_url, count=self._PING_COUNT, verbose=True)
             return response.success()
         except ConnectionError:
-            LOGGER.debug(f"Validate. Error occurred during ping URL {healthcheck.target_url}.")
+            logger.debug(f"Validate. Error occurred during ping URL {healthcheck.target_url}.")
             return False
 
     def _validate_request(self, healthcheck: HealthCheckOptions) -> bool:
@@ -49,12 +52,12 @@ class HostValidator:
 
             """
         try:
-            LOGGER.debug(f"Http request: {healthcheck.target_url}")
+            logger.debug(f"Http request: {healthcheck.target_url}")
             response = requests.get(healthcheck.target_url, timeout=self._REQUEST_TIMEOUT)
             if 200 <= response.status_code < 400:
                 return True
             else:
                 return False
         except requests.RequestException:
-            LOGGER.debug(f"Validate. Error occurred during requesting URL {healthcheck.target_url}.")
+            logger.debug(f"Validate. Error occurred during requesting URL {healthcheck.target_url}.")
             return False

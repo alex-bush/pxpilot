@@ -1,15 +1,17 @@
+import logging
 import time
 from datetime import datetime
 
 from .models import StartStatus, StartResult
 from .host_validator import HostValidator, UnknownHealthcheckError
-from pxpilot.logging_config import LOGGER
 from pxpilot.pxtool.models import VMState
 from pxpilot.pxtool.vm_service import VMService
 from ..models.px.vms import VMContext
 
 DEFAULT_START_TIMEOUT = 300
 CHECK_TIMEOUT = 5
+
+logger = logging.getLogger(__name__)
 
 
 class VMStarter:
@@ -25,26 +27,26 @@ class VMStarter:
         vm_info = vm_cnt.vm_info
 
         if vm_launch_settings is None:
-            LOGGER.info(f"VM ID [{vm_info.vm_id}]: not found in startup configuration. Skipped.")
+            logger.info(f"VM ID [{vm_info.vm_id}]: not found in startup configuration. Skipped.")
             return StartResult(StartStatus.INFO_MISSED)
 
         if vm_info is None:
-            LOGGER.info(f"VM ID [{vm_launch_settings.vm_id}]: not found on Proxmox server. Skipped.")
+            logger.info(f"VM ID [{vm_launch_settings.vm_id}]: not found on Proxmox server. Skipped.")
             return StartResult(StartStatus.INFO_MISSED)
 
         if not vm_launch_settings.enabled:
-            LOGGER.info(f"VM ID [{vm_info.vm_id}]: Starting disabled in config. Skipped.")
+            logger.info(f"VM ID [{vm_info.vm_id}]: Starting disabled in config. Skipped.")
             return StartResult(StartStatus.DISABLED)
 
         if vm_info.status != VMState.STOPPED:
-            LOGGER.info(f"VM ID [{vm_info.vm_id}]: Virtual machine already started. No action needed.")
+            logger.info(f"VM ID [{vm_info.vm_id}]: Virtual machine already started. No action needed.")
             vm_cnt.status = StartStatus.ALREADY_STARTED
             return StartResult(StartStatus.ALREADY_STARTED, self._get_now())
 
         return self._start_vm_and_wait(vm_cnt)
 
     def _start_vm_and_wait(self, flow_item):
-        LOGGER.debug(f"VM ID [{flow_item.vm_id}]: Starting virtual machine.")
+        logger.debug(f"VM ID [{flow_item.vm_id}]: Starting virtual machine.")
 
         vm_info = flow_item.vm_info
         vm_launch_settings = flow_item.vm_launch_settings
@@ -65,13 +67,13 @@ class VMStarter:
         still_starting = True
         while still_starting:
             if self.check_healthcheck(flow_item):
-                LOGGER.info(f"VM [{vm_info.vm_id}]: Virtual machine successfully started.")
+                logger.info(f"VM [{vm_info.vm_id}]: Virtual machine successfully started.")
                 return StartResult(status=StartStatus.STARTED, start_time=start_time, end_time=self._get_now())
             elif ((end_time := self._get_now()) - start_time).seconds > timeout:
-                LOGGER.warning(f"Timeout {timeout} exceed")
+                logger.warning(f"Timeout {timeout} exceed")
                 return StartResult(status=StartStatus.TIMEOUT, start_time=start_time, end_time=end_time)
             else:
-                LOGGER.info(f"VM [{vm_info.vm_id}]: The host is not yet available. Waiting...")
+                logger.info(f"VM [{vm_info.vm_id}]: The host is not yet available. Waiting...")
 
             time.sleep(CHECK_TIMEOUT)
 
@@ -84,10 +86,10 @@ class VMStarter:
                 try:
                     return self._host_validator.validate(hc)
                 except UnknownHealthcheckError as ex:
-                    LOGGER.error(f"VM [{vm.vm_id}]: Unknown healthcheck type: {ex}")
+                    logger.error(f"VM [{vm.vm_id}]: Unknown healthcheck type: {ex}")
                     return True  # cannot check healthcheck but state is running
 
-            LOGGER.info(f"VM [{vm.vm_id}]: State is running. HealthCheckOptions is not provided.")
+            logger.info(f"VM [{vm.vm_id}]: State is running. HealthCheckOptions is not provided.")
             return True
         else:
             return False

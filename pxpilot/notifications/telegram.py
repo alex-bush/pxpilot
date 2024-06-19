@@ -1,9 +1,11 @@
+import logging
 import re
 
 import requests
 
-from .log import LOGGER
 from .notifications import NotificationMessage, Notifier, ProxmoxMessage
+
+logger = logging.getLogger(__name__)
 
 
 class TelegramMessage(ProxmoxMessage):
@@ -36,11 +38,11 @@ class TelegramNotifier(Notifier):
 
         match response.status_code:
             case 200:
-                LOGGER.info("Notification has been send successfully.")
+                logger.info("Notification has been send successfully.")
             case 400:
-                LOGGER.warning("Bad request. " + response.text)
+                logger.warning("Bad request. " + response.text)
             case 401:
-                LOGGER.warning("Cannot access to noti")
+                logger.warning("Cannot access to noti")
 
     @staticmethod
     def _escape(text):

@@ -145,8 +145,7 @@ class Executor:
         logger.debug(f"VM ID [{vm_context.vm_id}]: healthcheck not passed, no dependency. Return {StartStatus.OK}")
         return StartStatus.OK
 
-    def get_vms_to_start(self, start_options: list[VmStartOptions], px_vms: dict[int, VirtualMachine]) -> dict[
-        int, VMContext]:
+    def get_vms_to_start(self, start_options: list[VmStartOptions], px_vms: dict[int, VirtualMachine]) -> dict[int, VMContext]:
         """
         Filters and returns a list of VMs that are enabled and ready to be started based on dependencies.
 

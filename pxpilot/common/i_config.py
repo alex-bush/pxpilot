@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Protocol, Any, List
+from typing import Protocol, Any, List, Dict
 
 from pxpilot.models.configuration.app_settings import AppSettings, ProxmoxSettings
 from pxpilot.models.configuration.vm_start_settings import VmStartOptions
@@ -21,6 +21,8 @@ class IConfig(Protocol):
 
     def save_px_settings(self, px_settings: ProxmoxSettings): pass
 
-    def save_notifications_settings(self): pass
+    def save_notifications_settings(self, settings: Dict[str, Dict]): pass
 
     def save_start_vms_settings(self, vms: List[VmStartOptions]): pass
+
+    def reload_settings(self): pass

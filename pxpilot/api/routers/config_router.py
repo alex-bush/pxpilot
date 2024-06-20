@@ -15,6 +15,12 @@ def _get_config_service() -> ConfigService:
     return ConfigService(config_provider=config_provider)
 
 
+@router.post("/reload")
+async def reload(config_service: ConfigService = Depends(_get_config_service)):
+    config_service.reload_config()
+    return Response(status_code=status.HTTP_200_OK)
+
+
 @router.get("/px")
 async def get_proxmox_connection_settings(
         config_service: ConfigService = Depends(_get_config_service)) -> ProxmoxSettingsModel:
@@ -44,10 +50,12 @@ async def save_proxmox_connection_settings(px_settings: ProxmoxSettingsModel,
 @router.post("/notifications")
 async def save_notification_settings(notifications_setting: NotificationsModel,
                                      config_service: ConfigService = Depends(_get_config_service)):
-    pass
+    config_service.save_notifications_setting(notifications_setting)
+    return Response(status_code=status.HTTP_202_ACCEPTED)
 
 
 @router.post("/startups")
 async def save_startups_settings(start_vms_options: List[VmStartOptionsModel],
                                  config_service: ConfigService = Depends(_get_config_service)):
-    pass
+    config_service.save_start_vms_options(start_vms_options)
+    return Response(status_code=status.HTTP_202_ACCEPTED)

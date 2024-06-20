@@ -3,6 +3,7 @@ from typing import List, Dict
 from pxpilot.api.models.models import ProxmoxSettingsModel, VmStartOptionsModel, StartOptionsModel, NotificationsModel, \
     TelegramModel, EmailModel
 from pxpilot.common import IConfig
+from pxpilot.models.configuration.app_settings import ProxmoxSettings
 from pxpilot.models.configuration.vm_start_settings import VmStartOptions, HealthCheckOptions
 
 
@@ -13,6 +14,9 @@ class ConfigService:
     """
     def __init__(self, config_provider: IConfig):
         self._config = config_provider
+
+    def reload_config(self):
+        self._config.reload_settings()
 
     def get_proxmox_settings(self) -> ProxmoxSettingsModel:
         """
@@ -27,7 +31,14 @@ class ConfigService:
         return px_settings_model
 
     def save_proxmox_settings(self, px_settings: ProxmoxSettingsModel) -> None:
-        ...
+        px = ProxmoxSettings()
+        px.px_settings = {
+            "host": px_settings.host,
+            "token": px_settings.token_name,
+            "token_value": px_settings.token_value
+        }
+
+        self._config.save_px_settings(px)
 
     def get_notifications_settings(self) -> NotificationsModel:
         """
@@ -37,6 +48,16 @@ class ConfigService:
 
         notifications_model = self._convert_notification(notification_settings)
         return notifications_model
+
+    def save_notifications_setting(self, settings: NotificationsModel):
+        notifications_settings = {}
+
+        if settings.telegram is not None:
+            notifications_settings['telegram'] = settings.telegram.dict()
+        if settings.email is not None:
+            notifications_settings['email'] = settings.email.dict()
+
+        self._config.save_notifications_settings(notifications_settings)
 
     def get_startup_settings(self) -> List[VmStartOptionsModel]:
         """

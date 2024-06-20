@@ -85,6 +85,9 @@ class ConfigProvider(IConfig):
     def save_start_vms_settings(self, vms: List[VmStartOptions]):
         pass
 
+    def reload_settings(self):
+        pass
+
     @staticmethod
     def _load_section(config_data, section: str, tp):
         return config_data.get(section, tp)

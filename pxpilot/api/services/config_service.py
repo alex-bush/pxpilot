@@ -4,7 +4,7 @@ from pxpilot.api.models.models import ProxmoxSettingsModel, VmStartOptionsModel,
     TelegramModel, EmailModel
 from pxpilot.common import IConfig
 from pxpilot.models.configuration.app_settings import ProxmoxSettings
-from pxpilot.models.configuration.vm_start_settings import VmStartOptions, HealthCheckOptions
+from pxpilot.models.configuration.vm_start_settings import VmStartOptions, HealthCheckOptions, StartOptions
 
 
 class ConfigService:
@@ -58,6 +58,23 @@ class ConfigService:
             notifications_settings['email'] = settings.email.dict()
 
         self._config.save_notifications_settings(notifications_settings)
+
+    def save_start_vms_options(self, vms: List[VmStartOptionsModel]):
+        vm_options = []
+        for vm in vms:
+            vm1 = VmStartOptions(
+                vm_id=vm.vm_id,
+                enabled=vm.enabled,
+            )
+            if vm.healthcheck is not None:
+                vm1.healthcheck = HealthCheckOptions(**vm.healthcheck.__dict__)
+            if vm.dependencies is not None:
+                vm1.dependencies = list(vm.dependencies)
+            if vm.startup_parameters is not None:
+                vm1.startup_parameters = StartOptions(**vm.startup_parameters.__dict__)
+            vm_options.append(vm1)
+
+        self._config.save_start_vms_settings(vm_options)
 
     def get_startup_settings(self) -> List[VmStartOptionsModel]:
         """

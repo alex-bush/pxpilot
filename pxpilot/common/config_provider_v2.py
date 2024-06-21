@@ -45,7 +45,7 @@ class ConfigProviderV2(IConfig):
     def load_px_settings(self) -> ProxmoxSettings:
         return self.app_config.proxmox_settings
 
-    def load_notifications_settings(self) -> Any:
+    def load_notifications_settings(self) -> Dict[str, Dict]:
         return self.app_config.notification_settings
 
     def load_start_vms_settings(self) -> List[VmStartOptions]:
@@ -67,7 +67,27 @@ class ConfigProviderV2(IConfig):
         self._save_config(self._file_path, self._yaml_data)
 
     def save_start_vms_settings(self, vms: List[VmStartOptions]):
-        pass
+        vms_list = []
+        for vm in vms:
+            vm_data = {
+                ConfigSections.VM_ID: vm.vm_id,
+                ConfigSections.ENABLED: vm.enabled,
+                ConfigSections.STARTUP_PARAMETERS: {
+                    ConfigSections.AWAIT_RUNNING: vm.startup_parameters.await_running,
+                    ConfigSections.STARTUP_TIMEOUT: vm.startup_parameters.startup_timeout
+                },
+                ConfigSections.DEPENDENCIES: vm.dependencies,
+            }
+            if vm.healthcheck:
+                vm_data[ConfigSections.HEALTHCHECK] = {
+                    ConfigSections.TARGET_URL: vm.healthcheck.target_url,
+                    ConfigSections.CHECK_METHOD: vm.healthcheck.check_method.value
+                }
+            # vm_data.update(vm.extra_settings)
+            vms_list.append(vm_data)
+
+        self._yaml_data[ConfigSections.VMS] = vms_list
+        self._save_config(self._file_path, self._yaml_data)
 
     def reload_settings(self):
         self._app_config, self._yaml_data = self._load_settings(self._file_path)
@@ -94,13 +114,13 @@ class ConfigProviderV2(IConfig):
                                      isinstance(value, dict)}
 
             vms = []
-            for vm_data in data['vms']:
-                healthcheck_data = vm_data.get('healthcheck')
+            for vm_data in data[ConfigSections.VMS]:
+                healthcheck_data = vm_data.get(ConfigSections.HEALTHCHECK)
                 healthcheck = None
                 if healthcheck_data:
                     h_data = healthcheck_data.copy()
-                    if 'check_method' in h_data and isinstance(h_data['check_method'], str):
-                        h_data['check_method'] = HealthcheckType(h_data['check_method'])
+                    if ConfigSections.CHECK_METHOD in h_data and isinstance(h_data[ConfigSections.CHECK_METHOD], str):
+                        h_data[ConfigSections.CHECK_METHOD] = HealthcheckType(h_data[ConfigSections.CHECK_METHOD])
 
                     healthcheck = HealthCheckOptions(**h_data)
 
@@ -110,7 +130,7 @@ class ConfigProviderV2(IConfig):
                 vm = VmStartOptions(**vm_data)
                 vm.healthcheck = healthcheck
                 vm.startup_parameters = startup_parameters
-                vm.dependencies = vm_data.get('dependencies', [])
+                vm.dependencies = vm_data.get(ConfigSections.DEPENDENCIES, [])
 
                 vms.append(vm)
 

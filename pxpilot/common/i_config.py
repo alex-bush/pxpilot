@@ -15,7 +15,7 @@ class IConfig(Protocol):
 
     def load_px_settings(self) -> ProxmoxSettings: pass
 
-    def load_notifications_settings(self) -> Any: pass
+    def load_notifications_settings(self) -> Dict[str, Dict]: pass
 
     def load_start_vms_settings(self) -> List[VmStartOptions]: pass
 

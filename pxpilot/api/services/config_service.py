@@ -19,24 +19,29 @@ class ConfigService:
         self._config.reload_settings()
 
     def get_proxmox_settings(self) -> ProxmoxSettingsModel:
-        """
-        Get proxmox settings from config provider and return as pydantic model.
-        """
+        """ Get proxmox settings from config provider and return as pydantic model. """
         px_settings = self._config.load_px_settings()
         px_settings_model = ProxmoxSettingsModel(
             host=px_settings.px_settings.get("host", ""),
             token_name=px_settings.px_settings.get("token", ""),
             token_value=px_settings.px_settings.get("token_value", "")
         )
+        px_settings_model.extra_settings = {k: v for k, v in px_settings.px_settings.items()
+                                            if k not in ["host", "token", "token_value"]}
+
         return px_settings_model
 
     def save_proxmox_settings(self, px_settings: ProxmoxSettingsModel) -> None:
+        """
+        Save proxmox settings using config provider. Convert pydantic model to dataclass
+        """
         px = ProxmoxSettings()
         px.px_settings = {
             "host": px_settings.host,
             "token": px_settings.token_name,
             "token_value": px_settings.token_value
         }
+        px.px_settings.update(dict(px_settings.extra_settings))
 
         self._config.save_px_settings(px)
 
@@ -62,17 +67,21 @@ class ConfigService:
     def save_start_vms_options(self, vms: List[VmStartOptionsModel]):
         vm_options = []
         for vm in vms:
-            vm1 = VmStartOptions(
+            vm_opt = VmStartOptions(
                 vm_id=vm.vm_id,
                 enabled=vm.enabled,
             )
+            vm_opt.other.update(dict(**{
+                'name': vm.name,
+                'description': vm.description
+            }))
             if vm.healthcheck is not None:
-                vm1.healthcheck = HealthCheckOptions(**vm.healthcheck.__dict__)
+                vm_opt.healthcheck = HealthCheckOptions(**vm.healthcheck.__dict__)
             if vm.dependencies is not None:
-                vm1.dependencies = list(vm.dependencies)
+                vm_opt.dependencies = list(vm.dependencies)
             if vm.startup_parameters is not None:
-                vm1.startup_parameters = StartOptions(**vm.startup_parameters.__dict__)
-            vm_options.append(vm1)
+                vm_opt.startup_parameters = StartOptions(**vm.startup_parameters.__dict__)
+            vm_options.append(vm_opt)
 
         self._config.save_start_vms_settings(vm_options)
 
@@ -122,12 +131,13 @@ class ConfigService:
         """
         startup_parameters = StartOptionsModel(**start_vm_options.startup_parameters.__dict__)
         dependencies = list(start_vm_options.dependencies)
+        other = start_vm_options.other
 
         vm_start_options_model = VmStartOptionsModel(
             vm_id=start_vm_options.vm_id,
             enabled=start_vm_options.enabled,
-            name='',
-            description='',
+            name=other['name'],
+            description=other['description'],
             startup_parameters=startup_parameters,
             dependencies=dependencies,
         )

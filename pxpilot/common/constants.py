@@ -12,5 +12,3 @@ class ConfigSections:
     AWAIT_RUNNING = "await_running"
     STARTUP_TIMEOUT = "startup_timeout"
     TARGET_URL = "target_url"
-
-

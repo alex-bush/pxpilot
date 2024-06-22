@@ -1,3 +1,4 @@
+import copy
 from threading import Lock
 from typing import Any, List, Optional, Dict
 
@@ -83,16 +84,18 @@ class ConfigProviderV2(IConfig):
                     ConfigSections.TARGET_URL: vm.healthcheck.target_url,
                     ConfigSections.CHECK_METHOD: vm.healthcheck.check_method.value
                 }
-            # vm_data.update(vm.extra_settings)
+            vm_data.update(vm.other)
             vms_list.append(vm_data)
 
         self._yaml_data[ConfigSections.VMS] = vms_list
         self._save_config(self._file_path, self._yaml_data)
 
     def reload_settings(self):
+        """ Reload app settings and internal yaml data """
         self._app_config, self._yaml_data = self._load_settings(self._file_path)
 
     def _save_config(self, file_name, data, reload: bool = True):
+        """ Save config in yaml file and reload """
         yaml = YAML()
         with open(file_name, "w") as file:
             yaml.dump(data, file)
@@ -110,12 +113,21 @@ class ConfigProviderV2(IConfig):
 
             settings = CommonSettings(**data[ConfigSections.COMMON_SETTINGS])
 
-            notification_settings = {key: dict(**value) for key, value in data[ConfigSections.NOTIFICATION_OPTIONS].items() if
+            notification_settings = {key: dict(**value) for key, value in
+                                     data[ConfigSections.NOTIFICATION_OPTIONS].items() if
                                      isinstance(value, dict)}
 
             vms = []
             for vm_data in data[ConfigSections.VMS]:
-                healthcheck_data = vm_data.get(ConfigSections.HEALTHCHECK)
+                vm_data_temp = copy.deepcopy(vm_data)
+
+                vm_id = vm_data_temp.pop(ConfigSections.VM_ID, None)
+                enabled = vm_data_temp.pop(ConfigSections.ENABLED, True)
+                startup_parameters_data = vm_data_temp.pop(ConfigSections.STARTUP_PARAMETERS, {})
+                dependencies = vm_data_temp.pop(ConfigSections.DEPENDENCIES, [])
+                healthcheck_data = vm_data_temp.pop(ConfigSections.HEALTHCHECK, None)
+                other = vm_data_temp
+
                 healthcheck = None
                 if healthcheck_data:
                     h_data = healthcheck_data.copy()
@@ -124,13 +136,14 @@ class ConfigProviderV2(IConfig):
 
                     healthcheck = HealthCheckOptions(**h_data)
 
-                startup_parameters_data = vm_data.get(ConfigSections.STARTUP_PARAMETERS, {})
-                startup_parameters = StartOptions(**startup_parameters_data)
-
-                vm = VmStartOptions(**vm_data)
-                vm.healthcheck = healthcheck
-                vm.startup_parameters = startup_parameters
-                vm.dependencies = vm_data.get(ConfigSections.DEPENDENCIES, [])
+                vm = VmStartOptions(
+                    vm_id,
+                    enabled,
+                    startup_parameters=StartOptions(**startup_parameters_data),
+                    dependencies=dependencies,
+                    healthcheck=healthcheck,
+                    other=other
+                )
 
                 vms.append(vm)
 

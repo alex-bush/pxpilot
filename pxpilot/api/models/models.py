@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 
 from pydantic import BaseModel, Field
 
@@ -12,6 +12,7 @@ class ProxmoxSettingsModel(BaseModel):
     host: str
     token_name: str
     token_value: str
+    extra_settings: Optional[Dict[str, Any]] = {}
 
 
 class StartOptionsModel(BaseModel):

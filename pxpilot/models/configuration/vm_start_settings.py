@@ -1,6 +1,6 @@
 import enum
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 
 class HealthcheckType(enum.StrEnum):
@@ -24,6 +24,9 @@ class StartOptions:
 class VmStartOptions:
     vm_id: int
     enabled: bool = True
+
+    other: Dict[str, Any] = field(default_factory=dict)
+
     startup_parameters: StartOptions = field(default_factory=StartOptions)
     dependencies: List[int] = field(default_factory=list)
     healthcheck: Optional[HealthCheckOptions] = None

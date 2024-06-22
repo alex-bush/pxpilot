@@ -5,3 +5,4 @@ pyyaml==6.0.*
 fastapi~=0.111.0
 pytest~=8.1.2
 pydantic~=2.7.4
+uvicorn~=0.30.1

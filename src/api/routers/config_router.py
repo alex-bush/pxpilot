@@ -2,8 +2,8 @@ from typing import List
 
 from fastapi import APIRouter, Depends, Response, status
 
-from pxpilot.api.services.config_service import ConfigService, ProxmoxSettingsModel, NotificationsModel, \
-    VmStartOptionsModel
+from api.models.models import ProxmoxSettingsModel, NotificationsModel, VmStartOptionsModel
+from api.services.config_service import ConfigService
 from pxpilot.common.i_config import ConfigType
 from pxpilot.models.configuration import config_builder
 

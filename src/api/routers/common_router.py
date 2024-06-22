@@ -9,5 +9,5 @@ def healthcheck():
 
 
 @router.get("/healthcheck/v1")
-def healthcheck():
+def healthcheck_v1():
     return {"status": "ok"}

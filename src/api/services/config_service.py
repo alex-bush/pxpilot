@@ -1,7 +1,7 @@
 from typing import List, Dict
 
-from pxpilot.api.models.models import ProxmoxSettingsModel, VmStartOptionsModel, StartOptionsModel, NotificationsModel, \
-    TelegramModel, EmailModel
+from api.models.models import ProxmoxSettingsModel, NotificationsModel, VmStartOptionsModel, TelegramModel, EmailModel, \
+    StartOptionsModel
 from pxpilot.common import IConfig
 from pxpilot.models.configuration.app_settings import ProxmoxSettings
 from pxpilot.models.configuration.vm_start_settings import VmStartOptions, HealthCheckOptions, StartOptions

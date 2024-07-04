@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {Button, Card, Flex, message, notification, Spin} from "antd";
 import LabeledTextField from "./controls/LabeledTextField.jsx";
 import {fetchProxmoxSettings, saveProxmoxSettings, testConnection} from "../services/services.jsx";
@@ -37,18 +37,17 @@ export default function ProxmoxSettings() {
         });
     };
 
-    useEffect(() => {
-        loadData();
+    const loadData = useCallback(async () => {
+        let data = await fetchProxmoxSettings();
+        setOriginalData(data);
+
+        data.isLoaded = true;
+        setData(data);
     }, [])
 
-    function loadData() {
-        fetchProxmoxSettings().then(data => {
-            data.isLoaded = true;
-
-            setData(data);
-            setOriginalData(data);
-        });
-    }
+    useEffect(() => {
+        loadData()
+    }, [loadData])
 
     const isDataUnchanged = () => {
         return Data.host === OriginalData.host
@@ -61,30 +60,36 @@ export default function ProxmoxSettings() {
         setData(newData);
     }
 
-    function handleSaveClick() {
+    async function handleSaveClick() {
         setLoading(true);
 
-        saveProxmoxSettings(Data, true).then(() => {
-            loadData();
-            setLoading(false);
+        try {
+            await saveProxmoxSettings(Data, true);
+            await loadData();
             showNotification('success', TITLE);
-        }).catch(err => {
+        }
+        catch(err) {
             console.log(err);
-            setLoading(false);
             showNotification('error', TITLE);
-        });
+        }
+        finally {
+            setLoading(false);
+        }
     }
 
-    function handleTestClick() {
+    async function handleTestClick() {
         setValidatingConnection(true)
-        testConnection(Data.host, Data.token_name, Data.token_value).then(res => {
+        try {
+            const res = await testConnection(Data.host, Data.token_name, Data.token_value);
             if (res.is_valid) {
                 showMessage('success', `Connection successful`);
             } else {
                 showMessage('error', `Test connection failed: ${res.message}`);
             }
+        }
+        finally {
             setValidatingConnection(false);
-        });
+        }
     }
 
     return (

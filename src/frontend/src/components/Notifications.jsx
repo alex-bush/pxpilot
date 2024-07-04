@@ -7,7 +7,7 @@ import {fetchNotificationSettings, saveNotificationSettings} from "../services/s
 export const Notifications = () => {
     const TITLE = "Notification settings";
 
-    const [Data, setData] = useState({isLoaded: false, dataChanged: false});
+    const [Data, setData] = useState({isLoaded: false});
     const [OriginalData, setOriginalData] = useState({})
 
     const [saving, setSaving] = useState(false);
@@ -32,31 +32,33 @@ export const Notifications = () => {
         loadData();
     }, [])
 
-    function loadData() {
-        fetchNotificationSettings().then(data => {
-            setOriginalData(data);
-            data.isLoaded = true;
-            data.dataChanged = false;
-            setData(data);
-        });
+    async function loadData() {
+        let data = await fetchNotificationSettings();
+        setOriginalData(data);
+
+        data.isLoaded = true;
+        setData(data);
     }
 
     const handleDataChange = (key, newData) => {
-        setData({...Data, [key]: newData, dataChanged: true});
+        setData({...Data, [key]: newData});
     }
 
-    function handleSaveClick() {
+    async function handleSaveClick() {
         setSaving(true);
 
-        saveNotificationSettings(Data, true).then(() => {
-            loadData();
-            setSaving(false);
+        try {
+            await saveNotificationSettings(Data);
+            await loadData();
             showNotification('success', TITLE);
-        }).catch(err => {
+        }
+        catch(err) {
             console.log(err);
-            setSaving(false);
             showNotification('error', TITLE);
-        });
+        }
+        finally {
+            setSaving(false);
+        }
     }
 
     const isDataUnchanged = () => {

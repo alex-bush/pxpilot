@@ -1,4 +1,5 @@
 import copy
+import logging
 from threading import Lock
 from typing import Any, List, Optional, Dict
 
@@ -9,6 +10,9 @@ from pxpilot.common.constants import ConfigSections
 from pxpilot.models.configuration.app_settings import ProxmoxSettings, AppSettings, CommonSettings
 from pxpilot.models.configuration.vm_start_settings import VmStartOptions, HealthCheckOptions, StartOptions, \
     HealthcheckType
+
+
+logger = logging.getLogger(__name__)
 
 
 class ConfigProviderV2(IConfig):
@@ -29,6 +33,7 @@ class ConfigProviderV2(IConfig):
     def get_instance(cls, file_path: str) -> IConfig:
         with cls._lock:
             if cls._instance is None:
+                logger.debug('Creating ConfigProvider instance')
                 cls._instance = ConfigProviderV2(file_path)
 
             return cls._instance
@@ -96,6 +101,7 @@ class ConfigProviderV2(IConfig):
 
     def _save_config(self, file_name, data, reload: bool = True):
         """ Save config in yaml file and reload """
+        logger.debug(f'Saving config to {file_name}')
         yaml = YAML()
         with open(file_name, "w") as file:
             yaml.dump(data, file)
@@ -105,53 +111,56 @@ class ConfigProviderV2(IConfig):
 
     @staticmethod
     def _load_settings(path: str) -> (AppSettings, Any):
+        logger.debug(f'Loading app settings from {path}')
+
         yaml = YAML()
+        yaml.preserve_quotes = True
         with open(path, "r") as file:
             data = yaml.load(file)
 
-            proxmox_config = dict(**data[ConfigSections.PROXMOX_CONFIG])
+        proxmox_config = dict(**data[ConfigSections.PROXMOX_CONFIG])
 
-            settings = CommonSettings(**data[ConfigSections.COMMON_SETTINGS])
+        settings = CommonSettings(**data[ConfigSections.COMMON_SETTINGS])
 
-            notification_settings = {key: dict(**value) for key, value in
-                                     data[ConfigSections.NOTIFICATION_OPTIONS].items() if
-                                     isinstance(value, dict)}
+        notification_settings = {key: dict(**value) for key, value in
+                                 data[ConfigSections.NOTIFICATION_OPTIONS].items() if
+                                 isinstance(value, dict)}
 
-            vms = []
-            for vm_data in data[ConfigSections.VMS]:
-                vm_data_temp = copy.deepcopy(vm_data)
+        vms = []
+        for vm_data in data[ConfigSections.VMS]:
+            vm_data_temp = copy.deepcopy(vm_data)
 
-                vm_id = vm_data_temp.pop(ConfigSections.VM_ID, None)
-                enabled = vm_data_temp.pop(ConfigSections.ENABLED, True)
-                startup_parameters_data = vm_data_temp.pop(ConfigSections.STARTUP_PARAMETERS, {})
-                dependencies = vm_data_temp.pop(ConfigSections.DEPENDENCIES, [])
-                healthcheck_data = vm_data_temp.pop(ConfigSections.HEALTHCHECK, None)
-                other = vm_data_temp
+            vm_id = vm_data_temp.pop(ConfigSections.VM_ID, None)
+            enabled = vm_data_temp.pop(ConfigSections.ENABLED, True)
+            startup_parameters_data = vm_data_temp.pop(ConfigSections.STARTUP_PARAMETERS, {})
+            dependencies = vm_data_temp.pop(ConfigSections.DEPENDENCIES, [])
+            healthcheck_data = vm_data_temp.pop(ConfigSections.HEALTHCHECK, None)
+            other = vm_data_temp
 
-                healthcheck = None
-                if healthcheck_data:
-                    h_data = healthcheck_data.copy()
-                    if ConfigSections.CHECK_METHOD in h_data and isinstance(h_data[ConfigSections.CHECK_METHOD], str):
-                        h_data[ConfigSections.CHECK_METHOD] = HealthcheckType(h_data[ConfigSections.CHECK_METHOD])
+            healthcheck = None
+            if healthcheck_data:
+                h_data = healthcheck_data.copy()
+                if ConfigSections.CHECK_METHOD in h_data and isinstance(h_data[ConfigSections.CHECK_METHOD], str):
+                    h_data[ConfigSections.CHECK_METHOD] = HealthcheckType(h_data[ConfigSections.CHECK_METHOD])
 
-                    healthcheck = HealthCheckOptions(**h_data)
+                healthcheck = HealthCheckOptions(**h_data)
 
-                vm = VmStartOptions(
-                    vm_id,
-                    enabled,
-                    startup_parameters=StartOptions(**startup_parameters_data),
-                    dependencies=dependencies,
-                    healthcheck=healthcheck,
-                    other=other
-                )
+            vm = VmStartOptions(
+                vm_id,
+                enabled,
+                startup_parameters=StartOptions(**startup_parameters_data),
+                dependencies=dependencies,
+                healthcheck=healthcheck,
+                other=other
+            )
 
-                vms.append(vm)
+            vms.append(vm)
 
-            return (
-                AppSettings(
-                    proxmox_settings=ProxmoxSettings(proxmox_config),
-                    app_settings=settings,
-                    notification_settings=notification_settings,
-                    start_vms_settings=vms
-                ),
-                data)
+        return (
+            AppSettings(
+                proxmox_settings=ProxmoxSettings(proxmox_config),
+                app_settings=settings,
+                notification_settings=notification_settings,
+                start_vms_settings=vms
+            ),
+            data)

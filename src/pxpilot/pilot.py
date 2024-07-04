@@ -32,7 +32,7 @@ def build_notification_manager(app_config) -> NotificationManager | None:
 
 
 def start(config_file):
-    logger.info("pilot is starting")
+    logger.info("pilot is starting...")
 
     config = config_builder.get_config_provider(ConfigType.ruamel, config_file)
     app_config = config.get_app_config()
@@ -51,7 +51,7 @@ def start(config_file):
     else:
         print("Config not loaded.")
 
-    logger.info("pilot completed.")
+    logger.info("pilot is completed. Exit.")
 
 
 def execute(app_config, notification_manager):

@@ -1,3 +1,4 @@
+import functools
 import logging
 import time
 
@@ -16,20 +17,24 @@ def retry(tries, delay, excludes):
 
     """
     def deco_retry(f):
-        def inner(*args, **kwargs):
+        @functools.wraps(f)
+        def retry_inner(*args, **kwargs):
             for i in range(tries):
                 try:
                     return f(*args, **kwargs)
                 except Exception as e:
                     if isinstance(e, excludes):
-                        logger.debug(f"Skipped exception: {e}")
+                        logger.debug(f"Skipped exception as excluded: {str(e)}")
                         raise e
 
-                    logger.exception(f"During execution {f.__name__} exception occurred: {e}")
-                    logger.warning(f"Retry #{i + 1}")
-                    time.sleep(delay)
-            raise Exception(f"Function {f.__name__} failed after {tries} attempts")
+                    logger.error(f"Try #{i + 1}. During execution '{f.__name__}' exception occurred: {str(e)}")
 
-        return inner
+                    if i < tries - 1:
+                        logger.debug(f"Waiting {delay} seconds before retrying...")
+                        time.sleep(delay)
+
+            raise Exception(f"Function '{f.__name__}' failed after {tries} attempts")
+
+        return retry_inner
 
     return deco_retry

@@ -1,7 +1,8 @@
 """ PxPilot: Proxmox Virtual Machine Launcher """
 
 __title__ = "pxpilot"
-__description__ = "A tool for managing Proxmox VMs with notifications support"
+__description__ = ("Utility for starting Proxmox virtual machines in a specified order with support for notifications "
+                   "via Telegram and email.")
 __url__ = "https://github.com/ghostkaa/pxpilot"
 __version__ = "0.0.0"
 __author__ = "ghostkaa"

@@ -15,6 +15,18 @@ class ProxmoxSettingsModel(BaseModel):
     extra_settings: Optional[Dict[str, Any]] = {}
 
 
+class ProxmoxSettingsLightModel(BaseModel):
+    host: str
+    token_name: str
+    token_value: str
+
+
+class ProxmoxValidationResultModel(BaseModel):
+    is_valid: bool
+    status_code: int
+    message: Optional[str] = None
+
+
 class StartOptionsModel(BaseModel):
     await_running: bool = False
     startup_timeout: int = 120
@@ -55,3 +67,8 @@ class EmailModel(BaseModel):
 class NotificationsModel(BaseModel):
     telegram: Optional[TelegramModel] = None
     email: Optional[EmailModel] = None
+
+
+class HealthcheckModel(BaseModel):
+    status: str
+    version: str

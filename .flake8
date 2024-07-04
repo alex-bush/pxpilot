@@ -4,3 +4,4 @@ exclude =
     tests
     .venv
     venv
+    src/frontend

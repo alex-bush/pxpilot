@@ -82,9 +82,10 @@ class TestConfigProviders:
     def test_load_proxmox_settings(self, target, patch_name):
         with patch("builtins.open", mock_open(read_data=VALID_CONFIG)):
             with patch(patch_name, return_value=yaml.safe_load(VALID_CONFIG)):
-                cfg = target().load_px_settings()
+                with patch('copy.deepcopy', side_effect=lambda x: x):
+                    cfg = target().load_px_settings()
 
-                self._assert_proxmox(cfg)
+                    self._assert_proxmox(cfg)
 
     @pytest.mark.parametrize('target, patch_name', [
         (get_config_provider, 'yaml.safe_load'),
@@ -93,9 +94,10 @@ class TestConfigProviders:
     def test_load_notification_options(self, target, patch_name):
         with patch("builtins.open", mock_open(read_data=VALID_CONFIG)):
             with patch(patch_name, return_value=yaml.safe_load(VALID_CONFIG)):
-                cfg = target().load_notifications_settings()
+                with patch('copy.deepcopy', side_effect=lambda x: x):
+                    cfg = target().load_notifications_settings()
 
-                self._assert_notifications(cfg)
+                    self._assert_notifications(cfg)
 
     @pytest.mark.parametrize('target, patch_name', [
         (get_config_provider, 'yaml.safe_load'),
@@ -104,9 +106,10 @@ class TestConfigProviders:
     def test_load_vms_startups_options(self, target, patch_name):
         with patch("builtins.open", mock_open(read_data=VALID_CONFIG)):
             with patch(patch_name, return_value=yaml.safe_load(VALID_CONFIG)):
-                cfg = target().load_start_vms_settings()
+                with patch('copy.deepcopy', side_effect=lambda x: x):
+                    cfg = target().load_start_vms_settings()
 
-                self._assert_vms(cfg)
+                    self._assert_vms(cfg)
 
     @pytest.mark.parametrize('target, patch_name', [
         (get_config_provider, 'yaml.safe_load'),
@@ -115,11 +118,12 @@ class TestConfigProviders:
     def test_load_app_config(self, target, patch_name):
         with patch("builtins.open", mock_open(read_data=VALID_CONFIG)):
             with patch(patch_name, return_value=yaml.safe_load(VALID_CONFIG)):
-                cfg = target().get_app_config()
+                with patch('copy.deepcopy', side_effect=lambda x: x):
+                    cfg = target().get_app_config()
 
-                self._assert_proxmox(cfg.proxmox_settings)
-                self._assert_notifications(cfg.notification_settings)
-                self._assert_vms(cfg.start_vms_settings)
+                    self._assert_proxmox(cfg.proxmox_settings)
+                    self._assert_notifications(cfg.notification_settings)
+                    self._assert_vms(cfg.start_vms_settings)
 
     @staticmethod
     def _assert_proxmox(cfg):

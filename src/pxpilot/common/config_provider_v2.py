@@ -141,7 +141,7 @@ class ConfigProviderV2(IConfig):
             if healthcheck_data:
                 h_data = healthcheck_data.copy()
                 if ConfigSections.CHECK_METHOD in h_data and isinstance(h_data[ConfigSections.CHECK_METHOD], str):
-                    h_data[ConfigSections.CHECK_METHOD] = HealthcheckType(h_data[ConfigSections.CHECK_METHOD])
+                    h_data[ConfigSections.CHECK_METHOD] = HealthcheckType(h_data.pop(ConfigSections.CHECK_METHOD))
 
                 healthcheck = HealthCheckOptions(**h_data)
 

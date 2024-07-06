@@ -1,5 +1,5 @@
 import './App.css'
-import AppSettings from "./components/AppSettings.jsx";
+import AppSettings from "./pages/AppSettings.jsx";
 import Header from "./components/Header.jsx";
 
 function App() {

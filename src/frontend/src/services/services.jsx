@@ -20,6 +20,10 @@ async function saveNotificationSettings(data) {
     return internal_post(apiBaseUrl + "/config/notifications", data);
 }
 
+async function saveStartupSettings(data) {
+    return internal_post(apiBaseUrl + "/config/startups", data);
+}
+
 async function testConnection(host, token, token_value){
     try {
         let response = await fetch(apiBaseUrl + '/status/px-validate', {
@@ -73,5 +77,6 @@ export {
     fetchStartupSettings,
     saveProxmoxSettings,
     saveNotificationSettings,
+    saveStartupSettings,
     testConnection
 }

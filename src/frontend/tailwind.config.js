@@ -8,7 +8,7 @@ export default {
     extend: {},
   },
   plugins: [],
-  corePlugins: {
-    preflight: false
-  }
+  // corePlugins: {
+  //   preflight: true
+  // }
 }

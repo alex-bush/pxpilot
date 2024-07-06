@@ -1,101 +1,118 @@
-import {Button, Card, Flex, List, Modal, Spin, Typography} from "antd";
-import {useEffect, useState} from "react";
-import DeleteButton from "./buttons/DeleteButton.jsx";
+import {Button, Card, Flex, notification, Spin, Typography} from "antd";
+import {useCallback, useEffect, useState} from "react";
 import AddButton from "./buttons/AddButton.jsx";
-import {fetchStartupSettings} from "../services/services.jsx";
-import VmStartupOptions from "./VmStartupOptions.jsx";
+import {fetchStartupSettings, saveStartupSettings} from "../services/services.jsx";
+import VmStartupOptionsModal from "./VmStartupOptionsModal.jsx";
+import StartItemRow from "./StartItemRow.jsx";
 
 export default function StartupSettings() {
-    const [Data, setData] = useState({isLoading: true})
-    const [modal2Open, setModal2Open] = useState(false);
+    const TITLE = "VM startup settings";
 
-    useEffect(() => {
-        fetchStartupSettings().then(res => {
-                res.isLoading = false;
-                setData(res)
-            }
-        )
-    }, [])
+    const [Data, setData] = useState([{}])
+    const [OriginalData, setOriginalData] = useState({})
+    const [isLoaded, setIsLoaded] = useState(false);
 
-    function add() {
-        if (Data.findIndex(x => x.vm_id === 0) > 0) {
-            console.log('already exists')
-            return
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentItem, setCurrentItem] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [notificationInstance, notificationHolder] = notification.useNotification();
+
+    const showNotification = (type, title) => {
+        if (type === "error") {
+            notificationInstance[type]({
+                message: 'Error',
+                description: 'Error while saving ' + title,
+            })
+            return;
         }
-        setData([
-                ...Data, {
-                    vm_id: 0,
-                    name: '',
-                    healthcheck: null
-                }
-            ]
-        )
+
+        notificationInstance[type]({
+            message: 'Done!',
+            description: title + ' saved successfully',
+        })
     }
 
+    const loadData = useCallback(async () => {
+        let data = await fetchStartupSettings();
+        setOriginalData(data);
+
+        setIsLoaded(true);
+        setData(data);
+    }, [])
+
+    useEffect(() => {
+        loadData();
+    }, [loadData])
+
     function remove(key) {
-        setData(prevData => prevData.filter(item => item.vm_id !== key));
+        let data = Data.filter(item => item.vm_id !== key);
+        setData([...data]);
+    }
+
+    function handleItemRowClick(item) {
+        setCurrentItem(item);
+        setIsModalOpen(true);
+    }
+
+    function handleModalOkClick(item) {
+        console.log(item);
+        try {
+            if (Data.findIndex(x => x.vm_id === 0) > 0) {
+                console.log('already exists')
+                return
+            }
+            setData([...Data, item])
+        } finally {
+            setIsModalOpen(false);
+        }
+    }
+
+    async function handleSaveClick() {
+        setLoading(true);
+
+        try {
+            await saveStartupSettings(Data);
+            await loadData();
+            showNotification('success', TITLE);
+        } catch (err) {
+            console.log(err);
+            showNotification('error', TITLE);
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
         <>
+            {notificationHolder}
+            <VmStartupOptionsModal isModalOpen={isModalOpen}
+                                   item={currentItem}
+                                   onOk={handleModalOkClick}
+                                   onCancel={() => setIsModalOpen(false)}
+            />
+
             <Card
                 title="Virtual machines startup settings"
                 style={{
                     width: "-moz-fit-content",
                 }}>
-                {Data.isLoading ? <Spin size={"large"}/> : (
+                {isLoaded ? (
                     <div style={{textAlign: 'left', whiteSpace: 'nowrap'}}>
                         <Typography>List of virtual machines in the order in which they will be started</Typography>
-                        <List
-                            itemLayout="horizontal"
-                            dataSource={Data}
-                            renderItem={(item, index) => (
-                                <List.Item key={index}>
-                                    <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
-                                        <div>
-                                            <List.Item.Meta
-                                                title={item.vm_id + ': ' + item.name}
-                                                description={item.description}
-                                            />
-                                        </div>
-                                        <DeleteButton size={'small'} onDelete={() => remove(item.vm_id)}/>
-                                    </div>
-                                </List.Item>
-                            )}>
-
-                        </List>
+                        {Data.map((item) => (
+                            <div key={item.vm_id}>
+                                <StartItemRow key={item.vm_id} item={item} onClick={() => handleItemRowClick(item)}
+                                              onRemove={remove}/>
+                            </div>))}
                         <p/>
                         <Flex justify="space-between">
-                            <AddButton onclick={() => setModal2Open(true) }/>
-                            <Button type="primary">Save settings</Button>
+                            <AddButton onClick={() => {
+                                setCurrentItem(null);
+                                setIsModalOpen(true)
+                            }}/>
+                            <Button type="primary" onClick={handleSaveClick}>Save settings</Button>
                         </Flex>
-
-                        <Modal
-                            title="Add VM to startup list"
-                            centered
-                            open={modal2Open}
-                            onOk={() => setModal2Open(false)}
-                            onCancel={() => setModal2Open(false)}
-                        >
-                            <VmStartupOptions item={{}}/>
-                        </Modal>
-
-                        {/*<Space direction="vertical" size="middle" style={{display: 'flex', gap: '1em'}}>*/}
-                        {/*    {Data.map(item =>*/}
-                        {/*        <div style={{display: 'flex'}} key={item.vm_id}>*/}
-                        {/*            <div style={{*/}
-                        {/*                flex: "1 1 100%",*/}
-                        {/*            }}>*/}
-                        {/*                <VmStartupOptions item={item}/>*/}
-                        {/*            </div>*/}
-                        {/*            <DeleteButton onDelete={() => remove(item.vm_id)}/>*/}
-                        {/*        </div>*/}
-                        {/*    )}*/}
-
-                        {/*    <AddButton onclick={add}/>*/}
-                        {/*    <Button type="primary">Save</Button>*/}
-                        {/*</Space>*/}
-                    </div>)
+                    </div>) : <Spin size={"large"}/>
                 }
             </Card>
         </>

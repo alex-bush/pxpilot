@@ -1,6 +1,6 @@
 import {Input} from "antd";
 
-function LabeledTextField({ title, value, is_password = false, onChange }) {
+function LabeledTextField({ className, title, value, type = 'default', is_password = false, disabled = false, onChange }) {
 
     function handleChange(e) {
         if (onChange) {
@@ -9,13 +9,13 @@ function LabeledTextField({ title, value, is_password = false, onChange }) {
     }
 
     return (
-        <div >
-            <label className="flex">{title}:</label>
+        <div className={className}>
+            <label>{title}:</label>
             {
                 is_password ? (
-                    <Input.Password size={"large"} value={value} onChange={handleChange}></Input.Password>
+                    <Input.Password size={"large"} value={value} onChange={handleChange} disabled={disabled}></Input.Password>
                 ) : (
-                    <Input size={"large"} value={value} onChange={handleChange}></Input>
+                    <Input type={type} size={"large"} value={value} onChange={handleChange} disabled={disabled}></Input>
                 )
             }
         </div>

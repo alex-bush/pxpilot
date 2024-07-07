@@ -1,6 +1,6 @@
 from typing import Optional, List, Any, Dict
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, ValidationError
 
 from pxpilot.models.configuration.vm_start_settings import HealthcheckType
 
@@ -33,15 +33,15 @@ class StartOptionsModel(BaseModel):
 
 
 class HealthCheckOptionsModel(BaseModel):
-    target_url: str
-    check_method: HealthcheckType = HealthcheckType.PING
+    target_url: str = Field(..., description="Target URL")
+    check_method: HealthcheckType = Field(default=HealthcheckType.PING, description="Check method")
 
 
 class VmStartOptionsModel(BaseModel):
     vm_id: int
-    name: Optional[str] = Field(None, alias="name")
-    description: Optional[str] = Field(None, alias="description")
-    enabled: Optional[bool] = True
+    name: Optional[str] = Field(None, description="VM name")
+    description: Optional[str] = Field(None, description="Short description of VM")
+    enabled: Optional[bool] = Field(True, description="Enable or disable starting VM")
 
     startup_parameters: StartOptionsModel = Field(default_factory=StartOptionsModel)
     dependencies: List[int] = Field(default_factory=list)
@@ -63,6 +63,13 @@ class EmailModel(BaseModel):
     from_email: str
     to_email: str
 
+    @classmethod
+    @field_validator('smtp_port')
+    def validate_port(cls, v):
+        if isinstance(v, int):
+            return v
+        raise ValidationError("Port must be an number")
+
 
 class NotificationsModel(BaseModel):
     telegram: Optional[TelegramModel] = None
@@ -72,3 +79,11 @@ class NotificationsModel(BaseModel):
 class HealthcheckModel(BaseModel):
     status: str
     version: str
+
+
+class ProxmoxVm(BaseModel):
+    id: int
+    name: Optional[str]
+    status: Optional[str] = None
+    node: Optional[str] = None
+    type: Optional[str] = None

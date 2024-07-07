@@ -54,14 +54,17 @@ export default function StartupSettings() {
         setIsModalOpen(true);
     }
 
-    function handleModalOkClick(item) {
-        console.log(item);
+    const isDataUnchanged = () => {
+        return JSON.stringify(Data) === JSON.stringify(OriginalData);
+    }
+
+    function handleModalOkClick(key, item) {
         try {
-            if (Data.findIndex(x => x.vm_id === 0) > 0) {
-                console.log('already exists')
-                return
+            if (key) {
+                setData(Data.map(x => x.vm_id === key? item : x));
+            } else {
+                setData([...Data, item])
             }
-            setData([...Data, item])
         } finally {
             setIsModalOpen(false);
         }
@@ -88,20 +91,17 @@ export default function StartupSettings() {
             <VmStartupOptionsModal isModalOpen={isModalOpen}
                                    item={currentItem}
                                    onOk={handleModalOkClick}
-                                   onCancel={() => setIsModalOpen(false)}
-            />
+                                   onCancel={() => setIsModalOpen(false)}/>
 
             <Card
-                title="Virtual machines startup settings"
-                style={{
-                    width: "-moz-fit-content",
-                }}>
+                title="Virtual machines startup settings">
                 {isLoaded ? (
                     <div style={{textAlign: 'left', whiteSpace: 'nowrap'}}>
                         <Typography>List of virtual machines in the order in which they will be started</Typography>
                         {Data.map((item) => (
                             <div key={item.vm_id}>
-                                <StartItemRow key={item.vm_id} item={item} onClick={() => handleItemRowClick(item)}
+                                <StartItemRow key={item.vm_id} item={item}
+                                              onClick={() => handleItemRowClick(item)}
                                               onRemove={remove}/>
                             </div>))}
                         <p/>
@@ -110,7 +110,7 @@ export default function StartupSettings() {
                                 setCurrentItem(null);
                                 setIsModalOpen(true)
                             }}/>
-                            <Button type="primary" onClick={handleSaveClick}>Save settings</Button>
+                            <Button type="primary" loading={loading} disabled={isDataUnchanged()} onClick={handleSaveClick}>Save settings</Button>
                         </Flex>
                     </div>) : <Spin size={"large"}/>
                 }

@@ -8,14 +8,19 @@ export default function VmStartupOptionsModal({isModalOpen, item, onOk, onCancel
 
     const [healthcheckEnabled, setHealthcheckEnabled] = useState(false);
     const [data, setData] = useState({healthcheck: {check_method: defaultCheck}});
+    const [key, setKey] = useState(null);
     const [isOkDisabled, setIsOkDisabled] = useState(false);
 
     useEffect(() => {
         if (!isModalOpen) {
             // Reset state when the modal is closed
             setHealthcheckEnabled(false);
+            setKey(null);
             setData({healthcheck: {check_method: defaultCheck}});
         } else if (item) {
+            if (item.vm_id){
+                setKey(item.vm_id);
+            }
             setHealthcheckEnabled(!!item.healthcheck);
             setData(item);
         }
@@ -33,7 +38,12 @@ export default function VmStartupOptionsModal({isModalOpen, item, onOk, onCancel
     }, [data, healthcheckEnabled]);
 
     const handleOk = () => {
-        onOk(data);
+        if (!data.healthcheck || data.healthcheck.check_method === defaultCheck) {
+            onOk(key, {...data, healthcheck: null});
+        } else {
+            onOk(key, data);
+        }
+
         setData({healthcheck: {check_method: defaultCheck}});
     };
 
@@ -66,7 +76,6 @@ export default function VmStartupOptionsModal({isModalOpen, item, onOk, onCancel
             okButtonProps={{disabled: isOkDisabled}}>
             <Card>
                 <LabeledTextField
-
                     title='VM Id'
                     type='number'
                     value={data.vm_id}
@@ -112,7 +121,7 @@ export default function VmStartupOptionsModal({isModalOpen, item, onOk, onCancel
                         <LabeledTextField
 
                             title='Healthcheck url'
-                            value={data.healthcheck.target_url}
+                            value={data.healthcheck?.target_url}
                             disabled={!healthcheckEnabled}
                             onChange={(value) => setData({
                                 ...data, healthcheck: {...data.healthcheck, target_url: value}

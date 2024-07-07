@@ -11,6 +11,10 @@ from .vm_service import VMService
 from pxpilot.tools.retry import retry
 
 
+def create_vm_service(config) -> VMService:
+    return ProxmoxClient(**config)
+
+
 class ProxmoxClient(VMService):
     _proxmox: ProxmoxAPI
 
@@ -50,6 +54,7 @@ class ProxmoxClient(VMService):
 
         Args:
             node (str): Node identifier in the Proxmox environment.
+            If not specified, VMs from all nodes will be returned.
 
         Returns:
             Dict[int, VirtualMachine]: Dictionary of VM list.

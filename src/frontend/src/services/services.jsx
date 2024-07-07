@@ -26,7 +26,7 @@ async function saveStartupSettings(data) {
 
 async function testConnection(host, token, token_value){
     try {
-        let response = await fetch(apiBaseUrl + '/status/px-validate', {
+        let response = await fetch(apiBaseUrl + '/proxmox/px-validate', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -45,6 +45,17 @@ async function testConnection(host, token, token_value){
 
 }
 
+async function fetchAllVirtualMachines() {
+    try{
+        let response = await fetch(apiBaseUrl + "/proxmox/get_vms");
+        if (response.ok) {
+            return await response.json();
+        }
+    }
+    catch(err) {
+        console.log(err);
+    }
+}
 async function internal_get(url, log_to_console = false) {
 
     let response = await fetch(url);
@@ -78,5 +89,6 @@ export {
     saveProxmoxSettings,
     saveNotificationSettings,
     saveStartupSettings,
-    testConnection
+    testConnection,
+    fetchAllVirtualMachines
 }

@@ -90,6 +90,7 @@ export default function StartupSettings() {
             {notificationHolder}
             <VmStartupOptionsModal isModalOpen={isModalOpen}
                                    item={currentItem}
+                                   usedKeys={Data.map(i => i.vm_id)}
                                    onOk={handleModalOkClick}
                                    onCancel={() => setIsModalOpen(false)}/>
 

@@ -2,7 +2,7 @@ import {Button, Card, Collapse, Flex, notification, Spin} from "antd";
 import {useEffect, useState} from "react";
 import Telegram from "./Telegram.jsx";
 import Email from "./Email.jsx";
-import {fetchNotificationSettings, saveNotificationSettings} from "../services/services.jsx";
+import {fetchNotificationSettings, saveNotificationSettings} from "../../services/services.jsx";
 
 export const Notifications = () => {
     const TITLE = "Notification settings";

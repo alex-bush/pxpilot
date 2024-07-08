@@ -1,7 +1,7 @@
 import {Button, Card, Flex, notification, Spin, Typography} from "antd";
 import {useCallback, useEffect, useState} from "react";
-import AddButton from "./buttons/AddButton.jsx";
-import {fetchStartupSettings, saveStartupSettings} from "../services/services.jsx";
+import AddButton from "../controls/AddButton.jsx";
+import {fetchStartupSettings, saveStartupSettings} from "../../services/services.jsx";
 import VmStartupOptionsModal from "./VmStartupOptionsModal.jsx";
 import StartItemRow from "./StartItemRow.jsx";
 

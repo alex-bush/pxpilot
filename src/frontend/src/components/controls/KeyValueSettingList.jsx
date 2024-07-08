@@ -1,6 +1,6 @@
 import KeyValueTextField from "./KeyValueTextField.jsx";
-import DeleteButton from "../buttons/DeleteButton.jsx";
-import AddButton from "../buttons/AddButton.jsx";
+import DeleteButton from "./DeleteButton.jsx";
+import AddButton from "./AddButton.jsx";
 import {Collapse} from "antd";
 import {useEffect, useState} from "react";
 

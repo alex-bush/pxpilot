@@ -1,4 +1,4 @@
-import DeleteButton from "./buttons/DeleteButton.jsx";
+import DeleteButton from "../controls/DeleteButton.jsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClockRotateLeft, faHeartbeat, faLink} from '@fortawesome/free-solid-svg-icons';
 import {Popover} from "antd";
@@ -73,7 +73,7 @@ export default function StartItemRow({item, onClick, onRemove}) {
                             </div>
                             <div>
                                 <Popover content={dependeciesContent}>
-                                    <FontAwesomeIcon icon={faLink}
+                                    <FontAwesomeIcon icon={faLink} color='blue'
                                                      className={!(item.dependencies && item.dependencies.length > 0) ? 'disabled-icon' : ''}
                                                      title='Healthcheck enabled'/>
                                 </Popover>

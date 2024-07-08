@@ -1,7 +1,7 @@
 import {Space} from "antd";
-import ProxmoxSettings from "../components/ProxmoxSettings.jsx";
-import {Notifications} from "../components/Notifications.jsx";
-import StartupSettings from "../components/StartupSettings.jsx";
+import ProxmoxSettings from "../components/proxmox_settings/ProxmoxSettings.jsx";
+import {Notifications} from "../components/notification_settings/Notifications.jsx";
+import StartupSettings from "../components/start_vm_settings/StartupSettings.jsx";
 
 export default function AppSettings() {
     return (

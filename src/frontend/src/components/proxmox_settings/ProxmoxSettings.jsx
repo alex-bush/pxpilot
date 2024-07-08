@@ -1,8 +1,8 @@
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {Button, Card, Flex, message, notification, Spin} from "antd";
-import LabeledTextField from "./controls/LabeledTextField.jsx";
-import {fetchProxmoxSettings, saveProxmoxSettings, testConnection} from "../services/services.jsx";
-import KeyValueSettingList from "./controls/KeyValueSettingList.jsx";
+import LabeledTextField from "../controls/LabeledTextField.jsx";
+import {fetchProxmoxSettings, saveProxmoxSettings, testConnection} from "../../services/services.jsx";
+import KeyValueSettingList from "../controls/KeyValueSettingList.jsx";
 
 export default function ProxmoxSettings() {
     const TITLE = "Proxmox connection settings";

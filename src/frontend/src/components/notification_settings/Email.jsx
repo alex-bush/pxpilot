@@ -1,6 +1,6 @@
-import LabeledTextField from "./controls/LabeledTextField.jsx";
+import LabeledTextField from "../controls/LabeledTextField.jsx";
 import {Card} from "antd";
-import CheckboxField from "./controls/CheckboxField.jsx";
+import CheckboxField from "../controls/CheckboxField.jsx";
 
 export default function Email({data, onChange}) {
 

@@ -1,8 +1,8 @@
-import LabeledTextField from "./controls/LabeledTextField.jsx";
+import LabeledTextField from "../controls/LabeledTextField.jsx";
 import {Card, Divider, Modal, Select} from "antd";
-import CheckboxField from "./controls/CheckboxField.jsx";
-import {useEffect, useState} from "react";
-import {fetchAllVirtualMachines} from "../services/services.jsx";
+import CheckboxField from "../controls/CheckboxField.jsx";
+import {useEffect, useMemo, useState} from "react";
+import {fetchAllVirtualMachines} from "../../services/services.jsx";
 
 export default function VmStartupOptionsModal({isModalOpen, item, usedKeys, onOk, onCancel}) {
     const defaultCheck = 'none';
@@ -12,26 +12,35 @@ export default function VmStartupOptionsModal({isModalOpen, item, usedKeys, onOk
         {value: 'http', label: 'HTTP request'}
         ,];
 
+    const emptyItem = useMemo(() => ({
+            startup_parameters: {await_running: true, startup_timeout: 120},
+            healthcheck: {check_method: defaultCheck}
+        }), [])
+    ;
+
     const [healthcheckEnabled, setHealthcheckEnabled] = useState(false);
-    const [data, setData] = useState({healthcheck: {check_method: defaultCheck}});
+    const [data, setData] = useState(emptyItem);
     const [key, setKey] = useState(null);
     const [isOkDisabled, setIsOkDisabled] = useState(false);
     const [availableVms, setAvailableVms] = useState([]);
+    const [selectVm, setSelectVm] = useState(null);
 
     useEffect(() => {
         if (!isModalOpen) {
             // Reset state when the modal is closed
             setHealthcheckEnabled(false);
             setKey(null);
-            setData({healthcheck: {check_method: defaultCheck}});
+            setData(emptyItem);
+            setSelectVm(null);
         } else if (item) {
             if (item.vm_id) {
                 setKey(item.vm_id);
+                setSelectVm(item.vm_id);
             }
             setHealthcheckEnabled(!!item.healthcheck);
             setData(item);
         }
-    }, [isModalOpen, item]);
+    }, [isModalOpen, item, emptyItem]);
 
     useEffect(() => {
         let isValid = data.vm_id && (
@@ -50,7 +59,8 @@ export default function VmStartupOptionsModal({isModalOpen, item, usedKeys, onOk
                 return {
                     value: vm.id,
                     label: vm.id + ': ' + vm.name,
-                    disabled: usedKeys && usedKeys.findIndex(i => i === vm.id) > -1
+                    disabled: usedKeys && usedKeys.findIndex(i => i === vm.id) > -1,
+                    name: vm.name,
                 }
             })
             setAvailableVms(d);
@@ -64,12 +74,12 @@ export default function VmStartupOptionsModal({isModalOpen, item, usedKeys, onOk
             onOk(key, data);
         }
 
-        setData({healthcheck: {check_method: defaultCheck}});
+        setData(emptyItem);
     };
 
     const handleCancelClick = () => {
         onCancel();
-        setData({healthcheck: {check_method: defaultCheck}});
+        setData(emptyItem);
     };
 
     function handleHealthcheckSelectChange(value) {
@@ -87,8 +97,9 @@ export default function VmStartupOptionsModal({isModalOpen, item, usedKeys, onOk
     }
 
     function handleVmSelectChange(value) {
-        console.log(value)
-        setData({...data, vm_id: value});
+        setSelectVm(value);
+        let name = availableVms.find(i => i.value === value)?.name;
+        setData({...data, vm_id: value, name: name});
     }
 
     return (<>
@@ -107,7 +118,7 @@ export default function VmStartupOptionsModal({isModalOpen, item, usedKeys, onOk
                         value={data.vm_id}
                         onChange={(value) => setData({...data, vm_id: value})}/>
                     <Select
-                        value={data.vm_id}
+                        value={selectVm}
                         className='w-2/5'
                         size='large'
                         placeholder="Select a VM"
@@ -139,7 +150,7 @@ export default function VmStartupOptionsModal({isModalOpen, item, usedKeys, onOk
                     className='mt-3'
                     title='Timeout'
                     type='number'
-                    value={data.startup_timeout ?? 120} disabled={!data.startup_parameters?.await_running}
+                    value={data.startup_parameters.startup_timeout} disabled={!data.startup_parameters?.await_running}
                     onChange={(value) => setData({
                         ...data,
                         startup_parameters: {...data.startup_parameters, startup_timeout: value}

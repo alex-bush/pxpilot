@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import Telegram from "./Telegram.jsx";
 import Email from "./Email.jsx";
 import {fetchNotificationSettings, saveNotificationSettings} from "../../services/services.jsx";
+import Spinner from "../controls/Spinner.jsx";
 
 export const Notifications = () => {
     const TITLE = "Notification settings";
@@ -114,7 +115,7 @@ export const Notifications = () => {
 
                     )
                     :
-                    <Spin size={"large"}/>
+                    <Spinner/>
                 }
 
             </Card>

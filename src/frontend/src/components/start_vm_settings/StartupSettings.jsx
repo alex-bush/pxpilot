@@ -4,6 +4,7 @@ import AddButton from "../controls/AddButton.jsx";
 import {fetchStartupSettings, saveStartupSettings} from "../../services/services.jsx";
 import VmStartupOptionsModal from "./VmStartupOptionsModal.jsx";
 import StartItemRow from "./StartItemRow.jsx";
+import Spinner from "../controls/Spinner.jsx";
 
 export default function StartupSettings() {
     const TITLE = "VM startup settings";
@@ -113,7 +114,7 @@ export default function StartupSettings() {
                             }}/>
                             <Button type="primary" loading={loading} disabled={isDataUnchanged()} onClick={handleSaveClick}>Save settings</Button>
                         </Flex>
-                    </div>) : <Spin size={"large"}/>
+                    </div>) : <Spinner/>
                 }
             </Card>
         </>

@@ -3,6 +3,7 @@ import {Button, Card, Flex, message, notification, Spin} from "antd";
 import LabeledTextField from "../controls/LabeledTextField.jsx";
 import {fetchProxmoxSettings, saveProxmoxSettings, testConnection} from "../../services/services.jsx";
 import KeyValueSettingList from "../controls/KeyValueSettingList.jsx";
+import Spinner from "../controls/Spinner.jsx";
 
 export default function ProxmoxSettings() {
     const TITLE = "Proxmox connection settings";
@@ -131,7 +132,7 @@ export default function ProxmoxSettings() {
                             </div>
                         )
                         :
-                        <Spin size={"large"}/>
+                        <Spinner/>
                 }
             </Card>
         </>

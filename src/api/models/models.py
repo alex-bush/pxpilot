@@ -1,4 +1,4 @@
-from enum import Enum, StrEnum
+from enum import Enum
 from typing import Optional, List, Any, Dict
 
 from pydantic import BaseModel, Field, field_validator, ValidationError
@@ -98,5 +98,3 @@ class ProxmoxVm(BaseModel):
 class ConfigState(Enum):
     Empty = 0
     Initialized = 1
-
-

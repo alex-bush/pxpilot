@@ -119,7 +119,7 @@ class ConfigProviderV2(IConfig):
             vm_data.update(vm.other)
             vms_list.append(vm_data)
 
-        self._yaml_data[ConfigSections.VMS] = vms_list
+        self.yaml_data[ConfigSections.VMS] = vms_list
         self._save_config(self._file_path, self._yaml_data)
 
     def reload_settings(self, empty_init: bool = False):

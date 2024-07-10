@@ -62,6 +62,27 @@ export default function ProxmoxSettings() {
         setData(newData);
     }
 
+    function handleExtraSettingsChanged(index, newKey, newValue) {
+        const new_extra = Object.entries(Data.extra_settings).map((item, idx) => {
+            if (idx === index){
+                return [newKey, newValue];
+            }
+            return item;
+        })
+
+        setData({...Data, ['extra_settings']: Object.fromEntries(new_extra)});
+    }
+
+    function handleAddExtraSettingClick() {
+        setData({...Data, extra_settings: { ...Data.extra_settings, ['']: '' }});
+    }
+
+    function handleDeleteExtraSettingClick(index) {
+        const new_extra = Object.entries(Data.extra_settings).filter((item, idx) => idx !== index);
+
+        setData({...Data, extra_settings: Object.fromEntries(new_extra)});
+    }
+
     async function handleSaveClick() {
         setLoading(true);
 
@@ -117,7 +138,11 @@ export default function ProxmoxSettings() {
                                                       onChange={value => handleFieldChange('token_value', value)}/>
                                 </div>
 
-                                <KeyValueSettingList title='Other settings' settings={Data.extra_settings}/>
+                                <KeyValueSettingList title='Other settings' settings={Data.extra_settings}
+                                                     onDataChange={handleExtraSettingsChanged}
+                                                     onAddClick={handleAddExtraSettingClick}
+                                                     onDeleteClick={handleDeleteExtraSettingClick}
+                                />
 
                                 <div className="toolbar">
                                     <Flex justify="space-between">

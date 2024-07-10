@@ -18,7 +18,7 @@ class ProxmoxSettingsModel(BaseModel):
     host: str
     token_name: str
     token_value: str
-    extra_settings: Optional[Dict[str, Any]] = {}
+    extra_settings: Optional[Dict[str, Any]] = None
 
 
 class ProxmoxSettingsLightModel(BaseModel):

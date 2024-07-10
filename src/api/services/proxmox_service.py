@@ -49,10 +49,10 @@ class ProxmoxService:
             return ProxmoxValidationResultModel(is_valid=False, status_code=status.HTTP_400_BAD_REQUEST, message=str(e))
 
     def get_vms(self) -> List[ProxmoxVm]:
-        if self._proxmox_client is None:
+        if self.proxmox_client is None:
             raise ProxmoxConfigurationError('ProxmoxClient is not initialized')
 
-        vms = self._proxmox_client.get_all_vms()
+        vms = self.proxmox_client.get_all_vms()
         return [ProxmoxVm(
             id=item.vm_id,
             name=item.name,

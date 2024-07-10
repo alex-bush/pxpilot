@@ -23,4 +23,4 @@ async def get_available_vms_from_proxmox(px_service: ProxmoxService = Depends(Pr
     except ProxmoxConfigurationError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

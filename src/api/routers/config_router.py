@@ -5,8 +5,6 @@ from fastapi import APIRouter, Depends, Response, status
 from api.models.models import ProxmoxSettingsModel, NotificationsModel, VmStartOptionsModel
 from api.routers.builders import get_config_service
 from api.services.config_service import ConfigService
-from pxpilot.common.i_config import ConfigType
-from pxpilot.models.configuration import config_builder
 
 router = APIRouter(prefix="/config", tags=["config"])
 
@@ -22,19 +20,19 @@ async def get_proxmox_connection_settings(
         config_service: ConfigService = Depends(get_config_service)) -> ProxmoxSettingsModel:
     settings = config_service.get_proxmox_settings()
 
-    return Response(status_code=status.HTTP_204_NO_CONTENT) if settings is None else settings
+    return settings if settings is not None else Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/notifications")
 async def get_notification_settings(config_service: ConfigService = Depends(get_config_service)) -> NotificationsModel:
     settings = config_service.get_notifications_settings()
-    return Response(status_code=status.HTTP_204_NO_CONTENT) if settings is None else settings
+    return settings if settings is not None else Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/startups")
 async def get_startups_settings(config_service: ConfigService = Depends(get_config_service)) -> List[VmStartOptionsModel]:
     settings = config_service.get_startup_settings()
-    return Response(status_code=status.HTTP_204_NO_CONTENT) if settings is None else settings
+    return settings if settings is not None else Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/px")

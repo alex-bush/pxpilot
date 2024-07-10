@@ -35,6 +35,9 @@ export const Notifications = () => {
 
     async function loadData() {
         let data = await fetchNotificationSettings();
+        if (data === null){
+            data = {isLoaded: true, telegram: {}, email: {}};
+        }
         setOriginalData(data);
 
         data.isLoaded = true;

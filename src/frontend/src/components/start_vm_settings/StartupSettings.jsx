@@ -1,4 +1,4 @@
-import {Button, Card, Flex, notification, Spin, Typography} from "antd";
+import {Button, Card, Empty, Flex, notification, Typography} from "antd";
 import {useCallback, useEffect, useState} from "react";
 import AddButton from "../controls/AddButton.jsx";
 import {fetchStartupSettings, saveStartupSettings} from "../../services/services.jsx";
@@ -35,6 +35,9 @@ export default function StartupSettings() {
 
     const loadData = useCallback(async () => {
         let data = await fetchStartupSettings();
+        if (data === null) {
+            data = [];
+        }
         setOriginalData(data);
 
         setIsLoaded(true);
@@ -62,7 +65,7 @@ export default function StartupSettings() {
     function handleModalOkClick(key, item) {
         try {
             if (key) {
-                setData(Data.map(x => x.vm_id === key? item : x));
+                setData(Data.map(x => x.vm_id === key ? item : x));
             } else {
                 setData([...Data, item])
             }
@@ -100,21 +103,31 @@ export default function StartupSettings() {
                 {isLoaded ? (
                     <div style={{textAlign: 'left', whiteSpace: 'nowrap'}}>
                         <Typography>List of virtual machines in the order in which they will be started</Typography>
-                        {Data.map((item) => (
-                            <div key={item.vm_id}>
-                                <StartItemRow key={item.vm_id} item={item}
-                                              onClick={() => handleItemRowClick(item)}
-                                              onRemove={remove}/>
-                            </div>))}
-                        <p/>
-                        <Flex justify="space-between">
-                            <AddButton onClick={() => {
-                                setCurrentItem(null);
-                                setIsModalOpen(true)
-                            }}/>
-                            <Button type="primary" loading={loading} disabled={isDataUnchanged()} onClick={handleSaveClick}>Save settings</Button>
-                        </Flex>
-                    </div>) : <Spinner/>
+
+                        <div>
+                            {Data.map((item) => (
+                                <div key={item.vm_id}>
+                                    <StartItemRow key={item.vm_id} item={item}
+                                                  onClick={() => handleItemRowClick(item)}
+                                                  onRemove={remove}/>
+                                </div>))}
+                            {Data.length === 0 &&
+                                <div>
+                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
+                                </div>
+                            }
+                            <Flex justify="space-between">
+                                <AddButton onClick={() => {
+                                    setCurrentItem(null);
+                                    setIsModalOpen(true)
+                                }}/>
+                                <Button type="primary" loading={loading} disabled={isDataUnchanged()}
+                                        onClick={handleSaveClick}>Save settings</Button>
+                            </Flex>
+                        </div>
+
+                    </div>
+                ) : <Spinner/>
                 }
             </Card>
         </>

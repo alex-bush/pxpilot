@@ -13,8 +13,8 @@ export default function Telegram({ data, onChange }) {
         <>
             <Card>
                 <CheckboxField title='Enabled' value={data.enabled} onChange={e => handleDataChange('enabled', e.target.checked)}/>
-                <LabeledTextField title='Token' value={ data.token } onChange={value => handleDataChange('token', value) }/>
-                <LabeledTextField title='Chat Id' value={ data.chat_id } onChange={value => handleDataChange('chat_id', value) }/>
+                <LabeledTextField title='Token' value={ data.token } placeholder='telegram bot id' onChange={value => handleDataChange('token', value) }/>
+                <LabeledTextField title='Chat Id' value={ data.chat_id } placeholder='chat id' onChange={value => handleDataChange('chat_id', value) }/>
             </Card>
         </>
     )

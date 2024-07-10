@@ -24,7 +24,7 @@ async function saveStartupSettings(data) {
     return internal_post(apiBaseUrl + "/config/startups", data);
 }
 
-async function testConnection(host, token, token_value){
+async function testConnection(host, token, token_value, extra_settings){
     try {
         let response = await fetch(apiBaseUrl + '/proxmox/px-validate', {
             method: 'POST',
@@ -33,6 +33,7 @@ async function testConnection(host, token, token_value){
                 host: host,
                 token_name: token,
                 token_value: token_value,
+                extra_settings: extra_settings,
             })
         });
         if (response.ok) {
@@ -59,13 +60,18 @@ async function fetchAllVirtualMachines() {
 async function internal_get(url, log_to_console = false) {
 
     let response = await fetch(url);
-    let dt = await response.json();
-
-    if (log_to_console) {
-        console.log(dt);
+    if (response.status === 204) {
+        return null;
     }
+    if (response.ok && response.status === 200) {
+        let dt = await response.json();
 
-    return dt;
+        if (log_to_console) {
+            console.log(dt);
+        }
+
+        return dt;
+    }
 }
 
 async function internal_post(url, data) {

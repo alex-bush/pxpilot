@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useState} from "react";
-import {Button, Card, Flex, message, notification, Spin} from "antd";
+import {Button, Card, Flex, message, notification} from "antd";
 import LabeledTextField from "../controls/LabeledTextField.jsx";
 import {fetchProxmoxSettings, saveProxmoxSettings, testConnection} from "../../services/services.jsx";
 import KeyValueSettingList from "../controls/KeyValueSettingList.jsx";
@@ -8,7 +8,7 @@ import Spinner from "../controls/Spinner.jsx";
 export default function ProxmoxSettings() {
     const TITLE = "Proxmox connection settings";
 
-    const [Data, setData] = useState({isLoaded: false, extra_settings: []})
+    const [Data, setData] = useState({isLoaded: false, extra_settings: {}})
     const [OriginalData, setOriginalData] = useState({})
 
     const [loading, setLoading] = useState(false);
@@ -40,6 +40,9 @@ export default function ProxmoxSettings() {
 
     const loadData = useCallback(async () => {
         let data = await fetchProxmoxSettings();
+        if (data === null) {
+            data = {isLoaded: true, extra_settings: {}};
+        }
         setOriginalData(data);
 
         data.isLoaded = true;
@@ -51,9 +54,7 @@ export default function ProxmoxSettings() {
     }, [loadData])
 
     const isDataUnchanged = () => {
-        return Data.host === OriginalData.host
-            && Data.token_name === OriginalData.token_name
-            && Data.token_value === OriginalData.token_value;
+        return JSON.stringify(Data) === JSON.stringify(OriginalData);
     }
 
     function handleFieldChange(field, value) {
@@ -78,10 +79,11 @@ export default function ProxmoxSettings() {
         }
     }
 
+
     async function handleTestClick() {
         setValidatingConnection(true)
         try {
-            const res = await testConnection(Data.host, Data.token_name, Data.token_value);
+            const res = await testConnection(Data.host, Data.token_name, Data.token_value, Data.extra_settings);
             if (res.is_valid) {
                 showMessage('success', `Connection successful`);
             } else {
@@ -107,11 +109,11 @@ export default function ProxmoxSettings() {
                         ? (
                             <div className="settings">
                                 <div className="mainBlock">
-                                    <LabeledTextField title='Host' value={Data.host}
+                                    <LabeledTextField title='Host' value={Data.host} placeholder='http://127.0.0.1:8006'
                                                       onChange={value => handleFieldChange('host', value)}/>
-                                    <LabeledTextField title='Token name' value={Data.token_name}
+                                    <LabeledTextField title='Token name' value={Data.token_name} placeholder='user@pve!tokenname'
                                                       onChange={value => handleFieldChange('token_name', value)}/>
-                                    <LabeledTextField title='Token value' value={Data.token_value} is_password={"true"}
+                                    <LabeledTextField title='Token value' value={Data.token_value} is_password={"true"} placeholder='token'
                                                       onChange={value => handleFieldChange('token_value', value)}/>
                                 </div>
 

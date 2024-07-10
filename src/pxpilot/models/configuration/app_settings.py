@@ -18,10 +18,10 @@ class CommonSettings:
 
 @dataclass
 class AppSettings:
-    app_settings: CommonSettings
+    app_settings: CommonSettings = None
 
-    proxmox_settings: ProxmoxSettings
+    proxmox_settings: ProxmoxSettings = None
 
-    start_vms_settings: List[VmStartOptions] = field(default_factory=list)
+    start_vms_settings: List[VmStartOptions] = None
 
-    notification_settings: Dict[str, Any] = field(default_factory=dict)
+    notification_settings: Dict[str, Any] = None

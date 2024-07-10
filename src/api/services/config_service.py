@@ -1,7 +1,7 @@
 from typing import List, Dict
 
 from api.models.models import ProxmoxSettingsModel, NotificationsModel, VmStartOptionsModel, TelegramModel, EmailModel, \
-    StartOptionsModel
+    StartOptionsModel, ConfigState
 from pxpilot.common import IConfig
 from pxpilot.models.configuration.app_settings import ProxmoxSettings
 from pxpilot.models.configuration.vm_start_settings import VmStartOptions, HealthCheckOptions, StartOptions
@@ -15,12 +15,19 @@ class ConfigService:
     def __init__(self, config_provider: IConfig):
         self._config = config_provider
 
+    async def get_config_state(self) -> ConfigState:
+        self._config.load_px_settings()
+        return ConfigState.Initialized if self._config.check_config() else ConfigState.Empty
+
     def reload_config(self):
         self._config.reload_settings()
 
-    def get_proxmox_settings(self) -> ProxmoxSettingsModel:
+    def get_proxmox_settings(self) -> ProxmoxSettingsModel | None:
         """ Get proxmox settings from config provider and return as pydantic model. """
         px_settings = self._config.load_px_settings()
+        if px_settings is None or px_settings.px_settings is None:
+            return None
+
         px_settings_model = ProxmoxSettingsModel(
             host=px_settings.px_settings.get("host", ""),
             token_name=px_settings.px_settings.get("token", ""),
@@ -45,11 +52,13 @@ class ConfigService:
 
         self._config.save_px_settings(px)
 
-    def get_notifications_settings(self) -> NotificationsModel:
+    def get_notifications_settings(self) -> NotificationsModel | None:
         """
         Get notifications settings for telegram and email from config provider and return as pydantic model.
         """
         notification_settings = self._config.load_notifications_settings()
+        if notification_settings is None:
+            return None
 
         notifications_model = self._convert_notification(notification_settings)
         return notifications_model
@@ -85,11 +94,14 @@ class ConfigService:
 
         self._config.save_start_vms_settings(vm_options)
 
-    def get_startup_settings(self) -> List[VmStartOptionsModel]:
+    def get_startup_settings(self) -> List[VmStartOptionsModel] | None:
         """
         Get settings for start virtual machines from config provider and return as pydantic model.
         """
         vms = self._config.load_start_vms_settings()
+
+        if vms is None:
+            return None
 
         startup_settings_models = []
         for vm in vms:

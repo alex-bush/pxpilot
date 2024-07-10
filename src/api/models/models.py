@@ -1,8 +1,14 @@
+from enum import Enum, StrEnum
 from typing import Optional, List, Any, Dict
 
 from pydantic import BaseModel, Field, field_validator, ValidationError
 
 from pxpilot.models.configuration.vm_start_settings import HealthcheckType
+
+
+class AppStateModel(BaseModel):
+    is_first_run: bool = Field(True)
+    is_config_initialized: bool = Field(False)
 
 
 class ProxmoxSettingsModel(BaseModel):
@@ -82,8 +88,15 @@ class HealthcheckModel(BaseModel):
 
 
 class ProxmoxVm(BaseModel):
-    id: int
-    name: Optional[str]
-    status: Optional[str] = None
-    node: Optional[str] = None
-    type: Optional[str] = None
+    id: int = Field(..., description="Proxmox id of virtual machine")
+    name: Optional[str] = Field(..., description="VM name")
+    status: Optional[str] = Field(default=None, description="Current status of virtual machine")
+    node: Optional[str] = Field(default=None, description="Proxmox node where virtual machine is located")
+    type: Optional[str] = Field(default=None, description="Type of virtual machine: qemu or lxc")
+
+
+class ConfigState(Enum):
+    Empty = 0
+    Initialized = 1
+
+

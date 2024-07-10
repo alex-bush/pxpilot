@@ -1,3 +1,4 @@
+import inspect
 from typing import List
 from unittest.mock import patch, mock_open
 
@@ -5,6 +6,7 @@ import pytest
 import yaml
 
 from pxpilot.common.config_provider import IConfig
+from pxpilot.common.config_provider_v2 import ConfigProviderV2
 from pxpilot.common.i_config import ConfigType
 from pxpilot.models.configuration import config_builder
 from pxpilot.models.configuration.app_settings import ProxmoxSettings
@@ -74,12 +76,18 @@ def get_config_provider_ruamel() -> IConfig:
     return config_builder.get_config_provider(ConfigType.ruamel, "file_path")
 
 
+def get_full_method_path(cls, method_name):
+    module_name = inspect.getmodule(cls).__name__
+    return f"{module_name}.{cls.__name__}.{method_name}"
+
+
 class TestConfigProviders:
     @pytest.mark.parametrize('target, patch_name', [
         (get_config_provider, 'yaml.safe_load'),
         (get_config_provider_ruamel, 'yaml.load')
     ])
-    def test_load_proxmox_settings(self, target, patch_name):
+    @patch(get_full_method_path(ConfigProviderV2, 'check_file_exists'), return_value=True)
+    def test_load_proxmox_settings(self, mock_check_file_exists, target, patch_name):
         with patch("builtins.open", mock_open(read_data=VALID_CONFIG)):
             with patch(patch_name, return_value=yaml.safe_load(VALID_CONFIG)):
                 with patch('copy.deepcopy', side_effect=lambda x: x):
@@ -91,7 +99,8 @@ class TestConfigProviders:
         (get_config_provider, 'yaml.safe_load'),
         (get_config_provider_ruamel, 'yaml.load')
     ])
-    def test_load_notification_options(self, target, patch_name):
+    @patch(get_full_method_path(ConfigProviderV2, 'check_file_exists'), return_value=True)
+    def test_load_notification_options(self, mock_check_file_exists, target, patch_name):
         with patch("builtins.open", mock_open(read_data=VALID_CONFIG)):
             with patch(patch_name, return_value=yaml.safe_load(VALID_CONFIG)):
                 with patch('copy.deepcopy', side_effect=lambda x: x):
@@ -103,7 +112,8 @@ class TestConfigProviders:
         (get_config_provider, 'yaml.safe_load'),
         (get_config_provider_ruamel, 'yaml.load')
     ])
-    def test_load_vms_startups_options(self, target, patch_name):
+    @patch(get_full_method_path(ConfigProviderV2, 'check_file_exists'), return_value=True)
+    def test_load_vms_startups_options(self, mock_check_file_exists, target, patch_name):
         with patch("builtins.open", mock_open(read_data=VALID_CONFIG)):
             with patch(patch_name, return_value=yaml.safe_load(VALID_CONFIG)):
                 with patch('copy.deepcopy', side_effect=lambda x: x):
@@ -115,7 +125,8 @@ class TestConfigProviders:
         (get_config_provider, 'yaml.safe_load'),
         (get_config_provider_ruamel, 'yaml.load')
     ])
-    def test_load_app_config(self, target, patch_name):
+    @patch(get_full_method_path(ConfigProviderV2, 'check_file_exists'), return_value=True)
+    def test_load_app_config(self, mock_check_file_exists, target, patch_name):
         with patch("builtins.open", mock_open(read_data=VALID_CONFIG)):
             with patch(patch_name, return_value=yaml.safe_load(VALID_CONFIG)):
                 with patch('copy.deepcopy', side_effect=lambda x: x):

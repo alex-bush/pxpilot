@@ -3,7 +3,7 @@ from proxmoxer import ProxmoxAPI, ResourceException
 from requests.exceptions import SSLError
 
 from .models import ProxmoxCommand, VMType, VirtualMachine, VMState
-from .exceptions import ProxmoxError, ProxmoxConfigurationError, FatalProxmoxError
+from pxpilot.common.exceptions import ProxmoxError, ProxmoxConfigurationError, FatalProxmoxError
 
 from .models import ProxmoxVMFields
 from .vm_service import VMService
@@ -28,7 +28,7 @@ class ProxmoxClient(VMService):
                 kwargs["user"] = user
                 kwargs["token_name"] = token_name
             except ValueError:
-                raise ProxmoxConfigurationError("Configuration problem: error on parsing token. Expected format: 'user@pve!token'.")
+                raise ProxmoxConfigurationError("Configuration problem: error on parsing token. Expected format: 'user@pve!token'")
 
         self._proxmox = proxmoxer.ProxmoxAPI(host=kwargs.pop("host"), **kwargs)
 

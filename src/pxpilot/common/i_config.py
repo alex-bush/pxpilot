@@ -14,6 +14,9 @@ class IConfig(Protocol):
     """
     Interface(protocol) for config providers.
     """
+    def check_config(self) -> bool:
+        pass
+
     def get_app_config(self) -> AppSettings:
         """ Get all AppSettings"""
         pass

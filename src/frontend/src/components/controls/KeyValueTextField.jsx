@@ -31,8 +31,8 @@ export default function KeyValueTextField({ field_name, field_value, onNameChang
 
     return (
         <>
-            <Input size={"large"} value={ title } onChange={_onNameChange}></Input>
-            <Input size={"large"} value={ value } onChange={_onValueChange}></Input>
+            <Input size={"large"} value={ title } placeholder='name' onChange={_onNameChange}></Input>
+            <Input size={"large"} value={ value } placeholder='value' onChange={_onValueChange}></Input>
         </>
     )
 }

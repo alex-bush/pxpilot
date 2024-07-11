@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import Telegram from "./Telegram.jsx";
 import Email from "./Email.jsx";
 import {fetchNotificationSettings, saveNotificationSettings} from "../../services/services.jsx";
+import Spinner from "../controls/Spinner.jsx";
 
 export const Notifications = () => {
     const TITLE = "Notification settings";
@@ -34,6 +35,9 @@ export const Notifications = () => {
 
     async function loadData() {
         let data = await fetchNotificationSettings();
+        if (data === null){
+            data = {isLoaded: true, telegram: {}, email: {}};
+        }
         setOriginalData(data);
 
         data.isLoaded = true;
@@ -62,16 +66,19 @@ export const Notifications = () => {
     }
 
     const isDataUnchanged = () => {
-        return Data.telegram.token === OriginalData.telegram.token
-            && Data.telegram.chat_id === OriginalData.telegram.chat_id
-            && Data.telegram.enabled === OriginalData.telegram.enabled
-            && Data.email.enabled === OriginalData.email.enabled
-            && Data.email.smtp_server === OriginalData.email.smtp_server
-            && Data.email.smtp_port === OriginalData.email.smtp_port
-            && Data.email.smtp_user === OriginalData.email.smtp_user
-            && Data.email.smtp_password === OriginalData.email.smtp_password
-            && Data.email.from_email === OriginalData.email.from_email
-            && Data.email.to_email === OriginalData.email.to_email;
+        if (Data && OriginalData) {
+            return Data.telegram?.token === OriginalData.telegram?.token
+                && Data.telegram?.chat_id === OriginalData.telegram?.chat_id
+                && Data.telegram?.enabled === OriginalData.telegram?.enabled
+                && Data.email?.enabled === OriginalData.email?.enabled
+                && Data.email?.smtp_server === OriginalData.email?.smtp_server
+                && Data.email?.smtp_port === OriginalData.email?.smtp_port
+                && Data.email?.smtp_user === OriginalData.email?.smtp_user
+                && Data.email?.smtp_password === OriginalData.email?.smtp_password
+                && Data.email?.from_email === OriginalData.email?.from_email
+                && Data.email?.to_email === OriginalData.email?.to_email;
+        }
+        return false;
     }
 
     return (
@@ -114,7 +121,7 @@ export const Notifications = () => {
 
                     )
                     :
-                    <Spin size={"large"}/>
+                    <Spinner/>
                 }
 
             </Card>

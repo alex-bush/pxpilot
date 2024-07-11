@@ -32,15 +32,28 @@ export default function VmStartupOptionsModal({isModalOpen, item, usedKeys, onOk
             setKey(null);
             setData(emptyItem);
             setSelectVm(null);
-        } else if (item) {
-            if (item.vm_id) {
-                setKey(item.vm_id);
-                setSelectVm(item.vm_id);
+        } else {
+            if (item) {
+                if (item.vm_id) {
+                    setKey(item.vm_id);
+                    setSelectVm(item.vm_id);
+                }
+                setHealthcheckEnabled(!!item.healthcheck);
+                setData(item);
             }
-            setHealthcheckEnabled(!!item.healthcheck);
-            setData(item);
+            fetchAllVirtualMachines().then(vms => {
+                let d = vms.map(vm => {
+                    return {
+                        value: vm.id,
+                        label: vm.id + ': ' + vm.name,
+                        disabled: usedKeys && usedKeys.findIndex(i => i === vm.id) > -1,
+                        name: vm.name,
+                    }
+                })
+                setAvailableVms(d);
+            })
         }
-    }, [isModalOpen, item, emptyItem]);
+    }, [isModalOpen, item, emptyItem, usedKeys]);
 
     useEffect(() => {
         let isValid = data.vm_id && (
@@ -51,21 +64,7 @@ export default function VmStartupOptionsModal({isModalOpen, item, usedKeys, onOk
             && data.healthcheck.target_url
         );
         setIsOkDisabled(!isValid);
-    }, [data, healthcheckEnabled]);
-
-    useEffect(() => {
-        fetchAllVirtualMachines().then(vms => {
-            let d = vms.map(vm => {
-                return {
-                    value: vm.id,
-                    label: vm.id + ': ' + vm.name,
-                    disabled: usedKeys && usedKeys.findIndex(i => i === vm.id) > -1,
-                    name: vm.name,
-                }
-            })
-            setAvailableVms(d);
-        })
-    }, [usedKeys])
+    }, [data, healthcheckEnabled, usedKeys]);
 
     const handleOkClick = () => {
         if (!data.healthcheck || data.healthcheck.check_method === defaultCheck) {

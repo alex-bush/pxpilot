@@ -4,7 +4,7 @@ import requests
 from fastapi import status
 from proxmoxer import ResourceException
 
-from api.models.models import ProxmoxValidationResultModel, ProxmoxVm
+from api.models.models import ProxmoxValidationResultModel, ProxmoxVm, ProxmoxSettingsModel
 from pxpilot.common.exceptions import ProxmoxConfigurationError
 from pxpilot.common.i_config import ConfigType
 from pxpilot.models.configuration import config_builder
@@ -33,9 +33,16 @@ class ProxmoxService:
         return self._proxmox_client
 
     @staticmethod
-    def test_proxmox_connection(host: str, token_name: str, token_value: str) -> ProxmoxValidationResultModel:
+    def test_proxmox_connection(connection_settings: ProxmoxSettingsModel) -> ProxmoxValidationResultModel:
         try:
-            proxmox_client = ProxmoxClient(host=host, token=token_name, token_value=token_value, verify_ssl=False)
+            px_settings = {
+                'host': connection_settings.host,
+                'token': connection_settings.token_name,
+                'token_value': connection_settings.token_value
+            }
+            px_settings.update(dict(connection_settings.extra_settings))
+
+            proxmox_client = ProxmoxClient(**px_settings)
             response = proxmox_client.test_connection()
             if 'version' in response:
                 return ProxmoxValidationResultModel(is_valid=True, status_code=status.HTTP_200_OK)

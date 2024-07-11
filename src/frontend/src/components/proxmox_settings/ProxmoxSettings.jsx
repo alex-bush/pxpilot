@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useState} from "react";
 import {Button, Card, Flex, message, notification} from "antd";
 import LabeledTextField from "../controls/LabeledTextField.jsx";
-import {fetchProxmoxSettings, saveProxmoxSettings, testConnection} from "../../services/services.jsx";
+import {fetchProxmoxSettings, reloadConfig, saveProxmoxSettings, testConnection} from "../../services/services.jsx";
 import KeyValueSettingList from "../controls/KeyValueSettingList.jsx";
 import Spinner from "../controls/Spinner.jsx";
 
@@ -41,7 +41,7 @@ export default function ProxmoxSettings() {
     const loadData = useCallback(async () => {
         let data = await fetchProxmoxSettings();
         if (data === null) {
-            data = {isLoaded: true, extra_settings: {}};
+            data = {isLoaded: true, extra_settings: { verify_ssl: false }};
         }
         setOriginalData(data);
 
@@ -62,10 +62,19 @@ export default function ProxmoxSettings() {
         setData(newData);
     }
 
+    function convertValue(value) {
+        if (value.toLowerCase() === 'true') {
+            return true;
+        } else if (value.toLowerCase() === 'false') {
+            return false;
+        }
+        return value;
+    }
+
     function handleExtraSettingsChanged(index, newKey, newValue) {
         const new_extra = Object.entries(Data.extra_settings).map((item, idx) => {
-            if (idx === index){
-                return [newKey, newValue];
+            if (idx === index) {
+                return [newKey, convertValue(newValue)];
             }
             return item;
         })
@@ -74,7 +83,7 @@ export default function ProxmoxSettings() {
     }
 
     function handleAddExtraSettingClick() {
-        setData({...Data, extra_settings: { ...Data.extra_settings, ['']: '' }});
+        setData({...Data, extra_settings: {...Data.extra_settings, ['']: ''}});
     }
 
     function handleDeleteExtraSettingClick(index) {
@@ -88,14 +97,13 @@ export default function ProxmoxSettings() {
 
         try {
             await saveProxmoxSettings(Data, true);
+            await reloadConfig();
             await loadData();
             showNotification('success', TITLE);
-        }
-        catch(err) {
+        } catch (err) {
             console.log(err);
             showNotification('error', TITLE);
-        }
-        finally {
+        } finally {
             setLoading(false);
         }
     }
@@ -110,8 +118,7 @@ export default function ProxmoxSettings() {
             } else {
                 showMessage('error', `Test connection failed: ${res.message}`);
             }
-        }
-        finally {
+        } finally {
             setValidatingConnection(false);
         }
     }
@@ -132,9 +139,11 @@ export default function ProxmoxSettings() {
                                 <div className="mainBlock">
                                     <LabeledTextField title='Host' value={Data.host} placeholder='http://127.0.0.1:8006'
                                                       onChange={value => handleFieldChange('host', value)}/>
-                                    <LabeledTextField title='Token name' value={Data.token_name} placeholder='user@pve!tokenname'
+                                    <LabeledTextField title='Token name' value={Data.token_name}
+                                                      placeholder='user@pve!tokenname'
                                                       onChange={value => handleFieldChange('token_name', value)}/>
-                                    <LabeledTextField title='Token value' value={Data.token_value} is_password={"true"} placeholder='token'
+                                    <LabeledTextField title='Token value' value={Data.token_value} is_password={"true"}
+                                                      placeholder='token'
                                                       onChange={value => handleFieldChange('token_value', value)}/>
                                 </div>
 

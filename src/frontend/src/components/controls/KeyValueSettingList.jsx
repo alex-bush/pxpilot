@@ -3,7 +3,7 @@ import DeleteButton from "./DeleteButton.jsx";
 import AddButton from "./AddButton.jsx";
 import {Collapse} from "antd";
 
-export default function KeyValueSettingList({ title, settings, onDataChange, onAddClick, onDeleteClick }) {
+export default function KeyValueSettingList({title, settings, onDataChange, onAddClick, onDeleteClick}) {
     return (
         <>
             <Collapse
@@ -23,7 +23,7 @@ export default function KeyValueSettingList({ title, settings, onDataChange, onA
                             ))
 
                             }
-                            <AddButton onClick={onAddClick} />
+                            <AddButton onClick={onAddClick}/>
                         </div>
                 }]}
             />

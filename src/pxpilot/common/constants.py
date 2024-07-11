@@ -11,4 +11,5 @@ class ConfigSections:
     ENABLED = "enabled"
     AWAIT_RUNNING = "await_running"
     STARTUP_TIMEOUT = "startup_timeout"
+    ENABLE_DEPENDENCIES = "enable_dependencies"
     TARGET_URL = "target_url"

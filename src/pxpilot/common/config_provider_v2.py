@@ -107,7 +107,8 @@ class ConfigProviderV2(IConfig):
                 ConfigSections.ENABLED: vm.enabled,
                 ConfigSections.STARTUP_PARAMETERS: {
                     ConfigSections.AWAIT_RUNNING: vm.startup_parameters.await_running,
-                    ConfigSections.STARTUP_TIMEOUT: vm.startup_parameters.startup_timeout
+                    ConfigSections.STARTUP_TIMEOUT: vm.startup_parameters.startup_timeout,
+                    ConfigSections.ENABLE_DEPENDENCIES: vm.startup_parameters.enable_dependencies
                 },
                 ConfigSections.DEPENDENCIES: vm.dependencies,
             }

@@ -16,6 +16,7 @@ class HealthCheckOptions:
 
 @dataclass
 class StartOptions:
+    enable_dependencies: Optional[bool] = False
     await_running: bool = False
     startup_timeout: int = 120
 

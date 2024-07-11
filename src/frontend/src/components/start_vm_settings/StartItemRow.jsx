@@ -36,8 +36,8 @@ export default function StartItemRow({item, onClick, onRemove}) {
         <div>
             {item.dependencies && item.dependencies.length > 0 && (
                 <>
-                    <p>Depends on: {item.dependencies}</p>
-                    <p></p>
+                    <p>Depends on: {item.dependencies.join(', ')}</p>
+                    <p>{item.startup_parameters.enable_dependencies ? 'Enabled' : 'Disabled'}</p>
                 </>
                 )}
             {!(item.dependencies && item.dependencies.length > 0) && <p>There are no dependencies to run</p>}
@@ -73,17 +73,12 @@ export default function StartItemRow({item, onClick, onRemove}) {
                             </div>
                             <div>
                                 <Popover content={dependeciesContent}>
-                                    <FontAwesomeIcon icon={faLink} color='blue'
+                                    <FontAwesomeIcon icon={faLink} color={item.startup_parameters.enable_dependencies ? 'blue' : 'black'}
                                                      className={!(item.dependencies && item.dependencies.length > 0) ? 'disabled-icon' : ''}
                                                      title='Healthcheck enabled'/>
                                 </Popover>
                             </div>
                         </div>
-                        {/*{item.healthcheck && (*/}
-                        {/*    <span className="flex-0 ml-auto text-gray-400 text-center w-7/12">*/}
-                        {/*    Healthcheck: {item.healthcheck?.check_method || 'none'}: {item.healthcheck?.target_url || 'N/A'}*/}
-                        {/*</span>*/}
-                        {/*)}*/}
                     </div>
                 </div>
                 <div className="ml-4">

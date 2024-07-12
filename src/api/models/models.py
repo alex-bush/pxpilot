@@ -34,7 +34,8 @@ class ProxmoxValidationResultModel(BaseModel):
 
 
 class StartOptionsModel(BaseModel):
-    await_running: bool = False
+    enable_dependencies: bool = Field(False, description='Enable or disable dependency check')
+    await_running: bool = Field(False)
     startup_timeout: int = 120
 
 

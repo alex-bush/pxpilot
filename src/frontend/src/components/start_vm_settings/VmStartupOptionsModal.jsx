@@ -4,6 +4,7 @@ import CheckboxField from "../controls/CheckboxField.jsx";
 import {useEffect, useMemo, useState} from "react";
 import {fetchAllVirtualMachines} from "../../services/services.jsx";
 import DependenciesSelector from "./DependenciesSelector.jsx";
+import InfoMark from "../controls/InfoMark.jsx";
 
 export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys, onOk, onCancel}) {
     const defaultCheck = 'none';
@@ -162,14 +163,25 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                         value={data.description}
                         onChange={(value) => setData({...data, description: value})}/>
                     <Divider/>
-                    <CheckboxField
-                        className='mt-3'
-                        title='Wait for the virtual machine to finish starting'
-                        value={data.startup_parameters?.await_running}
-                        onChange={(e) => setData({
-                            ...data,
-                            startup_parameters: {...data.startup_parameters, await_running: e.target.checked}
-                        })}/>
+                    <div className='flex gap-0 items-end'>
+                        <CheckboxField
+                            className='mt-3'
+                            title='Wait for the virtual machine to finish starting'
+                            value={data.startup_parameters?.await_running}
+                            onChange={(e) => setData({
+                                ...data,
+                                startup_parameters: {...data.startup_parameters, await_running: e.target.checked}
+                            })}/>
+                        <InfoMark placement='top' content={(
+                            <>
+                                <p>PxPilot will wait for the VM to fully start within this timeout period after
+                                    initiating the startup</p>
+                                <p>The startup duration will be included in the notification message</p>
+                                <p>or an error message will be displayed if the VM does not fully start within this
+                                    timeout</p>
+                            </>
+                        )}/>
+                    </div>
                     <LabeledTextField
                         className='mt-3'
                         title='Timeout'
@@ -212,21 +224,36 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                 </Card>
                 <Card className='w-3/6'>
                     <div>
-                        <CheckboxField
-                            className='mt-3'
-                            title='This VM depends on the following VM(s):'
-                            value={data.startup_parameters.enable_dependencies}
-                            onChange={(e) => setData({...data, startup_parameters: {...data.startup_parameters, enable_dependencies: e.target.checked }})}
-                        />
+                        <div className='flex gap-0 items-end'>
+                            <CheckboxField
+                                className='mt-3'
+                                title='This VM depends on the following VM(s):'
+                                value={data.startup_parameters.enable_dependencies}
+                                onChange={(e) => setData({
+                                    ...data,
+                                    startup_parameters: {
+                                        ...data.startup_parameters,
+                                        enable_dependencies: e.target.checked
+                                    }
+                                })}
+                            />
+                            <InfoMark placement='top' content={(
+                                <>
+                                    <p>Specify VMs that this VM depends on.  </p>
+                                    <p>It won&apos;t start unless the dependent VMs are running.</p>
+                                    <p>Ensure proper startup order and timeouts.</p>
+                                </>
+                            )}/>
+                        </div>
                         <span>{data.dependencies.join(', ')}</span>
                         <div className={data.startup_parameters.enable_dependencies ? '' : 'disabled'}>
-                        {(
-                            <DependenciesSelector
-                                dataTable={dataTable}
-                                onSelectChange={handleDependencySelectChange}
-                                selectedRowKeys={data.dependencies}
-                            />
-                        )}
+                            {(
+                                <DependenciesSelector
+                                    dataTable={dataTable}
+                                    onSelectChange={handleDependencySelectChange}
+                                    selectedRowKeys={data.dependencies}
+                                />
+                            )}
                         </div>
                     </div>
                 </Card>

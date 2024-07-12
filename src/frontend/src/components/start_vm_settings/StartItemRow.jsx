@@ -32,7 +32,7 @@ export default function StartItemRow({item, onClick, onRemove}) {
         </div>
     );
 
-    const dependeciesContent = (
+    const dependenciesContent = (
         <div>
             {item.dependencies && item.dependencies.length > 0 && (
                 <>
@@ -72,7 +72,7 @@ export default function StartItemRow({item, onClick, onRemove}) {
                                 </Popover>
                             </div>
                             <div>
-                                <Popover content={dependeciesContent}>
+                                <Popover content={dependenciesContent}>
                                     <FontAwesomeIcon icon={faLink} color={item.startup_parameters.enable_dependencies ? 'blue' : 'black'}
                                                      className={!(item.dependencies && item.dependencies.length > 0) ? 'disabled-icon' : ''}
                                                      title='Healthcheck enabled'/>

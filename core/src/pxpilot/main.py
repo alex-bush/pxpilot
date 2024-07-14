@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from api.app import create_app
+from api import api as fast_api
 from pxpilot import logging_config
 from pxpilot.common import config_validator
 from pxpilot.pilot import start
@@ -26,8 +26,7 @@ def main():
     elif args.api:
         import uvicorn
 
-        app = create_app()
-        uvicorn.run(app, host="0.0.0.0", port=8000)
+        uvicorn.run(fast_api, host="0.0.0.0", port=8000)
         sys.exit(0)
 
     start(CONFIG_FILE)

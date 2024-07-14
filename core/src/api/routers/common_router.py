@@ -9,16 +9,16 @@ router = APIRouter(prefix="/status", tags=["status"])
 
 
 @router.get("/healthcheck")
-def healthcheck():
+async def healthcheck():
     return {"status": "ok"}
 
 
 @router.get("/healthcheck/v1")
-def healthcheck_v1() -> HealthcheckModel:
+async def healthcheck_v1() -> HealthcheckModel:
     return HealthcheckModel(status="ok", version=__version__)
 
 
 @router.get("/state")
-def get_app_state(config_service: ConfigService = Depends(get_config_service)) -> AppStateModel:
-    is_config_initialized = True if config_service.get_config_state() is ConfigState.Initialized else False
+async def get_app_state(config_service: ConfigService = Depends(get_config_service)) -> AppStateModel:
+    is_config_initialized = True if await config_service.get_config_state() is ConfigState.Initialized else False
     return AppStateModel(is_config_initialized=is_config_initialized)

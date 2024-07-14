@@ -148,8 +148,8 @@ class ConfigService:
         vm_start_options_model = VmStartOptionsModel(
             vm_id=start_vm_options.vm_id,
             enabled=start_vm_options.enabled,
-            name=other['name'],
-            description=other['description'],
+            name=other.get('name', None),
+            description=other.get('description', None),
             startup_parameters=startup_parameters,
             dependencies=dependencies,
         )

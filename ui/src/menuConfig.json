@@ -1,0 +1,14 @@
+[
+  {
+    "key": "1",
+    "label": "VM startup management",
+    "icon": "ToolOutlined",
+    "component": "AppSettings"
+  },
+  {
+    "key": "2",
+    "label": "Proxmox information",
+    "icon": "DesktopOutlined",
+    "component": "ProxInfo"
+  }
+]

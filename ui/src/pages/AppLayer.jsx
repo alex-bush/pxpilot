@@ -1,46 +1,57 @@
-import {useState} from "react";
-import {Layout, Menu} from 'antd';
-import AppSettings from "./AppSettings.jsx";
+import {lazy, Suspense, useEffect, useState} from "react";
+import {Layout, Menu, Spin} from 'antd';
 import {DesktopOutlined, ToolOutlined} from "@ant-design/icons";
-import ProxInfo from "./Proxinfo.jsx";
+import menuConfig from "../menuConfig.json"
+import Spinner from "../components/controls/Spinner.jsx";
 
-const {Content,  Sider} = Layout;
+const {Content, Sider} = Layout;
 
-function getItem(label, key, icon, children) {
-    return {
-        key,
-        icon,
-        children,
-        label,
-    };
+const iconMap = {
+    ToolOutlined: <ToolOutlined/>, DesktopOutlined: <DesktopOutlined/>,
 }
 
-const items = [
-    getItem('VM startup management', '1', <ToolOutlined/>),
-    getItem('Proxmox information', '2', <DesktopOutlined/>),
-];
+const componentMap = {
+    AppSettings: lazy(() => import("./AppSettings")), ProxInfo: lazy(() => import("./Proxinfo")),
+}
 
 export default function AppLayer() {
     const [collapsed, setCollapsed] = useState(true);
-    const [selectedMenuItem, setSelectedMenuItem] = useState(null);
+    const [menuItems, setMenuItems] = useState([]);
+    const [selectedMenuItem, setSelectedMenuItem] = useState('1');
+    const [SelectedComponent, setSelectedComponent] = useState(componentMap['AppSettings']);
+    const [isLoaded, setIsLoaded] = useState(false);
 
-    return (
-        <>
-            <Layout style={{
-                minHeight: '100vh',
+    useEffect(() => {
+        const config = menuConfig.map((item) => ({
+            key: item.key, icon: iconMap[item.icon], label: item.label, component: item.component,
+        }));
+        setMenuItems(config);
+        setSelectedComponent(componentMap[config[0].component]);
+        setIsLoaded(true);
+    }, []);
+
+    function hundleMenuClick(e) {
+        setSelectedMenuItem(e.key);
+        const selectedItem = menuItems.find(item => item.key === e.key);
+        setSelectedComponent(componentMap[selectedItem.component]);
+    }
+
+    return (<>
+        <Layout style={{
+            minHeight: '100vh',
+        }}>
+            <Sider width={250} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+                <div className="demo-logo-vertical"/>
+                <Menu theme="dark" defaultSelectedKeys={selectedMenuItem} mode="inline" items={menuItems}
+                      onClick={hundleMenuClick}/>
+            </Sider>
+            <Content style={{
+                margin: '0 16px',
             }}>
-                <Sider width={250} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                    <div className="demo-logo-vertical"/>
-                    <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items}
-                          onClick={(e) => setSelectedMenuItem(e.key)}/>
-                </Sider>
-                <Content style={{
-                    margin: '0 16px',
-                }}>
-                    {selectedMenuItem === '1' && <AppSettings/>}
-                    {selectedMenuItem === '2' && <ProxInfo/>}
-                </Content>
-            </Layout>
-        </>
-    )
+                <Suspense fallback={<Spinner/>}>
+                    {isLoaded ? <SelectedComponent /> : <Spinner/>}
+                </Suspense>
+            </Content>
+        </Layout>
+    </>)
 }

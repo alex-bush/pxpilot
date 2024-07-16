@@ -8,3 +8,7 @@ export const PX_VALIDATE_CONNECTION_URL = "/proxmox/px-validate"
 export const PX_GET_VMS_URL = "/proxmox/get_vms"
 
 export const CONFIG_URL = "/config"
+
+export const LOGIN_URL = "/login"
+export const LOGOUT_URL = "/logout"
+export const REGISTER_URL = "/register"

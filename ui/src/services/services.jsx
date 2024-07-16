@@ -1,34 +1,40 @@
-import {API_URL} from "../config.js"
+import {
+    API_URL, CONFIG_URL,
+    NOTIFICATIONS_SETTINGS_URL, PX_GET_VMS_URL,
+    PX_SETTINGS_URL,
+    PX_VALIDATE_CONNECTION_URL,
+    STARTUPS_SETTINGS_URL
+} from "../config.js"
 
 const apiBaseUrl = API_URL;
 
 async function fetchProxmoxSettings() {
-    return internal_get(apiBaseUrl + "/config/px");
+    return internal_get(apiBaseUrl + PX_SETTINGS_URL);
 }
 
 async function fetchNotificationSettings() {
-    return internal_get(apiBaseUrl + "/config/notifications");
+    return internal_get(apiBaseUrl + NOTIFICATIONS_SETTINGS_URL);
 }
 
 async function fetchStartupSettings() {
-    return internal_get(apiBaseUrl + "/config/startups");
+    return internal_get(apiBaseUrl + STARTUPS_SETTINGS_URL);
 }
 
 async function saveProxmoxSettings(data) {
-    return internal_post(apiBaseUrl + "/config/px", data);
+    return internal_post(apiBaseUrl + PX_SETTINGS_URL, data);
 }
 
 async function saveNotificationSettings(data) {
-    return internal_post(apiBaseUrl + "/config/notifications", data);
+    return internal_post(apiBaseUrl + NOTIFICATIONS_SETTINGS_URL, data);
 }
 
 async function saveStartupSettings(data) {
-    return internal_post(apiBaseUrl + "/config/startups", data);
+    return internal_post(apiBaseUrl + STARTUPS_SETTINGS_URL, data);
 }
 
 async function testConnection(host, token, token_value, extra_settings) {
     try {
-        let response = await fetch(apiBaseUrl + '/proxmox/px-validate', {
+        let response = await fetch(apiBaseUrl + PX_VALIDATE_CONNECTION_URL, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -49,7 +55,7 @@ async function testConnection(host, token, token_value, extra_settings) {
 
 async function reloadConfig() {
     try {
-        let response = await fetch(apiBaseUrl + "/config");
+        let response = await fetch(apiBaseUrl + CONFIG_URL);
         if (response.ok) {
             return true;
         }
@@ -61,7 +67,7 @@ async function reloadConfig() {
 
 async function fetchAllVirtualMachines() {
     try {
-        let response = await fetch(apiBaseUrl + "/proxmox/get_vms");
+        let response = await fetch(apiBaseUrl + PX_GET_VMS_URL);
         if (response.ok) {
             return await response.json();
         }

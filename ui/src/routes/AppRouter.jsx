@@ -1,16 +1,15 @@
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {lazy, Suspense} from "react";
-import AppLayer from "./pages/AppLayer.jsx";
-import Register from "./pages/Register.jsx";
-import {AuthProvider} from "./AuthContext.jsx";
+import AppLayer from "../pages/AppLayer.jsx";
+import Register from "../pages/Register.jsx";
+import {AuthProvider} from "../contexts/AuthContext.jsx";
 import PrivateRoute from "./PrivateRoute.jsx";
-import Login from "./pages/Login.jsx";
+import Login from "../pages/Login.jsx";
 
-const AppSettings = lazy(() => import("./pages/AppSettings"));
-const ProxInfo = lazy(() => import("./pages/Proxinfo"));
+const AppSettings = lazy(() => import("../pages/AppSettings.jsx"));
+const ProxInfo = lazy(() => import("../pages/Proxinfo.jsx"));
 
-const AppRouter = () => (
-    <AuthProvider>
+const AppRouter = () => (<AuthProvider>
         <BrowserRouter>
             <Suspense fallback={<div>Loading...</div>}>
                 <Routes>
@@ -26,7 +25,6 @@ const AppRouter = () => (
                 </Routes>
             </Suspense>
         </BrowserRouter>
-    </AuthProvider>
-);
+    </AuthProvider>);
 
 export default AppRouter;

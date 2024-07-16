@@ -1,10 +1,10 @@
 import './App.css'
-import AppLayer from "./pages/AppLayer.jsx";
+import AppRouter from "./AppRouter.jsx";
 
 function App() {
     return (
         <>
-            <AppLayer/>
+            <AppRouter />
         </>
     )
 }

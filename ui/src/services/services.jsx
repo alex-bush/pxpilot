@@ -1,4 +1,6 @@
-const apiBaseUrl = "http://127.0.0.1:8000/api";
+import {API_URL} from "../config.js"
+
+const apiBaseUrl = API_URL;
 
 async function fetchProxmoxSettings() {
     return internal_get(apiBaseUrl + "/config/px");

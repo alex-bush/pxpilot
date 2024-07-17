@@ -3,6 +3,7 @@ class ConfigSections:
     COMMON_SETTINGS = "settings"
     NOTIFICATION_OPTIONS = "notification_options"
     VMS = "vms"
+    USERS = "users"
     HEALTHCHECK = "healthcheck"
     STARTUP_PARAMETERS = "startup_parameters"
     CHECK_METHOD = "check_method"

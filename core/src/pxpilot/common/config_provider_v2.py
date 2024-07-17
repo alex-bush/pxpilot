@@ -8,7 +8,7 @@ from ruamel.yaml import YAML
 
 from pxpilot.common import IConfig
 from pxpilot.common.constants import ConfigSections
-from pxpilot.models.configuration.app_settings import ProxmoxSettings, AppSettings, CommonSettings
+from pxpilot.models.configuration.app_settings import ProxmoxSettings, AppSettings, CommonSettings, User
 from pxpilot.models.configuration.vm_start_settings import VmStartOptions, HealthCheckOptions, StartOptions, \
     HealthcheckType
 
@@ -78,6 +78,9 @@ class ConfigProviderV2(IConfig):
     def load_start_vms_settings(self) -> List[VmStartOptions]:
         return self.app_config.start_vms_settings
 
+    def load_users(self) -> List[User]:
+        return [User(**user) for user in self.yaml_data[ConfigSections.USERS]]
+
     def save_px_settings(self, px_settings: ProxmoxSettings):
         # f self._yaml_data is None:
 
@@ -121,13 +124,23 @@ class ConfigProviderV2(IConfig):
             vms_list.append(vm_data)
 
         self.yaml_data[ConfigSections.VMS] = vms_list
-        self._save_config(self._file_path, self._yaml_data)
+        self._save_config(self._file_path, self.yaml_data)
 
-    def reload_settings(self, empty_init: bool = False):
+    def save_user(self, user: User):
+        users_settings = self.yaml_data.get(ConfigSections.USERS, [])
+        users_settings.append({
+            'username': user.username,
+            'token': user.token,
+        })
+
+        self.yaml_data[ConfigSections.USERS] = users_settings
+        self._save_config(self._file_path, self.yaml_data)
+
+    def reload_settings(self, init_if_empty: bool = False):
         """ Reload app settings and internal yaml data """
         logger.debug("Reloading app settings")
 
-        if empty_init and self._yaml_data is None:
+        if init_if_empty and self._yaml_data is None:
             self.check_file_exists(self._file_path, True)
             self._initialize_empty_config(self._file_path)
 

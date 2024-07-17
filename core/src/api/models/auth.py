@@ -13,3 +13,8 @@ class AuthResponse(BaseModel):
 class RegisterModel(BaseModel):
     username: str
     password: str
+
+
+class UserModel(BaseModel):
+    username: str
+    token: str

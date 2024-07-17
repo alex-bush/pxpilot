@@ -1,4 +1,4 @@
-import {API_URL, LOGIN_URL, REGISTER_URL} from "../config.js";
+import {API_URL, LOGIN_URL, REGISTER_URL, STATUS_URL} from "../config.js";
 
 async function login(username, password){
     return await inner_fetch(API_URL + LOGIN_URL, JSON.stringify({
@@ -12,6 +12,15 @@ async function register(username, password) {
         username: username,
         password: password,
     }));
+}
+
+async function get_api_status(){
+    try {
+        let response = await fetch(API_URL + STATUS_URL);
+        return await response.json();
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 async function inner_fetch(url, data) {
@@ -29,4 +38,4 @@ async function inner_fetch(url, data) {
         console.log(err);
     }
 }
-export {login, register}
+export {login, register, get_api_status}

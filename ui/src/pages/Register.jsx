@@ -45,8 +45,8 @@ export default function Register() {
         <div className="flex justify-center items-center min-h-lvh text-gray-200">
             <div
                 className="shadow-md  shadow-gray-950 flex flex-row w-full max-w-4xl rounded-3xl  min-h-96 items-center bg-gray-900">
-                <div className="w-1/2 p-8">
-                    <h2 className="text-xl font-bold mb-4">Proxmox Pilot</h2>
+                <div className="w-1/2 p-8 h-72">
+                    <p className="text-xl font-bold ml-2 mb-8 ">Proxmox Pilot</p>
                     <p className="text-sm m-2">
                         To use the application, registration is required. Although this may seem like a formality, it is
                         essential for protecting the app from accidental use and ensuring access to all its features.

@@ -2,12 +2,24 @@ import {Button, Checkbox, ConfigProvider, Form, Input, theme} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {useAuth} from "../contexts/AuthContext.jsx";
 import {useNavigate} from "react-router-dom";
-import {login} from "../services/auth.js"
+import {get_api_status, login} from "../services/auth.js"
+import {useEffect} from "react";
 
 export default function Login() {
     const {set_login} = useAuth()
     const [form] = Form.useForm();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        async function fetch() {
+            const state = await get_api_status();
+            if (state.is_first_run){
+                navigate("/register");
+            }
+        }
+
+        fetch();
+    }, [navigate]);
 
     async function handleLogin(values) {
         if (await login(values.username, values.password)) {

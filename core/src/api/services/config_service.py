@@ -1,9 +1,10 @@
 from typing import List, Dict
 
+from api.models.auth import UserModel
 from api.models.models import ProxmoxSettingsModel, NotificationsModel, VmStartOptionsModel, TelegramModel, EmailModel, \
     StartOptionsModel, ConfigState
 from pxpilot.common import IConfig
-from pxpilot.models.configuration.app_settings import ProxmoxSettings
+from pxpilot.models.configuration.app_settings import ProxmoxSettings, User
 from pxpilot.models.configuration.vm_start_settings import VmStartOptions, HealthCheckOptions, StartOptions
 
 
@@ -108,6 +109,13 @@ class ConfigService:
             startup_settings_models.append(self._convert_startups(vm))
 
         return startup_settings_models
+
+    def save_user(self, user: UserModel):
+        u = User(username=user.username, token=user.token)
+        self._config.save_user(u)
+
+    def load_users(self) -> List[UserModel]:
+        return [UserModel(**u.__dict__) for u in self._config.load_users()]
 
     @staticmethod
     def _convert_notification(settings: Dict[str, Dict]) -> NotificationsModel:

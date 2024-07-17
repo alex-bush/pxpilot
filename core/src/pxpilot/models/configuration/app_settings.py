@@ -25,3 +25,9 @@ class AppSettings:
     start_vms_settings: List[VmStartOptions] = None
 
     notification_settings: Dict[str, Any] = None
+
+
+@dataclass
+class User:
+    username: str
+    token: str

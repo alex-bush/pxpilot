@@ -1,0 +1,14 @@
+#root {
+  /*max-width: 75%;*/
+  margin: 0 auto;
+}
+
+.disabled-icon {
+  filter: grayscale(100%) brightness(70%);
+  opacity: 0.2;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}

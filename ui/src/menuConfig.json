@@ -1,0 +1,12 @@
+[
+  {
+    "key": "settings",
+    "label": "VM startup management",
+    "icon": "ToolOutlined"
+  },
+  {
+    "key": "info",
+    "label": "Proxmox information",
+    "icon": "DesktopOutlined"
+  }
+]

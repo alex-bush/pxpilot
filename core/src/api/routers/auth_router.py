@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response, status, HTTPException, Depends
+from fastapi import APIRouter, status, HTTPException, Depends
 
 from api.models.auth import RegisterModel, AuthModel, AuthResponse
 from api.services.user_service import UserService

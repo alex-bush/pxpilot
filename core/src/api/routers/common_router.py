@@ -20,8 +20,8 @@ async def healthcheck_v1() -> HealthcheckModel:
 
 
 @router.get("/state")
-async def get_app_state(config_service: ConfigService = Depends(get_config_service)
-                        , user_service: UserService = Depends(UserService)) -> AppStateModel:
+async def get_app_state(config_service: ConfigService = Depends(get_config_service),
+                        user_service: UserService = Depends(UserService)) -> AppStateModel:
     is_config_initialized = True if await config_service.get_config_state() is ConfigState.Initialized else False
     is_first_run = False if await user_service.is_any_users() else True
     return AppStateModel(is_config_initialized=is_config_initialized, is_first_run=is_first_run)

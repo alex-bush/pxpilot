@@ -1,7 +1,5 @@
-from typing import Dict
 
 from fastapi import Depends
-from pydantic import BaseModel
 
 from api.models.auth import RegisterModel, UserModel
 from api.routers.builders import get_config_service

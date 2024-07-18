@@ -1,7 +1,8 @@
 import {Button, ConfigProvider, Form, Input, theme} from "antd";
 import {register} from "../services/auth.js"
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import {useAuth} from "../contexts/AuthContext.jsx";
+import {LockOutlined, UserOutlined} from "@ant-design/icons";
 
 const formItemLayout = {
     labelCol: {
@@ -29,91 +30,80 @@ const tailFormItemLayout = {
 };
 
 export default function Register() {
-    const { set_login } = useAuth();
+    const {set_login} = useAuth();
     const [form] = Form.useForm();
     const navigate = useNavigate();
 
     const onFinish = async (values) => {
         console.log('Received values of form: ', values);
-        if (await register(values.username, values.password)){
+        if (await register(values.username, values.password)) {
             set_login();
             navigate('/settings');
         }
     };
 
-    return (
-        <div className="flex justify-center items-center min-h-lvh text-gray-200">
-            <div
-                className="shadow-md  shadow-gray-950 flex flex-row w-full max-w-4xl rounded-3xl  min-h-96 items-center bg-gray-900">
-                <div className="w-1/2 p-8 h-72">
-                    <p className="text-xl font-bold ml-2 mb-8 ">Proxmox Pilot</p>
-                    <p className="text-sm m-2">
+    return (<>
+        <div className="flex justify-center items-center min-h-screen py-10">
+            <div className="shadow-md flex flex-row w-full max-w-4xl min-h-max rounded-3xl bg-gray-900">
+                <div className="w-1/2 p-8 text-gray-400 bg-black rounded-l-3xl pb-10 pt-10">
+                    <h2 className="text-2xl font-bold mb-8 text-white">PxPilot</h2>
+                    <p className="mb-4">
                         To use the application, registration is required. Although this may seem like a formality, it is
                         essential for protecting the app from accidental use and ensuring access to all its features.
                     </p>
-                    <p className="text-sm m-2">
+                    <p className="">
                         So go ahead, create an account and join in! The process takes less time than making a cup of
                         coffee.
                     </p>
-                    {/*<p className="text-sm m-2">*/}
-                    {/*    For security reasons, the password will not be saved in a recoverable form. Therefore, it will not be possible to restore the password if it is forgotten. Please ensure that the password is kept securely.*/}
-                    {/*</p>*/}
                 </div>
-                <div className="w-1/2 p-8 mt-4">
-                    <ConfigProvider
-                        theme={{
-                            algorithm: theme.darkAlgorithm,
-                        }}>
+                <div className="w-1/2 p-8 text-gray-100 pb-10 pt-10">
+                    <h2 className="text-2xl font-bold mb-8">Create your account</h2>
+                    <ConfigProvider theme={{ algorithm: theme.darkAlgorithm, }}>
                         <Form
-                            {...formItemLayout}
                             form={form}
                             name="register"
                             onFinish={onFinish}
                             scrollToFirstError
+                            className="w-full space-y-6"
                         >
                             <Form.Item
-                                label="Username"
                                 name="username"
-                                rules={[
-                                    {required: true, message: 'Please input your username!'},
-                                ]}
+                                rules={[{required: true, message: 'Please input your username'},]}
                             >
-                                <Input size={"large"}/>
+                                <Input size={"large"} prefix={<UserOutlined className="site-form-item-icon"/>}
+                                       placeholder="Username"/>
                             </Form.Item>
 
                             <Form.Item
                                 name="password"
-                                label="Password"
-                                rules={[
-                                    {required: true, message: 'Please input your password!'},
-                                ]}
+                                rules={[{required: true, message: 'Please input your password'},]}
                                 hasFeedback
                             >
-                                <Input.Password size={"large"}/>
+                                <Input.Password size={"large"} prefix={<LockOutlined className="site-form-item-icon"/>}
+                                                placeholder="Password"/>
                             </Form.Item>
 
                             <Form.Item
                                 name="confirm"
-                                label="Confirm Password"
                                 dependencies={['password']}
                                 hasFeedback
-                                rules={[
-                                    {required: true, message: 'Please confirm your password!'},
-                                    ({getFieldValue}) => ({
-                                        validator(_, value) {
-                                            if (!value || getFieldValue('password') === value) {
-                                                return Promise.resolve();
-                                            }
-                                            return Promise.reject(new Error('The passwords do not match!'));
-                                        },
-                                    }),
-                                ]}
+                                rules={[{
+                                    required: true, message: 'Please confirm your password'
+                                }, ({getFieldValue}) => ({
+                                    validator(_, value) {
+                                        if (!value || getFieldValue('password') === value) {
+                                            return Promise.resolve();
+                                        }
+                                        return Promise.reject(new Error('The passwords do not match!'));
+                                    },
+                                }),]}
                             >
-                                <Input.Password size={"large"}/>
+                                <Input.Password size={"large"} prefix={<LockOutlined className="site-form-item-icon"/>}
+                                                placeholder="Confirm password"/>
                             </Form.Item>
 
-                            <Form.Item {...tailFormItemLayout}>
-                                <Button type="primary" htmlType="submit">
+                            <Form.Item>
+                                <Button type="primary" htmlType="submit" className="w-full mt-6">
                                     Register
                                 </Button>
                             </Form.Item>
@@ -121,5 +111,6 @@ export default function Register() {
                     </ConfigProvider>
                 </div>
             </div>
-        </div>)
+        </div>
+    </>)
 }

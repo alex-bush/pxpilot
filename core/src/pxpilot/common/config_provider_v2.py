@@ -79,7 +79,7 @@ class ConfigProviderV2(IConfig):
         return self.app_config.start_vms_settings
 
     def load_users(self) -> List[User]:
-        return [User(**user) for user in self.yaml_data[ConfigSections.USERS]]
+        return [User(**user) for user in self.yaml_data.get(ConfigSections.USERS, [])]
 
     def save_px_settings(self, px_settings: ProxmoxSettings):
         # f self._yaml_data is None:

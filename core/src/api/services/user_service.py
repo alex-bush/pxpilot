@@ -24,3 +24,7 @@ class UserService:
         users = self._config_service.load_users()
         user = next((user for user in users if user.username == username), None)
         return user
+
+    async def is_any_users(self) -> True:
+        users = self._config_service.load_users()
+        return users is not None and len(users) > 0

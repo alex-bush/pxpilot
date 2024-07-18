@@ -33,7 +33,7 @@ export default function Login() {
             <div className="flex justify-center items-center min-h-screen">
                 <div
                     className="shadow-md shadow-gray-950 flex flex-col w-full max-w-xl rounded-3xl min-h-96 items-center bg-gray-900 p-8">
-                    <h2 className="text-2xl font-bold mb-4 text-gray-400">PxPilot</h2>
+                    <h2 className="text-2xl font-bold mb-4 text-white">Log In</h2>
                     <ConfigProvider theme={{algorithm: theme.darkAlgorithm}}>
                         <Form
                             form={form}

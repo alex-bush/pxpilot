@@ -7,7 +7,7 @@ import PrivateRoute from "./PrivateRoute.jsx";
 import Login from "../pages/Login.jsx";
 
 const AppSettings = lazy(() => import("../pages/AppSettings.jsx"));
-const ProxInfo = lazy(() => import("../pages/Proxinfo.jsx"));
+const ProxmoxManagement = lazy(() => import("../pages/ProxmoxManagement.jsx"));
 
 const AppRouter = () => (<AuthProvider>
         <BrowserRouter>
@@ -18,7 +18,7 @@ const AppRouter = () => (<AuthProvider>
                     <Route path="/" element={<PrivateRoute/>}>
                         <Route path="/*" element={<AppLayer/>}>
                             <Route path="settings" element={<AppSettings/>}/>
-                            <Route path="info" element={<ProxInfo/>}/>
+                            <Route path="info" element={<ProxmoxManagement/>}/>
                             <Route path="*" element={<Navigate to="settings" replace/>}/>
                         </Route>
                     </Route>

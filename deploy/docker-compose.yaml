@@ -1,0 +1,13 @@
+services:
+  px_api:
+    build:
+      context: ../core/
+
+  px_nginx:
+    depends_on:
+      - px_api
+    build:
+      context: ../ui/
+    ports:
+      - "80:80"
+    

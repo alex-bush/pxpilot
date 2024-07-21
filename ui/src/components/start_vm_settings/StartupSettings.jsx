@@ -3,8 +3,11 @@ import {useCallback, useEffect, useState} from "react";
 import AddButton from "../controls/AddButton.jsx";
 import {fetchStartupSettings, saveStartupSettings} from "../../services/services.jsx";
 import VmStartupOptionsModal from "./VmStartupOptionsModal.jsx";
-import StartItemRow from "./StartItemRow.jsx";
 import Spinner from "../controls/Spinner.jsx";
+import {closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors,} from '@dnd-kit/core';
+import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy,} from '@dnd-kit/sortable';
+import {SortableItem} from "./SortableItem.jsx";
+
 
 export default function StartupSettings() {
     const TITLE = "VM startup settings";
@@ -17,6 +20,29 @@ export default function StartupSettings() {
     const [currentItem, setCurrentItem] = useState(null);
     const [loading, setLoading] = useState(false);
     const [notificationInstance, notificationHolder] = notification.useNotification();
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+        activationConstraint: {
+            distance: 5,
+        }}),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    function handleDragEnd(event) {
+        const {active, over} = event;
+
+        if (active.id !== over.id) {
+            setData((items) => {
+                const oldIndex = items.findIndex(item => item.vm_id === active.id);
+                const newIndex = items.findIndex(item => item.vm_id === over.id);
+
+                return arrayMove(items, oldIndex, newIndex);
+            });
+        }
+    }
 
     const showNotification = (type, title) => {
         if (type === "error") {
@@ -102,15 +128,29 @@ export default function StartupSettings() {
                 title="Virtual machines startup settings">
                 {isLoaded ? (
                     <div style={{textAlign: 'left', whiteSpace: 'nowrap'}}>
-                        <Typography>List of virtual machines in the order in which they will be started</Typography>
+                        <Typography>List of virtual machines in the order they will be started.</Typography>
+                        <Typography>The order can be rearranged by dragging and dropping the items.</Typography>
 
-                        <div className="pt-2">
-                            {Data.map((item) => (
-                                <div key={item.vm_id}>
-                                    <StartItemRow key={item.vm_id} item={item}
-                                                  onClick={() => handleItemRowClick(item)}
-                                                  onRemove={remove}/>
-                                </div>))}
+                        <div className="pt-4">
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <SortableContext
+                                    items={Data.map(item => item.vm_id)}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    {Data.map((item) => (
+                                        <div key={item.vm_id}>
+                                            <SortableItem key={item.vm_id}
+                                                          id={item.vm_id}
+                                                          item={item}
+                                                          handleItemRowClick={handleItemRowClick}
+                                                          remove={remove} />
+                                        </div>))}
+                                </SortableContext>
+                            </DndContext>
                             {Data.length === 0 &&
                                 <div>
                                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>

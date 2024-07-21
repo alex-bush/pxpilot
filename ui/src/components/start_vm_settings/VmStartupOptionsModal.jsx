@@ -138,15 +138,15 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                 <Card className='w-7/12'>
                     <div className='flex gap-4 w-full items-end'>
                         <LabeledTextField
-                            title='VM Id'
+                            title='* VM Id'
                             type='number'
                             value={data.vm_id}
                             onChange={(value) => setData({...data, vm_id: value})}/>
                         <Select
                             value={selectVm}
-                            className='w-2/5'
+                            className='w-2/3'
                             size='large'
-                            placeholder="Select a VM"
+                            placeholder="Select existing VM"
                             options={availableVms}
                             allowClear
                             onChange={handleVmSelectChange}
@@ -160,6 +160,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                     <LabeledTextField
                         className='mt-3'
                         title='Description'
+                        placeholder='Enter VM description (e.g., Backup server)'
                         value={data.description}
                         onChange={(value) => setData({...data, description: value})}/>
                     <Divider/>
@@ -175,10 +176,12 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                         <InfoMark placement='top' content={(
                             <>
                                 <p>PxPilot will wait for the VM to fully start within this timeout period after
-                                    initiating the startup</p>
-                                <p>The startup duration will be included in the notification message</p>
+                                    initiating the startup.</p>
+                                <p>The startup duration will be included in the notification message.</p>
                                 <p>or an error message will be displayed if the VM does not fully start within this
-                                    timeout</p>
+                                    timeout.</p>
+                                <p>Proxmox status or the health check option (if enabled) will be used to verify the
+                                    VM's startup.</p>
                             </>
                         )}/>
                     </div>
@@ -196,23 +199,33 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                     <Divider/>
                     <div className='health-check'>
 
-                        <div className='flex gap-4 w-full mt-3'>
-                            <label className='flex-col content-center'>Healthcheck:</label>
+                        <div className='flex w-full'>
+                            <label className='content-center'>Healthcheck:</label>
+                            <InfoMark className='content-center pl-1 pr-3' placement='top' content={(
+                                <>
+                                    <p>Checking the host availability:</p>
+                                    <ul>
+                                        <li><strong>Ping:</strong> Checks network reachability</li>
+                                        <li><strong>HTTP Request:</strong> Verifies that the web service is functional.</li>
+                                    </ul>
+                                </>
+                            )}/>
                             <Select
+                                size={"large"}
                                 defaultValue={defaultCheck}
                                 value={data.healthcheck?.check_method}
                                 className='w-full'
                                 options={healthCheckTypes}
-                                allowClear
                                 onChange={handleHealthcheckSelectChange}
                             />
                         </div>
 
-                        <div className='mt-3'>
+                        <div className='pt-4'>
                             <LabeledTextField
-                                title='Healthcheck url'
+                                title='Healthcheck address'
                                 value={data.healthcheck?.target_url}
                                 disabled={!healthcheckEnabled}
+                                placeholder={data.healthcheck?.check_method === 'http' ? 'http://target_url/some_api' : '127.0.0.1'}
                                 onChange={(value) => setData({
                                     ...data, healthcheck: {...data.healthcheck, target_url: value}
                                 })}
@@ -239,7 +252,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                             />
                             <InfoMark placement='top' content={(
                                 <>
-                                    <p>Specify VMs that this VM depends on.  </p>
+                                    <p>Specify VMs that this VM depends on. </p>
                                     <p>It won&apos;t start unless the dependent VMs are running.</p>
                                     <p>Ensure proper startup order and timeouts.</p>
                                 </>

@@ -11,19 +11,19 @@ export default function KeyValueSettingList({title, settings, onDataChange, onAd
                     key: 'other', label: title, children:
                         <div className="keyValueList">
                             {Object.entries(settings).map(([key, value], index) => (
-                                <div key={index} className={"flex flex-row gap-2 items-center"}>
+                                <div key={index} className={"flex flex-row gap-2 items-center  p-2"}>
                                     <KeyValueTextField
                                         field_name={key}
                                         field_value={value}
                                         onNameChange={(newName) => onDataChange(index, newName, value)}
                                         onValueChange={(newValue) => onDataChange(index, key, newValue)}
                                     />
-                                    <DeleteButton onDelete={() => onDeleteClick(index)}/>
+                                    <DeleteButton popoverContext={<p>Delete setting</p>} onDelete={() => onDeleteClick(index)}/>
                                 </div>
                             ))
 
                             }
-                            <AddButton onClick={onAddClick}/>
+                            <div className="pl-2 pt-2"><AddButton onClick={onAddClick}/></div>
                         </div>
                 }]}
             />

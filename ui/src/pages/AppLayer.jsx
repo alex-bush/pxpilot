@@ -1,5 +1,5 @@
 import {Suspense, useEffect, useState} from "react";
-import {Layout, Menu} from 'antd';
+import {ConfigProvider, Layout, Menu, theme} from 'antd';
 import {DesktopOutlined, ToolOutlined} from "@ant-design/icons";
 import menuConfig from "../menuConfig.json"
 import Spinner from "../components/controls/Spinner.jsx";
@@ -26,21 +26,23 @@ export default function AppLayer() {
     }, []);
 
     return (<>
-        <Layout style={{
-            minHeight: '100vh',
-        }}>
-            <Sider width={250} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                <div className="demo-logo-vertical"/>
-                <Menu theme="dark" defaultSelectedKeys={selectedMenuItem} mode="inline" items={menuItems}
-                      />
-            </Sider>
-            <Content style={{
-                margin: '0 16px',
+        <ConfigProvider theme={{algorithm: theme.defaultAlgorithm}}>
+            <Layout style={{
+                minHeight: '100vh',
             }}>
-                <Suspense fallback={<Spinner/>}>
-                    <Outlet />
-                </Suspense>
-            </Content>
-        </Layout>
+                <Sider width={250} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+                    <div className="demo-logo-vertical"/>
+                    <Menu theme="dark" defaultSelectedKeys={selectedMenuItem} mode="inline" items={menuItems}
+                    />
+                </Sider>
+                <Content style={{
+                    margin: '0 16px',
+                }}>
+                    <Suspense fallback={<Spinner/>}>
+                        <Outlet/>
+                    </Suspense>
+                </Content>
+            </Layout>
+        </ConfigProvider>
     </>)
 }

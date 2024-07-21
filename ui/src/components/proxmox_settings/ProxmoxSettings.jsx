@@ -137,23 +137,24 @@ export default function ProxmoxSettings() {
                         ? (
                             <div className="settings">
                                 <div className="mainBlock">
-                                    <LabeledTextField title='Host' value={Data.host} placeholder='http://127.0.0.1:8006'
+                                    <LabeledTextField title='Host' value={Data.host} placeholder='http://127.0.0.1:8006' className="p-2"
                                                       onChange={value => handleFieldChange('host', value)}/>
-                                    <LabeledTextField title='Token name' value={Data.token_name}
+                                    <LabeledTextField title='Token name' value={Data.token_name} className="p-2"
                                                       placeholder='user@pve!tokenname'
                                                       onChange={value => handleFieldChange('token_name', value)}/>
-                                    <LabeledTextField title='Token value' value={Data.token_value} is_password={"true"}
+                                    <LabeledTextField title='Token value' value={Data.token_value} is_password={"true"} className="p-2"
                                                       placeholder='token'
                                                       onChange={value => handleFieldChange('token_value', value)}/>
                                 </div>
 
+                                <div className="p-2 pt-6">
                                 <KeyValueSettingList title='Other settings' settings={Data.extra_settings}
                                                      onDataChange={handleExtraSettingsChanged}
                                                      onAddClick={handleAddExtraSettingClick}
                                                      onDeleteClick={handleDeleteExtraSettingClick}
                                 />
-
-                                <div className="toolbar">
+                                </div>
+                                <div className="toolbar p-2 pt-6">
                                     <Flex justify="space-between">
                                         <Button type="primary"
                                                 disabled={!(Data.host && Data.token_name && Data.token_value)}

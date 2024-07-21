@@ -1,7 +1,7 @@
 import DeleteButton from "../controls/DeleteButton.jsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClockRotateLeft, faHeartbeat, faLink} from '@fortawesome/free-solid-svg-icons';
-import {Popover} from "antd";
+import {Card, Popover} from "antd";
 
 export default function StartItemRow({item, onClick, onRemove}) {
     const waitContent = (
@@ -45,16 +45,16 @@ export default function StartItemRow({item, onClick, onRemove}) {
     );
 
     return (<>
-        <div id={item.vm_id} className="w-full mb-3 cursor-pointer" onClick={onClick}>
+        <Card id={item.vm_id} size={"small"}  hoverable={true} className="w-full mb-3 cursor-pointer" onClick={onClick}>
             <div
-                className="flex justify-between items-center w-full p-4 border border-gray-300 shadow-md sm:rounded-2xl">
-                <div className="flex flex-col w-full">
-                    <div className="flex items-center">
+                className="flex justify-between items-center">
+                <div className="flex-col w-full">
+                    <div className="items-center">
                         <span className="mr-0.5">id: </span>
                         <span className="font-bold">{item.vm_id}</span>
                         {item.name && <span className="font-bold">: {item.name}</span>}
                     </div>
-                    <div className="flex justify-between items-center w-full mt-1">
+                    <div className="flex justify-between items-center w-full">
                         <span className="flex-1">{item.description}</span>
                         <div className="flex gap-3 w-1/6 text-center mr-3">
                             <div>
@@ -73,7 +73,8 @@ export default function StartItemRow({item, onClick, onRemove}) {
                             </div>
                             <div>
                                 <Popover content={dependenciesContent}>
-                                    <FontAwesomeIcon icon={faLink} color={item.startup_parameters.enable_dependencies ? 'blue' : 'black'}
+                                    <FontAwesomeIcon icon={faLink}
+                                                     color={item.startup_parameters.enable_dependencies ? 'blue' : 'black'}
                                                      className={!(item.dependencies && item.dependencies.length > 0) ? 'disabled-icon' : ''}
                                                      title='Healthcheck enabled'/>
                                 </Popover>
@@ -82,13 +83,12 @@ export default function StartItemRow({item, onClick, onRemove}) {
                     </div>
                 </div>
                 <div className="ml-4">
-                <DeleteButton size={'small'} onDelete={(e) => {
+                    <DeleteButton size={'small'} popoverContext={<p>Delete VM startup</p>} onDelete={(e) => {
                         e.stopPropagation();
                         onRemove(item.vm_id)
                     }}/>
                 </div>
             </div>
-        </div>
-
+        </Card>
     </>)
 }

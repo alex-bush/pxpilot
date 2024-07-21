@@ -106,7 +106,7 @@ export const Notifications = () => {
                                                      onChange={data => handleDataChange('email', data)}/>
                                 }
                             ]}/>
-                            <div className="toolbar">
+                            <div className="toolbar pt-7">
                                 <Flex justify="flex-end">
                                     <Button
                                         type="primary"

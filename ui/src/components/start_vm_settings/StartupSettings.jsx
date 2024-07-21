@@ -104,7 +104,7 @@ export default function StartupSettings() {
                     <div style={{textAlign: 'left', whiteSpace: 'nowrap'}}>
                         <Typography>List of virtual machines in the order in which they will be started</Typography>
 
-                        <div>
+                        <div className="pt-2">
                             {Data.map((item) => (
                                 <div key={item.vm_id}>
                                     <StartItemRow key={item.vm_id} item={item}
@@ -116,7 +116,7 @@ export default function StartupSettings() {
                                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
                                 </div>
                             }
-                            <Flex justify="space-between">
+                            <Flex justify="space-between" className="pt-4">
                                 <AddButton onClick={() => {
                                     setCurrentItem(null);
                                     setIsModalOpen(true)

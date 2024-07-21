@@ -12,3 +12,26 @@
   pointer-events: none;
   opacity: 0.5;
 }
+
+.labeled-input {
+  @apply p-1
+}
+
+.delete-icon-container {
+  display: inline-block;
+  padding: 10px;
+  transition: color 0.3s;
+  cursor: pointer;
+}
+
+.delete-icon {
+  font-size: 25px;
+  color: gray;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.delete-icon-container:hover .delete-icon {
+  color: red;
+  transform: scale(1.1);
+}

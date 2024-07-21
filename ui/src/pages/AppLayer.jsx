@@ -14,7 +14,7 @@ const iconMap = {
 export default function AppLayer() {
     const [collapsed, setCollapsed] = useState(true);
     const [menuItems, setMenuItems] = useState([]);
-    const [isLoaded, setIsLoaded] = useState(false);
+    //const [isLoaded, setIsLoaded] = useState(false);
     const selectedMenuItem = location.pathname.split("/")[1] || "settings";
 
     useEffect(() => {
@@ -22,7 +22,7 @@ export default function AppLayer() {
             key: item.key, icon: iconMap[item.icon], label: <Link to={item.key}>{item.label}</Link>,
         }));
         setMenuItems(config);
-        setIsLoaded(true);
+        //setIsLoaded(true);
     }, []);
 
     return (<>

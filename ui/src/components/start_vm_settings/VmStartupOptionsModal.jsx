@@ -181,7 +181,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                                 <p>or an error message will be displayed if the VM does not fully start within this
                                     timeout.</p>
                                 <p>Proxmox status or the health check option (if enabled) will be used to verify the
-                                    VM's startup.</p>
+                                    VM startup.</p>
                             </>
                         )}/>
                     </div>

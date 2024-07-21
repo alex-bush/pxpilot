@@ -1,7 +1,7 @@
 import {Popover} from "antd";
 import {CloseCircleOutlined} from "@ant-design/icons";
 
-export default function DeleteButton({size = 'middle', popoverContext, onDelete}) {
+export default function DeleteButton({popoverContext, onDelete}) {
     return (
         <>
             <div className="delete-icon-container" onClick={onDelete}>

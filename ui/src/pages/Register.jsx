@@ -4,31 +4,6 @@ import {useNavigate} from 'react-router-dom';
 import {useAuth} from "../contexts/AuthContext.jsx";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 
-const formItemLayout = {
-    labelCol: {
-        xs: {
-            span: 24,
-        }, sm: {
-            span: 8,
-        },
-    }, wrapperCol: {
-        xs: {
-            span: 24,
-        }, sm: {
-            span: 16,
-        },
-    },
-};
-const tailFormItemLayout = {
-    wrapperCol: {
-        xs: {
-            span: 24, offset: 0,
-        }, sm: {
-            span: 16, offset: 8,
-        },
-    },
-};
-
 export default function Register() {
     const {set_login} = useAuth();
     const [form] = Form.useForm();

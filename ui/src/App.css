@@ -35,3 +35,15 @@
   color: red;
   transform: scale(1.1);
 }
+
+.theme-icon {
+  font-size: 15px;
+  color: darkslategrey;
+  cursor: pointer;
+  transition: color 0.3s, transform 0.3s;
+}
+
+.theme-icon:hover {
+  color: gray;
+  transform: scale(1.1);
+}

@@ -50,9 +50,9 @@ export default function StartItemRow({item, onClick, onRemove}) {
                 className="flex justify-between items-center">
                 <div className="flex-col w-full">
                     <div className="items-center">
-                        <span className="mr-0.5">id: </span>
-                        <span className="font-bold">{item.vm_id}</span>
-                        {item.name && <span className="font-bold">: {item.name}</span>}
+                        <span className="mr-0.5">VM: </span>
+                        <span className="font-bold">{item.vm_id} </span>
+                        {item.name && <span className="font-bold">({item.name})</span>}
                     </div>
                     <div className="flex justify-between items-center w-full">
                         <span className="flex-1">{item.description}</span>
@@ -68,7 +68,7 @@ export default function StartItemRow({item, onClick, onRemove}) {
                                 <Popover content={healthcheckContent}>
                                     <FontAwesomeIcon icon={faHeartbeat}
                                                      className={!(item.healthcheck && item.healthcheck.check_method !== 'none') ? 'disabled-icon' : ''}
-                                                     title='Healthcheck enabled'/>
+                                                     />
                                 </Popover>
                             </div>
                             <div>
@@ -76,7 +76,7 @@ export default function StartItemRow({item, onClick, onRemove}) {
                                     <FontAwesomeIcon icon={faLink}
                                                      color={item.startup_parameters.enable_dependencies ? 'blue' : 'black'}
                                                      className={!(item.dependencies && item.dependencies.length > 0) ? 'disabled-icon' : ''}
-                                                     title='Healthcheck enabled'/>
+                                                     />
                                 </Popover>
                             </div>
                         </div>

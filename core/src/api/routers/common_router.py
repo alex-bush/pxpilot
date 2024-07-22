@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from api.models.models import HealthcheckModel, AppStateModel, ConfigState
+from api.models.models import HealthcheckModel, AppStateModel, ConfigState, SiteSettings
 from api.routers.builders import get_config_service
 from api.services.config_service import ConfigService
 from api.services.user_service import UserService
@@ -24,4 +24,13 @@ async def get_app_state(config_service: ConfigService = Depends(get_config_servi
                         user_service: UserService = Depends(UserService)) -> AppStateModel:
     is_config_initialized = True if await config_service.get_config_state() is ConfigState.Initialized else False
     is_first_run = False if await user_service.is_any_users() else True
-    return AppStateModel(is_config_initialized=is_config_initialized, is_first_run=is_first_run)
+    return AppStateModel(
+        is_config_initialized=is_config_initialized,
+        is_first_run=is_first_run,
+        version=__version__,
+        dark_theme=False)
+
+
+@router.post("/settings")
+async def save_site_settings(settings: SiteSettings):
+    pass

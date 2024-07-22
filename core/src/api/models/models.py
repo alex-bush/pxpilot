@@ -9,6 +9,12 @@ from pxpilot.models.configuration.vm_start_settings import HealthcheckType
 class AppStateModel(BaseModel):
     is_first_run: bool = Field(True)
     is_config_initialized: bool = Field(False)
+    version: str = Field(...)
+    dark_theme: bool = Field(False)
+
+
+class SiteSettings(BaseModel):
+    dark_theme: Optional[bool] = Field(None)
 
 
 class ProxmoxSettingsModel(BaseModel):

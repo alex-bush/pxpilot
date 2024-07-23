@@ -1,4 +1,4 @@
-import {Layout, Popover, Typography} from "antd";
+import {Layout, Popover} from "antd";
 import {MoonOutlined, SunOutlined} from "@ant-design/icons";
 import {useAppContext} from "../contexts/AppContext.jsx";
 import About from "./About.jsx";
@@ -8,36 +8,37 @@ const {Footer} = Layout;
 
 
 export default function AppFooter({isDarkTheme, onThemeChange}) {
-    const { version } = useAppContext();
+    const {version} = useAppContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    return (
-        <>
-            <About isModalOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    return (<>
+            <About
+                version={version}
+                isModalOpen={isModalOpen}
+                settings={{
+                    supportPlatforms: {buymeacoffee: true, github: true},
+                    showUsefulLinks: false,
+                    showVersionHistory: false
+                }}
+                onClose={() => setIsModalOpen(false)}/>
             <Footer className='flex justify-end gap-5 p-5'>
 
-                <div>
-                    <Typography
-                        style={{color: isDarkTheme ? 'darkslategrey' : 'gray'}}
-                        onClick={() => setIsModalOpen(true)}>
+                <div className='status-version'>
+                    <a style={{color: isDarkTheme ? 'darkslategrey' : 'gray'}}
+                       onClick={() => setIsModalOpen(true)}>
                         Version: {version}
-                    </Typography>
+                    </a>
                 </div>
                 <div className='theme-switcher'>
-                    {isDarkTheme ?
-                        <Popover content={<p>Switch to light theme</p>} placement="topLeft">
-                            <SunOutlined className='theme-icon'
-                                         onClick={() => onThemeChange(false)}/>
-                        </Popover>
-                        :
-                        <Popover content={<p>Switch to dark theme</p>} placement="topLeft">
-                            <MoonOutlined className='theme-icon'
-                                          onClick={() => onThemeChange(true)}/>
-                        </Popover>
-                    }
+                    {isDarkTheme ? <Popover content={<p>Switch to light theme</p>} placement="topLeft">
+                        <SunOutlined className='theme-icon'
+                                     onClick={() => onThemeChange(false)}/>
+                    </Popover> : <Popover content={<p>Switch to dark theme</p>} placement="topLeft">
+                        <MoonOutlined className='theme-icon'
+                                      onClick={() => onThemeChange(true)}/>
+                    </Popover>}
                 </div>
 
             </Footer>
-        </>
-    )
+        </>)
 }

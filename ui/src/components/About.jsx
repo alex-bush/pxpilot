@@ -37,7 +37,7 @@ export default function About({
                     {(settings.supportPlatforms.buymeacoffee || settings.supportPlatforms.paypal || settings.supportPlatforms.patreon || settings.supportPlatforms.github) && (<>
                         <Title level={4}>Support</Title>
                         <Paragraph>
-                            If you find this project useful, please consider supporting its development:
+                            If you find this project useful, your support would be greatly appreciated to help me maintain and improve it:
                             <br />
                             {settings.supportPlatforms.buymeacoffee && (<>
                                 <a href="https://www.buymeacoffee.com/alexbush" target="_blank" rel="noopener noreferrer">

@@ -7,11 +7,12 @@ from .notifications import log as notifications_log
 
 
 def setup_logging():
-    logger = logging.getLogger(__title__)
+    logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
     # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(filename)s:%(lineno)d - %(funcName)s')
+    formatter = logging.Formatter('%(asctime)s - %(thread)d - %(name)s - %(filename)s:%(lineno)d - %(funcName)s - %(levelname)s - '
+                                  '%(message)s')
 
     stream_handler = logging.StreamHandler(sys.stdout)
     stream_handler.setLevel(logging.DEBUG)

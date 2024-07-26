@@ -1,10 +1,11 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Response
 
 from api.models.models import ProxmoxValidationResultModel, ProxmoxVm, ProxmoxSettingsModel
 from api.services.proxmox_service import ProxmoxService
 from pxpilot.common.exceptions import ProxmoxConfigurationError
+from pxpilot.pilot import start
 
 router = APIRouter(prefix="/proxmox", tags=["proxmox"])
 
@@ -24,3 +25,9 @@ async def get_available_vms_from_proxmox(px_service: ProxmoxService = Depends(Pr
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@router.get("/run_pilot")
+async def run_pilot(bg: BackgroundTasks):
+    bg.add_task(start, "config.yaml")
+    return Response(status_code=status.HTTP_202_ACCEPTED)

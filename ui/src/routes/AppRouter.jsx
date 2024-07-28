@@ -9,6 +9,7 @@ import {AppProvider} from "../contexts/AppContext.jsx";
 
 const AppSettings = lazy(() => import("../pages/AppSettings.jsx"));
 const ProxmoxManagement = lazy(() => import("../pages/ProxmoxManagement.jsx"));
+const Settings = lazy(() => import("../pages/Settings.jsx"));
 
 const AppRouter = () => (
     <AuthProvider>
@@ -20,9 +21,10 @@ const AppRouter = () => (
                         <Route path="/register" element={<Register/>}/>
                         <Route path="/" element={<PrivateRoute/>}>
                             <Route path="/*" element={<AppLayout/>}>
-                                <Route path="settings" element={<AppSettings/>}/>
+                                <Route path="startups" element={<AppSettings/>}/>
                                 <Route path="info" element={<ProxmoxManagement/>}/>
-                                <Route path="*" element={<Navigate to="settings" replace/>}/>
+                                <Route path="settings" element={<Settings/>}/>
+                                <Route path="*" element={<Navigate to="startups" replace/>}/>
                             </Route>
                         </Route>
                     </Routes>

@@ -27,7 +27,7 @@ export default function Login() {
         setIsLoading(true);
         if (await login(values.username, values.password)) {
             set_login();
-            navigate('/settings');
+            navigate('/startups');
         } else {
             setInvalidCredentials(true);
             setIsLoading(false);

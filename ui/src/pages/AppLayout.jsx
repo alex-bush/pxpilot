@@ -1,16 +1,17 @@
 import {Suspense, useEffect, useState} from "react";
 import {ConfigProvider, Layout, Menu, theme} from 'antd';
-import {DesktopOutlined, ToolOutlined} from "@ant-design/icons";
+import {DesktopOutlined, SettingOutlined, ToolOutlined} from "@ant-design/icons";
 import menuConfig from "../menuConfig.json"
 import Spinner from "../components/controls/Spinner.jsx";
 import {Link, Outlet} from "react-router-dom";
 import AppFooter from "../components/AppFooter.jsx";
 import {useAppContext} from "../contexts/AppContext.jsx";
+import Header from "../components/Header.jsx";
 
 const {Content, Sider} = Layout;
 
 const iconMap = {
-    ToolOutlined: <ToolOutlined/>, DesktopOutlined: <DesktopOutlined/>,
+    ToolOutlined: <ToolOutlined/>, DesktopOutlined: <DesktopOutlined/>, SettingOutlined: <SettingOutlined />
 }
 
 export default function AppLayout() {
@@ -18,11 +19,14 @@ export default function AppLayout() {
     const [collapsed, setCollapsed] = useState(true);
     const [menuItems, setMenuItems] = useState([]);
     //const [isLoaded, setIsLoaded] = useState(false);
-    const selectedMenuItem = location.pathname.split("/")[1] || "settings";
+    const selectedMenuItem = location.pathname.split("/")[1] || "startups";
 
     useEffect(() => {
         const config = menuConfig.map((item) => ({
-            key: item.key, icon: iconMap[item.icon], label: <Link to={item.key}>{item.label}</Link>,
+            key: item.key,
+            icon: iconMap[item.icon],
+            label: !item.disabled && <Link to={item.key}>{item.label}</Link>,
+            disabled: item.disabled
         }));
         setMenuItems(config);
         //setIsLoaded(true);
@@ -43,8 +47,9 @@ export default function AppLayout() {
                     />
                 </Sider>
                 <Layout>
+                    <Header/>
                     <Content style={{
-                        margin: '0 16px',
+                        margin: '10px 16px',
                     }}>
                         <Suspense fallback={<Spinner/>}>
                             <Outlet/>

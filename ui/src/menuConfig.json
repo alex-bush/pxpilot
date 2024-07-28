@@ -1,12 +1,19 @@
 [
   {
-    "key": "settings",
+    "key": "startups",
     "label": "VM startup management",
     "icon": "ToolOutlined"
   },
   {
     "key": "info",
     "label": "Proxmox information",
-    "icon": "DesktopOutlined"
+    "icon": "DesktopOutlined",
+    "disabled": true
+  },
+  {
+    "key": "settings",
+    "label": "Settings",
+    "icon": "SettingOutlined",
+    "disabled": true
   }
 ]

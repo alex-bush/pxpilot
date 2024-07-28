@@ -10,12 +10,15 @@ from api.routers import config_router, auth_router, common_router, proxmox_route
 
 logger = logging.getLogger(__name__)
 
+run_pilot = False
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     executor = None
     try:
-        executor = run_pxpilot_worker()
+        if run_pilot:
+            executor = run_pxpilot_worker()
     except Exception as e:
         logger.exception(e)
 

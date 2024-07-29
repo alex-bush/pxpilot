@@ -4,7 +4,7 @@ import LabeledTextField from "../controls/LabeledTextField.jsx";
 import KeyValueSettingList from "../controls/KeyValueSettingList.jsx";
 import Spinner from "../controls/Spinner.jsx";
 import useAuthFetch from "../../hooks/useAuthFetch.js";
-import {CONFIG_URL, PX_SETTINGS_URL, PX_VALIDATE_CONNECTION_URL} from "../../config.js";
+import {PX_SETTINGS_URL, PX_VALIDATE_CONNECTION_URL, RELOAD_CONFIG_URL} from "../../config.js";
 
 export default function ProxmoxSettings() {
     const TITLE = "Proxmox connection settings";
@@ -99,7 +99,7 @@ export default function ProxmoxSettings() {
 
         try {
             await authPost(PX_SETTINGS_URL, Data);
-            await authGet(CONFIG_URL);
+            await authPost(RELOAD_CONFIG_URL);
             await loadData();
             showNotification('success', TITLE);
         } catch (err) {

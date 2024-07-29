@@ -108,7 +108,7 @@ export default function StartupSettings() {
         setLoading(true);
 
         try {
-            await authPost(STARTUPS_SETTINGS_URL, data);
+            await authPost(STARTUPS_SETTINGS_URL, Data);
             await loadData();
             showNotification('success', TITLE);
         } catch (err) {

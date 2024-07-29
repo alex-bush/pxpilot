@@ -9,7 +9,7 @@ export const STARTUPS_SETTINGS_URL = api_prefix + "/config/startups"
 export const PX_VALIDATE_CONNECTION_URL = api_prefix + "/proxmox/px-validate"
 export const PX_GET_VMS_URL = api_prefix + "/proxmox/get_vms"
 
-export const CONFIG_URL = api_prefix + "/config"
+export const RELOAD_CONFIG_URL = api_prefix + "/config/reload"
 export const STATUS_URL = api_prefix + "/status/state"
 
 export const LOGIN_URL = api_prefix + "/login"

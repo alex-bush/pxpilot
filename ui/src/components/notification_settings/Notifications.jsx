@@ -1,5 +1,5 @@
 import {Button, Card, Collapse, Flex, notification} from "antd";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import Telegram from "./Telegram.jsx";
 import Email from "./Email.jsx";
 import Spinner from "../controls/Spinner.jsx";
@@ -31,11 +31,7 @@ export const Notifications = () => {
         })
     }
 
-    useEffect(() => {
-        loadData();
-    }, [authGet])
-
-    async function loadData() {
+    const loadData = useCallback(async () => {
         let data = await authGet(NOTIFICATIONS_SETTINGS_URL);
         if (data === null){
             data = {isLoaded: true, telegram: {}, email: {}};
@@ -44,7 +40,11 @@ export const Notifications = () => {
 
         data.isLoaded = true;
         setData(data);
-    }
+    }, [authGet])
+
+    useEffect(() => {
+        loadData();
+    }, [authGet, loadData])
 
     const handleDataChange = (key, newData) => {
         setData({...Data, [key]: newData});

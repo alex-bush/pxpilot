@@ -11,8 +11,7 @@ router = APIRouter(prefix="/proxmox", tags=["proxmox"], dependencies=[Depends(ge
 
 
 @router.post("/px-validate")
-async def validate_proxmox_connection(
-                                      connection_settings: ProxmoxSettingsModel,
+async def validate_proxmox_connection(connection_settings: ProxmoxSettingsModel,
                                       px_service: Annotated[ProxmoxService, Depends(ProxmoxService)]) -> ProxmoxValidationResultModel:
 
     return px_service.test_proxmox_connection(connection_settings)

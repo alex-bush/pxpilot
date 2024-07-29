@@ -22,7 +22,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
         }), [])
     ;
 
-    const {authGet, authPost} = useAuthFetch();
+    const {authGet} = useAuthFetch();
     const [healthcheckEnabled, setHealthcheckEnabled] = useState(false);
     const [data, setData] = useState(emptyItem);
     const [key, setKey] = useState(null);

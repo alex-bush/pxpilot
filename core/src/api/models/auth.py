@@ -7,7 +7,8 @@ class AuthModel(BaseModel):
 
 
 class AuthResponse(BaseModel):
-    token: str
+    access_token: str
+    token_type: str
 
 
 class RegisterModel(BaseModel):
@@ -17,4 +18,12 @@ class RegisterModel(BaseModel):
 
 class UserModel(BaseModel):
     username: str
-    token: str
+    password: str
+
+
+class User(BaseModel):
+    username: str
+
+
+class UserInDB(User):
+    password: str

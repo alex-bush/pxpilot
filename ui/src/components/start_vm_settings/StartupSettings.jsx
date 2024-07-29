@@ -1,12 +1,14 @@
 import {Button, Card, Empty, Flex, notification, Typography} from "antd";
 import {useCallback, useEffect, useState} from "react";
 import AddButton from "../controls/AddButton.jsx";
-import {fetchStartupSettings, saveStartupSettings} from "../../services/services.jsx";
 import VmStartupOptionsModal from "./VmStartupOptionsModal.jsx";
 import Spinner from "../controls/Spinner.jsx";
 import {closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors,} from '@dnd-kit/core';
 import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy,} from '@dnd-kit/sortable';
 import {SortableItem} from "./SortableItem.jsx";
+import useAuthFetch from "../../hooks/useAuthFetch.js";
+import {STARTUPS_SETTINGS_URL} from "../../config.js";
+import {data} from "autoprefixer";
 
 
 export default function StartupSettings() {
@@ -20,6 +22,23 @@ export default function StartupSettings() {
     const [currentItem, setCurrentItem] = useState(null);
     const [loading, setLoading] = useState(false);
     const [notificationInstance, notificationHolder] = notification.useNotification();
+
+    const {authGet, authPost} = useAuthFetch();
+
+    const loadData = useCallback(async () => {
+        let data = await authGet(STARTUPS_SETTINGS_URL);
+        if (data === null) {
+            data = [];
+        }
+        setOriginalData(data);
+
+        setIsLoaded(true);
+        setData(data);
+    }, [authGet])
+
+    useEffect(() => {
+        loadData();
+    }, [loadData])
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -59,21 +78,6 @@ export default function StartupSettings() {
         })
     }
 
-    const loadData = useCallback(async () => {
-        let data = await fetchStartupSettings();
-        if (data === null) {
-            data = [];
-        }
-        setOriginalData(data);
-
-        setIsLoaded(true);
-        setData(data);
-    }, [])
-
-    useEffect(() => {
-        loadData();
-    }, [loadData])
-
     function remove(key) {
         let data = Data.filter(item => item.vm_id !== key);
         setData([...data]);
@@ -104,7 +108,7 @@ export default function StartupSettings() {
         setLoading(true);
 
         try {
-            await saveStartupSettings(Data);
+            await authPost(STARTUPS_SETTINGS_URL, data);
             await loadData();
             showNotification('success', TITLE);
         } catch (err) {

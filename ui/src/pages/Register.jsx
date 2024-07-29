@@ -10,7 +10,6 @@ export default function Register() {
     const navigate = useNavigate();
 
     const onFinish = async (values) => {
-        console.log('Received values of form: ', values);
         if (await register(values.username, values.password)) {
             set_login();
             navigate('/settings');

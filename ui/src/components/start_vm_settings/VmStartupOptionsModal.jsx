@@ -2,9 +2,10 @@ import LabeledTextField from "../controls/LabeledTextField.jsx";
 import {Card, Divider, Modal, Select} from "antd";
 import CheckboxField from "../controls/CheckboxField.jsx";
 import {useEffect, useMemo, useState} from "react";
-import {fetchAllVirtualMachines} from "../../services/services.jsx";
 import DependenciesSelector from "./DependenciesSelector.jsx";
 import InfoMark from "../controls/InfoMark.jsx";
+import useAuthFetch from "../../hooks/useAuthFetch.js";
+import {PX_GET_VMS_URL} from "../../config.js";
 
 export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys, onOk, onCancel}) {
     const defaultCheck = 'none';
@@ -21,6 +22,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
         }), [])
     ;
 
+    const {authGet, authPost} = useAuthFetch();
     const [healthcheckEnabled, setHealthcheckEnabled] = useState(false);
     const [data, setData] = useState(emptyItem);
     const [key, setKey] = useState(null);
@@ -46,7 +48,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                 setHealthcheckEnabled(!!inputData.healthcheck);
                 setData(inputData);
             }
-            fetchAllVirtualMachines().then(vms => {
+            authGet(PX_GET_VMS_URL).then(vms => {
                 let vmList = vms.map(vm => {
                     return {
                         value: vm.id,
@@ -58,7 +60,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                 setAvailableVms(vmList);
             })
         }
-    }, [isModalOpen, inputData, emptyItem, usedKeys]);
+    }, [isModalOpen, inputData, emptyItem, usedKeys, authGet]);
 
     useEffect(() => {
         let isValid = data.vm_id && (

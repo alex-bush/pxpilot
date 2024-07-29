@@ -2,12 +2,14 @@ import {Button, Card, Collapse, Flex, notification} from "antd";
 import {useEffect, useState} from "react";
 import Telegram from "./Telegram.jsx";
 import Email from "./Email.jsx";
-import {fetchNotificationSettings, saveNotificationSettings} from "../../services/services.jsx";
 import Spinner from "../controls/Spinner.jsx";
+import useAuthFetch from "../../hooks/useAuthFetch.js";
+import {NOTIFICATIONS_SETTINGS_URL} from "../../config.js";
 
 export const Notifications = () => {
     const TITLE = "Notification settings";
 
+    const {authGet, authPost} = useAuthFetch();
     const [Data, setData] = useState({isLoaded: false});
     const [OriginalData, setOriginalData] = useState({})
 
@@ -31,10 +33,10 @@ export const Notifications = () => {
 
     useEffect(() => {
         loadData();
-    }, [])
+    }, [authGet])
 
     async function loadData() {
-        let data = await fetchNotificationSettings();
+        let data = await authGet(NOTIFICATIONS_SETTINGS_URL);
         if (data === null){
             data = {isLoaded: true, telegram: {}, email: {}};
         }
@@ -52,7 +54,7 @@ export const Notifications = () => {
         setSaving(true);
 
         try {
-            await saveNotificationSettings(Data);
+            await authPost(NOTIFICATIONS_SETTINGS_URL, Data);
             await loadData();
             showNotification('success', TITLE);
         }

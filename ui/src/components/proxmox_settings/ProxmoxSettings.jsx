@@ -1,13 +1,15 @@
 import {useCallback, useEffect, useState} from "react";
 import {Button, Card, Flex, message, notification} from "antd";
 import LabeledTextField from "../controls/LabeledTextField.jsx";
-import {fetchProxmoxSettings, reloadConfig, saveProxmoxSettings, testConnection} from "../../services/services.jsx";
 import KeyValueSettingList from "../controls/KeyValueSettingList.jsx";
 import Spinner from "../controls/Spinner.jsx";
+import useAuthFetch from "../../hooks/useAuthFetch.js";
+import {CONFIG_URL, PX_SETTINGS_URL, PX_VALIDATE_CONNECTION_URL} from "../../config.js";
 
 export default function ProxmoxSettings() {
     const TITLE = "Proxmox connection settings";
 
+    const {authGet, authPost} = useAuthFetch();
     const [Data, setData] = useState({isLoaded: false, extra_settings: {}})
     const [OriginalData, setOriginalData] = useState({})
 
@@ -39,7 +41,7 @@ export default function ProxmoxSettings() {
     };
 
     const loadData = useCallback(async () => {
-        let data = await fetchProxmoxSettings();
+        let data = await authGet(PX_SETTINGS_URL);
         if (data === null) {
             data = {isLoaded: true, extra_settings: { verify_ssl: false }};
         }
@@ -47,7 +49,7 @@ export default function ProxmoxSettings() {
 
         data.isLoaded = true;
         setData(data);
-    }, [])
+    }, [authGet])
 
     useEffect(() => {
         loadData()
@@ -96,8 +98,8 @@ export default function ProxmoxSettings() {
         setLoading(true);
 
         try {
-            await saveProxmoxSettings(Data, true);
-            await reloadConfig();
+            await authPost(PX_SETTINGS_URL, Data);
+            await authGet(CONFIG_URL);
             await loadData();
             showNotification('success', TITLE);
         } catch (err) {
@@ -112,7 +114,12 @@ export default function ProxmoxSettings() {
     async function handleTestClick() {
         setValidatingConnection(true)
         try {
-            const res = await testConnection(Data.host, Data.token_name, Data.token_value, Data.extra_settings);
+            const res = await authPost(PX_VALIDATE_CONNECTION_URL, {
+                host: Data.host,
+                token_name: Data.token_name,
+                token_value: Data.token_value,
+                extra_settings: Data.extra_settings,
+            });
             if (res.is_valid) {
                 showMessage('success', `Connection successful`);
             } else {

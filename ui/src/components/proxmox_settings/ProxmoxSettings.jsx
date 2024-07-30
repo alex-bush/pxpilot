@@ -7,33 +7,36 @@ import useAuthFetch from "../../hooks/useAuthFetch.js";
 import {PX_SETTINGS_URL, PX_VALIDATE_CONNECTION_URL} from "../../config.js";
 import useLoadData from "../../hooks/useLoadData.js";
 
+const placeholders = {
+    host: 'http://127.0.0.1:8006',
+    username: 'user@pve!tokenname',
+    token:  'token'
+}
+
 export default function ProxmoxSettings() {
     const TITLE = "Proxmox connection settings";
 
-    const {authPost} = useAuthFetch();
     const [localData, setLocalData] = useState({})
-
     const [validatingConnection, setValidatingConnection] = useState(false);
+
     const [apiMessage, contextMessageHolder] = message.useMessage();
 
+    const {authPost} = useAuthFetch();
     const {
-        data,
-        isLoading,
-        isSaving,
-        saveData,
-        notificationHolder
+        data, isLoading, setIsLoading, isSaving, saveData, notificationHolder
     } = useLoadData(PX_SETTINGS_URL, {extra_settings: {}}, TITLE, (data) => {
         if (data === null) {
             data = {extra_settings: {verify_ssl: false}};
         }
         return data;
-    })
+    });
 
     useEffect(() => {
         if (data) {
             setLocalData({...data});
+            setIsLoading(false);
         }
-    }, [data]);
+    }, [data, setIsLoading]);
 
     const showMessage = (type, message) => {
         apiMessage.open({
@@ -46,8 +49,7 @@ export default function ProxmoxSettings() {
     }
 
     function handleFieldChange(field, value) {
-        const newData = {...localData, [field]: value};
-        setLocalData(newData);
+        setLocalData({...localData, [field]: value});
     }
 
     function convertValue(value) {
@@ -105,47 +107,47 @@ export default function ProxmoxSettings() {
     }
 
     return (<>
-            {notificationHolder}
-            {contextMessageHolder}
-            <Card
-                title='Proxmox connection settings'
-                style={{
-                    width: "-moz-fit-content",
-                }}>
-                {!isLoading ? (<div className="settings">
-                        <div className="mainBlock">
-                            <LabeledTextField title='Host' value={localData.host} placeholder='http://127.0.0.1:8006'
-                                              className="p-2"
-                                              onChange={value => handleFieldChange('host', value)}/>
-                            <LabeledTextField title='Token name' value={localData.token_name} className="p-2"
-                                              placeholder='user@pve!tokenname'
-                                              onChange={value => handleFieldChange('token_name', value)}/>
-                            <LabeledTextField title='Token value' value={localData.token_value} is_password={"true"}
-                                              className="p-2"
-                                              placeholder='token'
-                                              onChange={value => handleFieldChange('token_value', value)}/>
-                        </div>
+        {notificationHolder}
+        {contextMessageHolder}
+        <Card
+            title='Proxmox connection settings'
+            style={{
+                width: "-moz-fit-content",
+            }}>
+            {!isLoading ? (<div className="settings">
+                <div className="mainBlock">
+                    <LabeledTextField title='Host' value={localData.host} placeholder={placeholders.host}
+                                      className="p-2"
+                                      onChange={value => handleFieldChange('host', value)}/>
+                    <LabeledTextField title='Token name' value={localData.token_name} className="p-2"
+                                      placeholder={placeholders.username}
+                                      onChange={value => handleFieldChange('token_name', value)}/>
+                    <LabeledTextField title='Token value' value={localData.token_value} is_password={"true"}
+                                      className="p-2"
+                                      placeholder={placeholders.token}
+                                      onChange={value => handleFieldChange('token_value', value)}/>
+                </div>
 
-                        <div className="p-2 pt-6">
-                            <KeyValueSettingList title='Other settings' settings={localData.extra_settings}
-                                                 onDataChange={handleExtraSettingsChanged}
-                                                 onAddClick={handleAddExtraSettingClick}
-                                                 onDeleteClick={handleDeleteExtraSettingClick}
-                            />
-                        </div>
-                        <div className="toolbar p-2 pt-6">
-                            <Flex justify="space-between">
-                                <Button type="primary"
-                                        disabled={!(localData.host && localData.token_name && localData.token_value)}
-                                        loading={validatingConnection}
-                                        onClick={handleTestClick}>Test connection
-                                </Button>
+                <div className="p-2 pt-6">
+                    <KeyValueSettingList title='Other settings' settings={localData.extra_settings}
+                                         onDataChange={handleExtraSettingsChanged}
+                                         onAddClick={handleAddExtraSettingClick}
+                                         onDeleteClick={handleDeleteExtraSettingClick}
+                    />
+                </div>
+                <div className="toolbar p-2 pt-6">
+                    <Flex justify="space-between">
+                        <Button type="primary"
+                                disabled={!(localData.host && localData.token_name && localData.token_value)}
+                                loading={validatingConnection}
+                                onClick={handleTestClick}>Test connection
+                        </Button>
 
-                                <Button type="primary" loading={isSaving} disabled={isDataUnchanged()}
-                                        onClick={handleSaveClick}>Save settings</Button>
-                            </Flex>
-                        </div>
-                    </div>) : <Spinner/>}
-            </Card>
-        </>)
+                        <Button type="primary" loading={isSaving} disabled={isDataUnchanged()}
+                                onClick={handleSaveClick}>Save settings</Button>
+                    </Flex>
+                </div>
+            </div>) : <Spinner/>}
+        </Card>
+    </>)
 }

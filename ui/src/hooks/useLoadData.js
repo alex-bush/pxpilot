@@ -3,10 +3,10 @@ import useAuthFetch from "./useAuthFetch.js";
 import {RELOAD_CONFIG_URL} from "../config.js";
 import useNotifier from "./useNotifier.js";
 
-function useLoadData(url, initialState, title, processData = null) {
-    const [data, setData] = useState(initialState);
-    const [isLoading, setIsLoading] = useState(false);
+export default function useLoadData(url, initialState, title, processData = null, reloadAfterSave = true) {
+    const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [data, setData] = useState(initialState);
 
     const {authGet, authPost} = useAuthFetch();
     const {showNotification, notificationHolder} = useNotifier();
@@ -23,7 +23,7 @@ function useLoadData(url, initialState, title, processData = null) {
         }
 
         setData(data);
-        setIsLoading(false);
+        //setIsLoading(false);
     }, [authGet, url]);
 
     const saveData = useCallback(async (body) => {
@@ -31,8 +31,10 @@ function useLoadData(url, initialState, title, processData = null) {
 
         try {
             await authPost(url, body);
-            await authPost(RELOAD_CONFIG_URL);
-            await fetchData();
+            if (reloadAfterSave) {
+                await authPost(RELOAD_CONFIG_URL);
+                await fetchData();
+            }
             showNotification('success', title);
         } catch (err) {
                 console.log(err);
@@ -46,7 +48,5 @@ function useLoadData(url, initialState, title, processData = null) {
         fetchData();
     }, [fetchData]);
 
-    return {data, isLoading, isSaving, fetchData, saveData, showNotification, notificationHolder};
+    return {data, isLoading, setIsLoading, isSaving, fetchData, saveData, showNotification, notificationHolder};
 }
-
-export default useLoadData;

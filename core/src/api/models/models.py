@@ -64,6 +64,7 @@ class VmStartOptionsModel(BaseModel):
 class TelegramModel(BaseModel):
     enabled: bool = Field(False, description='Enable or disable telegram')
     chat_id: str = ''
+    token: str = ''
 
 
 class EmailModel(BaseModel):

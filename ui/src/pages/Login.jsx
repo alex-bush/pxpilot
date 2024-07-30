@@ -28,7 +28,7 @@ export default function Login() {
         const response = await login(values.username, values.password);
         if (response && response.access_token) {
             set_login(response.access_token);
-            navigate('/settings');
+            navigate('/startups');
         } else {
             setInvalidCredentials(true);
             setIsLoading(false);

@@ -1,7 +1,7 @@
 
 from fastapi import Depends
 
-from api.models.auth import RegisterModel, UserModel, UserInDB
+from api.models.auth import UserModel, UserInDB
 from api.routers.builders import get_config_service
 from api.services.config_service import ConfigService
 

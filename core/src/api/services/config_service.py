@@ -111,7 +111,7 @@ class ConfigService:
         return startup_settings_models
 
     def save_user(self, user: UserModel):
-        u = User(username=user.username, token=user.token)
+        u = User(username=user.username, password=user.password)
         self._config.save_user(u)
 
     def load_users(self) -> List[UserModel]:

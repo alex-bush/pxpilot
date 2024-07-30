@@ -1,41 +1,57 @@
-import {Button, Card, Empty, Flex, notification, Typography} from "antd";
-import {useCallback, useEffect, useState} from "react";
+import {Button, Card, Empty, Flex, Typography} from "antd";
+import {useEffect, useState} from "react";
 import AddButton from "../controls/AddButton.jsx";
-import {fetchStartupSettings, saveStartupSettings} from "../../services/services.jsx";
 import VmStartupOptionsModal from "./VmStartupOptionsModal.jsx";
 import Spinner from "../controls/Spinner.jsx";
 import {closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors,} from '@dnd-kit/core';
 import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy,} from '@dnd-kit/sortable';
 import {SortableItem} from "./SortableItem.jsx";
+import {STARTUPS_SETTINGS_URL} from "../../config.js";
+import useLoadData from "../../hooks/useLoadData.js";
 
 
 export default function StartupSettings() {
     const TITLE = "VM startup settings";
 
-    const [Data, setData] = useState([{}])
-    const [OriginalData, setOriginalData] = useState({})
-    const [isLoaded, setIsLoaded] = useState(false);
+    const [localData, setLocalData] = useState(null)
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentItem, setCurrentItem] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [notificationInstance, notificationHolder] = notification.useNotification();
 
-    const sensors = useSensors(
-        useSensor(PointerSensor, {
+    const {
+        data,
+        isLoading,
+        setIsLoading,
+        isSaving,
+        saveData,
+        notificationHolder
+    } = useLoadData(
+        STARTUPS_SETTINGS_URL,
+        null,
+        TITLE,
+        (data) => { return data === null ? [] : data }
+    );
+
+    useEffect(() => {
+        if (data) {
+            setLocalData(data);
+            setIsLoading(false);
+        }
+    }, [data, setIsLoading]);
+
+    const sensors = useSensors(useSensor(PointerSensor, {
         activationConstraint: {
             distance: 5,
-        }}),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    );
+        }
+    }), useSensor(KeyboardSensor, {
+        coordinateGetter: sortableKeyboardCoordinates,
+    }));
 
     function handleDragEnd(event) {
         const {active, over} = event;
 
         if (active.id !== over.id) {
-            setData((items) => {
+            setLocalData((items) => {
                 const oldIndex = items.findIndex(item => item.vm_id === active.id);
                 const newIndex = items.findIndex(item => item.vm_id === over.id);
 
@@ -44,39 +60,8 @@ export default function StartupSettings() {
         }
     }
 
-    const showNotification = (type, title) => {
-        if (type === "error") {
-            notificationInstance[type]({
-                message: 'Error',
-                description: 'Error while saving ' + title,
-            })
-            return;
-        }
-
-        notificationInstance[type]({
-            message: 'Done!',
-            description: title + ' saved successfully',
-        })
-    }
-
-    const loadData = useCallback(async () => {
-        let data = await fetchStartupSettings();
-        if (data === null) {
-            data = [];
-        }
-        setOriginalData(data);
-
-        setIsLoaded(true);
-        setData(data);
-    }, [])
-
-    useEffect(() => {
-        loadData();
-    }, [loadData])
-
     function remove(key) {
-        let data = Data.filter(item => item.vm_id !== key);
-        setData([...data]);
+        setLocalData([...localData.filter(item => item.vm_id !== key)]);
     }
 
     function handleItemRowClick(item) {
@@ -85,15 +70,15 @@ export default function StartupSettings() {
     }
 
     const isDataUnchanged = () => {
-        return JSON.stringify(Data) === JSON.stringify(OriginalData);
+        return JSON.stringify(data) === JSON.stringify(localData);
     }
 
     function handleModalOkClick(key, item) {
         try {
             if (key) {
-                setData(Data.map(x => x.vm_id === key ? item : x));
+                setLocalData(localData.map(x => x.vm_id === key ? item : x));
             } else {
-                setData([...Data, item])
+                setLocalData([...localData, item])
             }
         } finally {
             setIsModalOpen(false);
@@ -101,75 +86,56 @@ export default function StartupSettings() {
     }
 
     async function handleSaveClick() {
-        setLoading(true);
-
-        try {
-            await saveStartupSettings(Data);
-            await loadData();
-            showNotification('success', TITLE);
-        } catch (err) {
-            console.log(err);
-            showNotification('error', TITLE);
-        } finally {
-            setLoading(false);
-        }
+        await saveData(localData);
     }
 
-    return (
-        <>
+    return (<>
             {notificationHolder}
-            <VmStartupOptionsModal isModalOpen={isModalOpen}
-                                   inputData={currentItem}
-                                   usedKeys={Data.map(i => i.vm_id)}
-                                   onOk={handleModalOkClick}
-                                   onCancel={() => setIsModalOpen(false)}/>
+            {localData && <VmStartupOptionsModal isModalOpen={isModalOpen}
+                                                 inputData={currentItem}
+                                                 usedKeys={localData.map(i => i.vm_id)}
+                                                 onOk={handleModalOkClick}
+                                                 onCancel={() => setIsModalOpen(false)}/>}
 
             <Card
                 title="Virtual machines startup settings">
-                {isLoaded ? (
-                    <div style={{textAlign: 'left', whiteSpace: 'nowrap'}}>
+                {!isLoading ? (<div style={{textAlign: 'left', whiteSpace: 'nowrap'}}>
                         <Typography>List of virtual machines in the order they will be started.</Typography>
                         <Typography>The order can be rearranged by dragging and dropping the items.</Typography>
 
-                        <div className="pt-4">
+                        {localData && <div className="pt-4">
                             <DndContext
                                 sensors={sensors}
                                 collisionDetection={closestCenter}
                                 onDragEnd={handleDragEnd}
                             >
                                 <SortableContext
-                                    items={Data.map(item => item.vm_id)}
+                                    items={localData.map(item => item.vm_id)}
                                     strategy={verticalListSortingStrategy}
                                 >
-                                    {Data.map((item) => (
-                                        <div key={item.vm_id}>
-                                            <SortableItem key={item.vm_id}
-                                                          id={item.vm_id}
-                                                          item={item}
-                                                          handleItemRowClick={handleItemRowClick}
-                                                          remove={remove} />
-                                        </div>))}
+                                    {localData.map((item) => (<div key={item.vm_id}>
+                                        <SortableItem key={item.vm_id}
+                                                      id={item.vm_id}
+                                                      item={item}
+                                                      handleItemRowClick={handleItemRowClick}
+                                                      remove={remove}/>
+                                    </div>))}
                                 </SortableContext>
                             </DndContext>
-                            {Data.length === 0 &&
-                                <div>
-                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
-                                </div>
-                            }
+                            {localData.length === 0 && <div>
+                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
+                            </div>}
                             <Flex justify="space-between" className="pt-4">
                                 <AddButton onClick={() => {
                                     setCurrentItem(null);
                                     setIsModalOpen(true)
                                 }}/>
-                                <Button type="primary" loading={loading} disabled={isDataUnchanged()}
+                                <Button type="primary" loading={isSaving} disabled={isDataUnchanged()}
                                         onClick={handleSaveClick}>Save settings</Button>
                             </Flex>
-                        </div>
+                        </div>}
 
-                    </div>
-                ) : <Spinner/>
-                }
+                    </div>) : <Spinner/>}
             </Card>
-        </>
-    )
+        </>)
 }

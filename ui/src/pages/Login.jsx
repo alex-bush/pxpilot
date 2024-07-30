@@ -6,7 +6,7 @@ import {get_api_status, login} from "../services/auth.js"
 import {useEffect, useState} from "react";
 
 export default function Login() {
-    const {set_login} = useAuth()
+    const { set_login } = useAuth()
     const [form] = Form.useForm();
     const navigate = useNavigate();
     const [invalidCredentials, setInvalidCredentials] = useState(false);
@@ -25,9 +25,10 @@ export default function Login() {
 
     async function handleLogin(values) {
         setIsLoading(true);
-        if (await login(values.username, values.password)) {
-            set_login();
-            navigate('/settings');
+        const response = await login(values.username, values.password);
+        if (response && response.access_token) {
+            set_login(response.access_token);
+            navigate('/startups');
         } else {
             setInvalidCredentials(true);
             setIsLoading(false);

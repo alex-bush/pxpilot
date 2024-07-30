@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def pxpilot_worker():
     time.sleep(5)
-    logger.debug(f'pxpilot worker started')
+    logger.debug('pxpilot worker started')
 
     pilot.start("config.yaml")
 

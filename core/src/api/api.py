@@ -53,4 +53,3 @@ api.include_router(proxmox_router.router, prefix=api_prefix)
 api.include_router(settings_router.router, prefix=api_prefix)
 
 logger.debug(f"Created api {'API ' + __title__}: {__version__}")
-

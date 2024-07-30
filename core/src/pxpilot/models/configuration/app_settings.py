@@ -30,4 +30,4 @@ class AppSettings:
 @dataclass
 class User:
     username: str
-    token: str
+    password: str

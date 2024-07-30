@@ -130,7 +130,7 @@ class ConfigProviderV2(IConfig):
         users_settings = self.yaml_data.get(ConfigSections.USERS, [])
         users_settings.append({
             'username': user.username,
-            'token': user.token,
+            'password': user.password,
         })
 
         self.yaml_data[ConfigSections.USERS] = users_settings

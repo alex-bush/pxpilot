@@ -1,17 +1,18 @@
-from typing import List
+from typing import List, Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from api.models.models import ProxmoxValidationResultModel, ProxmoxVm, ProxmoxSettingsModel
+from api.services.auth_service import get_current_user
 from api.services.proxmox_service import ProxmoxService
 from pxpilot.common.exceptions import ProxmoxConfigurationError
 
-router = APIRouter(prefix="/proxmox", tags=["proxmox"])
+router = APIRouter(prefix="/proxmox", tags=["proxmox"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("/px-validate")
 async def validate_proxmox_connection(connection_settings: ProxmoxSettingsModel,
-                                      px_service: ProxmoxService = Depends(ProxmoxService)) -> ProxmoxValidationResultModel:
+                                      px_service: Annotated[ProxmoxService, Depends(ProxmoxService)]) -> ProxmoxValidationResultModel:
 
     return px_service.test_proxmox_connection(connection_settings)
 

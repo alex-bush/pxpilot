@@ -4,9 +4,10 @@ from fastapi import APIRouter, Depends, Response, status
 
 from api.models.models import ProxmoxSettingsModel, NotificationsModel, VmStartOptionsModel
 from api.routers.builders import get_config_service
+from api.services.auth_service import get_current_user
 from api.services.config_service import ConfigService
 
-router = APIRouter(prefix="/config", tags=["config"])
+router = APIRouter(prefix="/config", tags=["config"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("/reload")

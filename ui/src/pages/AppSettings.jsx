@@ -3,14 +3,22 @@ import ProxmoxSettings from "../components/proxmox_settings/ProxmoxSettings.jsx"
 import {Notifications} from "../components/notification_settings/Notifications.jsx";
 import StartupSettings from "../components/start_vm_settings/StartupSettings.jsx";
 import {CloudServerOutlined, InfoCircleOutlined, MailOutlined, PlayCircleOutlined} from "@ant-design/icons";
+import {useState} from "react";
+import StartupsHelperPanel from "../components/helper_panels/StartupsHelperPanel.jsx";
+import NotificationsHelperPanel from "../components/helper_panels/NotificationsHelperPanel.jsx";
+import ProxmoxHelperPanel from "../components/helper_panels/ProxmoxHelperPanel.jsx";
+
+
 
 export default function AppSettings() {
+    const [selectedTab, setSelectedTab] = useState(null);
     return (
         <>
             <div className="flex justify-between gap-4">
                 <div className="w-2/3 ">
                     <Tabs
-                        onChange={() => {
+                        onChange={(e) => {
+                            setSelectedTab(e)
                         }}
                         type="card"
                         items={[{
@@ -34,28 +42,10 @@ export default function AppSettings() {
 
                     />
                 </div>
-                <div className="flex-grow mt-14 ml-1 w-1/3">
-                    <Card className="text-gray-500 pt-5 pb-10">
-                        <InfoCircleOutlined style={{ color: "green", fontSize: '25px' }} className="pb-5" />
-                        <h3>Virtual Machines Startup Settings</h3>
-                        <br/>
-                        <p>
-                            In this section, you can configure the startup settings for your virtual machines.
-                            You can arrange the order in which the virtual machines will be started by dragging and
-                            dropping the items.
-                            This ensures that the virtual machines are started in the desired sequence, providing better
-                            control over your infrastructure.
-                        </p>
-                        <br/>
-                        <p>
-                            Additionally, you can add new virtual machines to the startup list or remove existing ones.
-                            Make sure to save your settings after making any changes.
-                        </p>
-                        <p>
-                            Use the icons next to each virtual machine to further configure their startup dependencies
-                            and parameters.
-                        </p>
-                    </Card>
+                <div className="flex-grow mt-14 ml-10 mr-10 w-1/3">
+                    {selectedTab === 'startup_settings' && <StartupsHelperPanel/> }
+                    {selectedTab === 'notification_settings' && <NotificationsHelperPanel/> }
+                    {selectedTab === 'proxmox_settings' && <ProxmoxHelperPanel/> }
                 </div>
             </div>
         </>

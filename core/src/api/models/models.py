@@ -62,19 +62,19 @@ class VmStartOptionsModel(BaseModel):
 
 
 class TelegramModel(BaseModel):
-    enabled: bool = True
-    token: str
-    chat_id: str
+    enabled: bool = Field(False, description='Enable or disable telegram')
+    chat_id: str = ''
+    token: str = ''
 
 
 class EmailModel(BaseModel):
-    enabled: bool = True
-    smtp_server: str
-    smtp_port: int
-    smtp_user: str
-    smtp_password: str
-    from_email: str
-    to_email: str
+    enabled: bool = Field(False, description='Enable or disable email')
+    smtp_server: str = ''
+    smtp_port: int = 587
+    smtp_user: str = ''
+    smtp_password: str = ''
+    from_email: str = ''
+    to_email: str = ''
 
     @classmethod
     @field_validator('smtp_port')

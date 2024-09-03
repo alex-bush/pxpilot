@@ -4,8 +4,8 @@ from typing import Annotated
 from fastapi import APIRouter, status, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from api.models.auth import RegisterModel, AuthResponse
 from api.v2.services.auth_service import PwdTokenService
+from core.schemas.auth import RegisterModel, AuthResponse
 from core.schemas.user import UserCreate
 from services.user_service import UserService
 

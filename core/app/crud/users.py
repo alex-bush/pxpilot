@@ -1,4 +1,5 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import UserDbModel
@@ -14,5 +15,14 @@ async def create_user(user: UserDbModel, db_session: AsyncSession) -> UserDbMode
 
 
 async def get_user_by_username(username: str, db_session: AsyncSession) -> UserDbModel:
-    user = (await db_session.scalars(select(UserDbModel).where(UserDbModel.username == username))).first()
-    return user
+    try:
+        result = await db_session.execute(select(UserDbModel).where(UserDbModel.username == username))
+        user = result.scalars().first()
+        return user
+    except SQLAlchemyError as e:
+        print(f"Database error: {e}")
+        return None
+
+
+async def get_users_count(db_session: AsyncSession) -> int:
+    return await db_session.scalar(select(func.count()).select_from(UserDbModel))

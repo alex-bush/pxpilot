@@ -1,10 +1,10 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from .base import Base
+from .base import Base, IdBase
 
 
-class User(Base):
+class User(IdBase):
     __tablename__ = 'users'
 
     username: Mapped[str] = mapped_column(unique=True, nullable=False)
@@ -15,7 +15,7 @@ class User(Base):
     )
 
 
-class UserSettings(Base):
+class UserSettings(IdBase):
     __tablename__ = 'user_settings'
 
     name: Mapped[str] = mapped_column(unique=True, nullable=False)

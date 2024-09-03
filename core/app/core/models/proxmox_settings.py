@@ -1,10 +1,10 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from .base import IdBase
 
 
-class ProxmoxSettings(Base):
+class ProxmoxSettings(IdBase):
     __tablename__ = 'proxmox_settings'
 
     hostname: Mapped[str] = mapped_column(unique=True, nullable=False)
@@ -17,7 +17,7 @@ class ProxmoxSettings(Base):
     )
 
 
-class ProxmoxExtraSettings(Base):
+class ProxmoxExtraSettings(IdBase):
     __tablename__ = 'proxmox_extra_settings'
 
     name: Mapped[str] = mapped_column(unique=True, nullable=False)

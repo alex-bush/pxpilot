@@ -1,12 +1,12 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class UserBase(BaseModel):
-    username: str
+    username: str = Field(...)
 
 
 class UserCreate(UserBase):
-    password: str
+    password: str = Field(...)
 
 
 class UserRead(UserCreate):

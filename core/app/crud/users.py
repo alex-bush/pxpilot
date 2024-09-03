@@ -1,10 +1,10 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models import User
+from core.models import UserDbModel
 
 
-async def create_user(user: User, db_session: AsyncSession) -> User:
+async def create_user(user: UserDbModel, db_session: AsyncSession) -> UserDbModel:
     db_session.add(user)
 
     await db_session.commit()
@@ -13,6 +13,6 @@ async def create_user(user: User, db_session: AsyncSession) -> User:
     return user
 
 
-async def get_user_by_username(username: str, db_session: AsyncSession) -> User:
-    user = (await db_session.scalars(select(User).where(User.username == username))).first()
+async def get_user_by_username(username: str, db_session: AsyncSession) -> UserDbModel:
+    user = (await db_session.scalars(select(UserDbModel).where(UserDbModel.username == username))).first()
     return user

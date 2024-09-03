@@ -3,17 +3,17 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from core.models import ProxmoxSettings
+from core.models import ProxmoxSettingsDbModel
 
 
 async def get_proxmox_settings(db_session: AsyncSession):
-    query = select(ProxmoxSettings).options(selectinload(ProxmoxSettings.extra_settings))
+    query = select(ProxmoxSettingsDbModel).options(selectinload(ProxmoxSettingsDbModel.extra_settings))
     result = await db_session.execute(query)
     st = result.scalars().first()
     return st
 
 
-async def save_proxmox_settings(settings: ProxmoxSettings, db_session: AsyncSession) -> ProxmoxSettings:
+async def save_proxmox_settings(settings: ProxmoxSettingsDbModel, db_session: AsyncSession) -> ProxmoxSettingsDbModel:
     """
     Save or update a ProxmoxSettings instance and its related ProxmoxExtraSettings.
 
@@ -25,7 +25,7 @@ async def save_proxmox_settings(settings: ProxmoxSettings, db_session: AsyncSess
         is_new = True
         if settings.id is not None:
             existing_settings = await db_session.execute(
-                select(ProxmoxSettings).options(selectinload(ProxmoxSettings.extra_settings)).filter_by(
+                select(ProxmoxSettingsDbModel).options(selectinload(ProxmoxSettingsDbModel.extra_settings)).filter_by(
                     id=settings.id)
             )
             existing_settings = existing_settings.scalars().first()
@@ -33,6 +33,7 @@ async def save_proxmox_settings(settings: ProxmoxSettings, db_session: AsyncSess
             if existing_settings:
                 is_new = False
 
+                existing_settings.hostname = settings.hostname
                 existing_settings.token = settings.token
                 existing_settings.token_value = settings.token_value
                 existing_settings.validated = settings.validated

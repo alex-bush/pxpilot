@@ -8,7 +8,7 @@ class ProxmoxExtraSettingsBase(BaseModel):
     value: Optional[str] = Field(None, description="Value for the extra setting")
 
 class ProxmoxExtraSettingsCreate(ProxmoxExtraSettingsBase):
-    proxmox_settings_id: int = Field(...)
+    proxmox_settings_id: Optional[int] = Field(default=None)
 
 class ProxmoxExtraSettings(ProxmoxExtraSettingsBase):
     id: int
@@ -25,6 +25,7 @@ class ProxmoxSettingsBase(BaseModel):
 
 # Schema for creating ProxmoxSettings with nested extra settings
 class ProxmoxSettingsCreate(ProxmoxSettingsBase):
+    id: Optional[int] = Field(None, description="Id of the extra setting")
     extra_settings: List[ProxmoxExtraSettingsCreate] = Field(
         default_factory=list, description="List of extra settings for the Proxmox server"
     )

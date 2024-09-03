@@ -1,11 +1,11 @@
 __all__ = (
-    "Base", "IdBase",
-    "User", "UserSettings",
-    "ProxmoxSettings", "ProxmoxExtraSettings",
+    "BaseDbModel", "BaseIdDbModel",
+    "UserDbModel", "UserSettingsDbModel",
+    "ProxmoxSettingsDbModel", "ProxmoxExtraSettingsDbModel",
     #"VmStartupSettings", "VmDependency", "Healthcheck"
 )
 
-from .user import User, UserSettings
-from .base import Base, IdBase
-from .proxmox_settings import ProxmoxSettings, ProxmoxExtraSettings
+from .user import UserDbModel, UserSettingsDbModel
+from .base import BaseDbModel, BaseIdDbModel
+from .proxmox_settings import ProxmoxSettingsDbModel, ProxmoxExtraSettingsDbModel
 #   from .vms import VmStartupSettings, VmDependency, Healthcheck

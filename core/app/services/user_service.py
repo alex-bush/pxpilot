@@ -4,7 +4,7 @@ from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import db_helper
-from core.models import User
+from core.models import UserDbModel
 from core.schemas.user import UserRead, UserCreate
 from crud.users import get_user_by_username, create_user
 
@@ -22,5 +22,5 @@ class UserService:
         return UserRead(**user.__dict__)
 
     async def create_user(self, user: UserCreate) -> UserRead:
-        user = await create_user(User(**user.model_dump()), self._session)
+        user = await create_user(UserDbModel(**user.model_dump()), self._session)
         return UserRead(**user.__dict__)

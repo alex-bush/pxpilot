@@ -1,9 +1,11 @@
-from sqlalchemy import select
+from typing import Sequence
+
+from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from core.models import ProxmoxSettingsDbModel
+from core.models import ProxmoxSettingsDbModel, VmStartupSettingsDbModel, HealthcheckDbModel
 
 
 async def get_proxmox_settings(db_session: AsyncSession):
@@ -61,3 +63,72 @@ async def save_proxmox_settings(settings: ProxmoxSettingsDbModel, db_session: As
     except Exception as e:
         await db_session.rollback()
         raise ValueError(f"An error occurred: {str(e)}") from e
+
+
+async def get_vms_settings(db_session: AsyncSession) -> Sequence[VmStartupSettingsDbModel]:
+    query = (select(VmStartupSettingsDbModel).options(
+        selectinload(VmStartupSettingsDbModel.healthcheck),
+    ))
+    result = await db_session.execute(query)
+    return result.scalars().all()
+
+
+async def get_vm_by_id(id: int, db_session: AsyncSession) -> VmStartupSettingsDbModel:
+    query = (select(VmStartupSettingsDbModel).options(
+        selectinload(VmStartupSettingsDbModel.healthcheck)
+    )).where(VmStartupSettingsDbModel.id == id)
+    result = await db_session.execute(query)
+    return result.scalars().first()
+
+
+async def add_or_update_vm_with_healthchecks(vm: VmStartupSettingsDbModel, healthchecks: [HealthcheckDbModel],
+                                             db_session: AsyncSession) -> VmStartupSettingsDbModel:
+    try:
+        async with db_session.begin():
+            await add_vm(vm, db_session)
+            await add_or_update_healthchecks(vm.id, healthchecks, db_session)
+
+            return await get_vm_by_id(vm.id, db_session)
+    except IntegrityError as e:
+        print(e)
+        await db_session.rollback()
+    except Exception as e:
+        print(e)
+        await db_session.rollback()
+
+
+async def add_vm(vm: VmStartupSettingsDbModel, db_session: AsyncSession):
+    is_new = True
+    if vm.id is not None:
+        existing_vm = await db_session.execute(
+            select(VmStartupSettingsDbModel).where(VmStartupSettingsDbModel.id == vm.id)
+        )
+
+        if existing_vm:
+            is_new = False
+
+            existing_vm.name = vm.name
+            existing_vm.description = vm.description
+            existing_vm.enabled = vm.enabled
+            existing_vm.enable_dependencies = vm.enable_dependencies
+            existing_vm.node_name = vm.node_name
+            existing_vm.startup_timeout = vm.startup_timeout
+            existing_vm.vm_id = vm.vm_id
+            existing_vm.dependencies = vm.dependencies
+
+    if is_new:
+        db_session.add(vm)
+
+
+async def add_or_update_healthchecks(vm_id: int, healthchecks: [HealthcheckDbModel], db_session: AsyncSession):
+    await db_session.execute(
+        delete(HealthcheckDbModel).where(HealthcheckDbModel.vms_id == vm_id)
+    )
+
+    for hc in healthchecks:
+        new_hc = HealthcheckDbModel(
+            target_url=hc.target_url,
+            check_method=hc.check_method,
+            vms_id=vm_id
+        )
+        db_session.add(new_hc)

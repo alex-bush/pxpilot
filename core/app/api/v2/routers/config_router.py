@@ -4,23 +4,11 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 
 from core.schemas.notifications import Notifications
-from core.schemas.proxmox_settings import ProxmoxSettings, ProxmoxSettingsCreate
 from core.schemas.vms import VmStartupSettings, CreateVmStartupSettings
 from services.config_service import ConfigService
 from services.notification_service import NotificationService
 
-router = APIRouter(tags=["auth v2"])
-
-
-@router.get('/px')
-async def get_proxmox_settings(config_service: Annotated[ConfigService, Depends(ConfigService)]) -> Optional[ProxmoxSettings]:
-    return await config_service.get_px_settings()
-
-
-@router.post('/px')
-async def save_proxmox_settings(settings: ProxmoxSettingsCreate,
-                                config_service: Annotated[ConfigService, Depends(ConfigService)]) -> None:
-    return await config_service.set_px_settings(settings)
+router = APIRouter(prefix="/settings", tags=["config v2"])
 
 
 @router.get('/vms')

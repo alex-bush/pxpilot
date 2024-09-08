@@ -22,6 +22,10 @@ class ProxmoxConfig(BaseModel):
     api_prefix: str = "/api2/json"
 
 
+class AppConfig(BaseModel):
+    single_healthcheck: bool = True
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
@@ -32,6 +36,7 @@ class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: ApiConfig = ApiConfig()
     proxmox: ProxmoxConfig = ProxmoxConfig()
+    app: AppConfig = AppConfig()
     db: DatabaseConfig
 
 

@@ -26,14 +26,17 @@ class CreateVmStartupSettings(BaseModel):
     enabled: bool = False
     enable_dependencies: bool = False
     startup_timeout: int = 120
-    dependencies: Optional[str] = None
-    healthcheck: Optional[List[CreateHealthcheck]] = []
+    wait_until_running: bool = True
+    dependencies: Optional[list[int]] = None
+    health_checks: Optional[List[CreateHealthcheck]] = []
+    healthcheck: Optional[CreateHealthcheck] = None
 
 
 class VmStartupSettings(CreateVmStartupSettings):
     id: int
-    dependencies: Optional[str] = None
-    healthcheck: Optional[List[Healthcheck]] = []
+    dependencies: Optional[list[int]] = None
+    health_checks: Optional[List[Healthcheck]] = []
+    healthcheck: Optional[Healthcheck] = None
 
     class Config:
         from_attributes = True

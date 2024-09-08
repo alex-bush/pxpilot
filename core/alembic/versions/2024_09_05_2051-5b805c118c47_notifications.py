@@ -23,7 +23,7 @@ def upgrade() -> None:
     op.create_table('notifiers',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('enabled', sa.Boolean(), nullable=False),
+    sa.Column('enabled', sa.Boolean(), nullable=False, server_default=sa.sql.expression.false()),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )

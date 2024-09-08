@@ -12,7 +12,7 @@ from services.notification_service import NotificationService
 router = APIRouter(prefix="/settings", tags=["config v2"], dependencies=[Depends(get_current_user)])
 
 
-@router.get('/vms')
+@router.get('/startups')
 async def get_vms(config_service: Annotated[ConfigService, Depends(ConfigService)]) -> Optional[list[VmStartupSettings]]:
     return await config_service.get_vm_startup_settings()
 
@@ -20,6 +20,11 @@ async def get_vms(config_service: Annotated[ConfigService, Depends(ConfigService
 @router.post('/vms')
 async def add_vm(vm: CreateVmStartupSettings, config_service: Annotated[ConfigService, Depends(ConfigService)]):
     return await config_service.add_vm_startup_settings(vm)
+
+
+@router.post('/startups')
+async def add_vm(vms: list[CreateVmStartupSettings], config_service: Annotated[ConfigService, Depends(ConfigService)]):
+    return await config_service.set_vm_startups_settings(vms)
 
 
 @router.get('/config/notifications')

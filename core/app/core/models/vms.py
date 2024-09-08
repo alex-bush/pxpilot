@@ -12,6 +12,7 @@ class VmStartupSettingsDbModel(BaseIdDbModel):
     description: Mapped[str] = mapped_column(String, nullable=True)
     enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     enable_dependencies: Mapped[bool] = mapped_column(Boolean, default=False)
+    wait_until_running: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     startup_timeout: Mapped[int] = mapped_column(Integer, default=120)
 
     dependencies: Mapped[str] = mapped_column(String, nullable=True)
@@ -28,6 +29,7 @@ class HealthcheckDbModel(BaseIdDbModel):
     vms_id: Mapped[int] = mapped_column(ForeignKey('vm_startup_settings.id'), nullable=False)
     target_url: Mapped[str] = mapped_column(String, default=None)
     check_method: Mapped[str] = mapped_column(String, default=None)
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     vm_startup_settings: Mapped['VmStartupSettingsDbModel'] = relationship(
         'VmStartupSettingsDbModel',

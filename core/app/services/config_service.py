@@ -1,11 +1,12 @@
 from typing import Optional
 
+from core.config import settings
 from core.models import HealthcheckDbModel, VmStartupSettingsDbModel
 from core.models.proxmox_settings import ProxmoxSettingsDbModel, ProxmoxExtraSettingsDbModel
 from core.schemas.proxmox_settings import ProxmoxSettingsCreate, ProxmoxSettings
 from core.schemas.vms import VmStartupSettings, Healthcheck, CreateVmStartupSettings
 from crud.configs import get_proxmox_settings, save_proxmox_settings, get_vms_settings, \
-    add_or_update_vm_with_healthchecks
+    save_vm_startup, delete_vm_startup_settings_by_ids
 from services.base_service import BaseDbService
 
 
@@ -38,6 +39,17 @@ class ConfigService(BaseDbService):
             return vms
         return None
 
+    async def set_vm_startups_settings(self, vm_startup_settings: list[CreateVmStartupSettings]):
+        existing = await get_vms_settings(self._session)
+        existing_ids = {startup.id for startup in existing}
+        new_ids = {startup.id for startup in vm_startup_settings if startup.id is not None}
+        ids_for_delete = existing_ids - new_ids
+
+        for vm_startup in vm_startup_settings:
+            await self.add_vm_startup_settings(vm_startup)
+
+        await delete_vm_startup_settings_by_ids(ids_for_delete, self._session)
+
     async def add_vm_startup_settings(self, vm: CreateVmStartupSettings) -> VmStartupSettings:
         vm_db = VmStartupSettingsDbModel(
             id=vm.id,
@@ -48,23 +60,42 @@ class ConfigService(BaseDbService):
             enabled=vm.enabled,
             enable_dependencies=vm.enable_dependencies,
             startup_timeout=vm.startup_timeout,
-            dependencies=vm.dependencies,
+            wait_until_running=vm.wait_until_running,
+            dependencies=','.join([str(item) for item in vm.dependencies])
         )
 
-        healthchecks = [
-            HealthcheckDbModel(
-                vms_id=vm.id,
-                target_url=hc.target_url,
-                check_method=hc.check_method
-            ) for hc in vm.healthcheck
-        ]
+        health_checks = None
+        if settings.app.single_healthcheck:
+            if vm.healthcheck is not None:
+                health_checks = [
+                    HealthcheckDbModel(
+                        vms_id=vm.id,
+                        target_url=vm.healthcheck.target_url,
+                        check_method=vm.healthcheck.check_method
+                    )
+                ]
+        else:
+            if vm.health_checks is not None:
+                health_checks = [
+                    HealthcheckDbModel(
+                        vms_id=vm.id,
+                        target_url=hc.target_url,
+                        check_method=hc.check_method
+                    ) for hc in vm.health_checks
+                ]
 
-        saved_vm = await add_or_update_vm_with_healthchecks(vm_db, healthchecks, self._session)
+
+
+        saved_vm = await save_vm_startup(vm_db, health_checks, self._session)
         return self.convert(saved_vm)
 
     @staticmethod
     def convert(vm_data: VmStartupSettingsDbModel) -> VmStartupSettings:
         hs = [Healthcheck.model_validate(h) for h in vm_data.healthcheck]
+
+        dps = []
+        if vm_data.dependencies is not None and len(vm_data.dependencies) > 0:
+            dps = [int(item.strip()) for item in vm_data.dependencies.split(',')]
 
         vm = {
             "id": vm_data.id,
@@ -74,9 +105,11 @@ class ConfigService(BaseDbService):
             "description": vm_data.description,
             "enabled": vm_data.enabled,
             "enable_dependencies": vm_data.enable_dependencies,
+            "wait_until_running": vm_data.wait_until_running,
             "startup_timeout": vm_data.startup_timeout,
-            "dependencies": vm_data.dependencies,
-            "healthcheck": hs
+            "dependencies": dps,
+            "health_checks": hs,
+            "healthcheck": hs[0] if len(hs) == 1 else None,
         }
 
         vm_schema = VmStartupSettings.model_validate(vm)

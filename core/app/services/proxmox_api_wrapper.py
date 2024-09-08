@@ -39,5 +39,10 @@ class ProxmoxAPIWrapper:
     async def get_nodes(self):
         return await self._request('GET', 'nodes')
 
+    async def get_virtual_machine(self, node_name: str, vm_type: str):
+        if node_name is None:
+            return None
+        return await self._request('GET', f'nodes/{node_name}/{vm_type}')
+
     async def get_node_status(self, node_name):
         return await self._request('GET', f'nodes/{node_name}/status')

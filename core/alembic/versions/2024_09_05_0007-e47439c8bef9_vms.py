@@ -26,7 +26,7 @@ def upgrade() -> None:
     sa.Column('node_name', sa.String(), nullable=True),
     sa.Column('name', sa.String(), nullable=True),
     sa.Column('description', sa.String(), nullable=True),
-    sa.Column('enabled', sa.Boolean(), nullable=False),
+    sa.Column('enabled', sa.Boolean(), nullable=False, server_default=sa.sql.expression.false()),
     sa.Column('enable_dependencies', sa.Boolean(), nullable=False),
     sa.Column('startup_timeout', sa.Integer(), nullable=False),
     sa.Column('dependencies', sa.String(), nullable=True),

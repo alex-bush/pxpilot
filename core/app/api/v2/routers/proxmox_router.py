@@ -34,8 +34,8 @@ async def get_nodes(px_service: Annotated[ProxmoxService, Depends(ProxmoxService
 
 
 @router.get('/virtual-machines')
-async def get_vms():
-    pass
+async def get_vms(px_service: Annotated[ProxmoxService, Depends(ProxmoxService)]):
+    return await px_service.get_virtual_machines()
 
 
 @router.post('/run-pilot')

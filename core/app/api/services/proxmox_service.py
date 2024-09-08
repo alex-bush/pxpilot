@@ -5,7 +5,7 @@ from fastapi import status
 from proxmoxer import ResourceException
 
 from api.models.models import ProxmoxValidationResultModel, ProxmoxVm, ProxmoxSettingsModel
-from pxpilot.common.exceptions import ProxmoxConfigurationError
+from core.exceptions.exceptions import ProxmoxConfigurationError
 from pxpilot.common.i_config import ConfigType
 from pxpilot.models.configuration import config_builder
 from pxpilot.pxtool import ProxmoxClient, VMService

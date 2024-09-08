@@ -13,12 +13,12 @@ router = APIRouter(prefix="/settings", tags=["config v2"])
 
 @router.get('/vms')
 async def get_vms(config_service: Annotated[ConfigService, Depends(ConfigService)]) -> Optional[list[VmStartupSettings]]:
-    return await config_service.get_vms()
+    return await config_service.get_vm_startup_settings()
 
 
 @router.post('/vms')
 async def add_vm(vm: CreateVmStartupSettings, config_service: Annotated[ConfigService, Depends(ConfigService)]):
-    return await config_service.add_vms(vm)
+    return await config_service.add_vm_startup_settings(vm)
 
 
 @router.get('/config/notifications')

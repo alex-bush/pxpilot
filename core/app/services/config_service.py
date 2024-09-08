@@ -1,21 +1,15 @@
-from typing import Annotated, Optional
+from typing import Optional
 
-from fastapi.params import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from core import db_helper
 from core.models import HealthcheckDbModel, VmStartupSettingsDbModel
 from core.models.proxmox_settings import ProxmoxSettingsDbModel, ProxmoxExtraSettingsDbModel
 from core.schemas.proxmox_settings import ProxmoxSettingsCreate, ProxmoxSettings
 from core.schemas.vms import VmStartupSettings, Healthcheck, CreateVmStartupSettings
 from crud.configs import get_proxmox_settings, save_proxmox_settings, get_vms_settings, \
     add_or_update_vm_with_healthchecks
+from services.base_service import BaseDbService
 
 
-class ConfigService:
-    def __init__(self, session: Annotated[AsyncSession, Depends(db_helper.session)]):
-        self._session = session
-
+class ConfigService(BaseDbService):
     async def get_px_settings(self) -> Optional[ProxmoxSettings]:
         px_settings = await get_proxmox_settings(self._session)
         if px_settings:
@@ -34,7 +28,7 @@ class ConfigService:
 
         await save_proxmox_settings(setting, self._session)
 
-    async def get_vms(self) -> Optional[list[VmStartupSettings]]:
+    async def get_vm_startup_settings(self) -> Optional[list[VmStartupSettings]]:
         vms_data = await get_vms_settings(self._session)
         if vms_data:
             vms = []
@@ -44,7 +38,7 @@ class ConfigService:
             return vms
         return None
 
-    async def add_vms(self, vm: CreateVmStartupSettings) -> VmStartupSettings:
+    async def add_vm_startup_settings(self, vm: CreateVmStartupSettings) -> VmStartupSettings:
         vm_db = VmStartupSettingsDbModel(
             id=vm.id,
             vm_id=vm.vm_id,

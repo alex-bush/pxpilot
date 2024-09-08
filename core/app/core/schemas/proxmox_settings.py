@@ -27,12 +27,20 @@ class ProxmoxSettingsBase(BaseModel):
     validated: bool = Field(False, description="Whether the Proxmox settings are validated")
 
 
-# Schema for creating ProxmoxSettings with nested extra settings
 class ProxmoxSettingsCreate(ProxmoxSettingsBase):
     id: Optional[int] = Field(None, description="Id of the extra setting")
     extra_settings: List[ProxmoxExtraSettingsCreate] = Field(
         default_factory=list, description="List of extra settings for the Proxmox server"
     )
+
+    def get_value(self, name):
+        for setting in self.extra_settings:
+            if setting.name == name:
+                return setting.value
+        return None
+
+    def get_as_bool(self, name: str):
+        return self.get_value(name).lower() in ['true', '1', 'yes']
 
 
 class ProxmoxSettings(ProxmoxSettingsBase):
@@ -40,6 +48,15 @@ class ProxmoxSettings(ProxmoxSettingsBase):
     extra_settings: List[ProxmoxExtraSettings] = Field(
         default_factory=list, description="List of extra settings for the Proxmox server"
     )
+
+    def get_value(self, name):
+        for setting in self.extra_settings:
+            if setting.name == name:
+                return setting.value
+        return None
+
+    def get_as_bool(self, name: str):
+        return self.get_value(name).lower() in ['true', '1', 'yes']
 
     class Config:
         from_attributes = True

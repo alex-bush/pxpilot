@@ -3,7 +3,7 @@ from proxmoxer import ProxmoxAPI, ResourceException
 from requests.exceptions import SSLError
 
 from .models import ProxmoxCommand, VMType, VirtualMachine, VMState
-from pxpilot.common.exceptions import ProxmoxError, ProxmoxConfigurationError, FatalProxmoxError
+from core.exceptions.exceptions import ProxmoxError, ProxmoxConfigurationError, FatalProxmoxError
 
 from .models import ProxmoxVMFields
 from .vm_service import VMService

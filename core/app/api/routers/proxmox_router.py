@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, 
 from api.models.models import ProxmoxValidationResultModel, ProxmoxVm, ProxmoxSettingsModel
 from api.services.auth_service import get_current_user
 from api.services.proxmox_service import ProxmoxService
-from pxpilot.common.exceptions import ProxmoxConfigurationError
+from core.exceptions.exceptions import ProxmoxConfigurationError
 from pxpilot.pilot import start
 
 router = APIRouter(prefix="/proxmox", tags=["proxmox"], dependencies=[Depends(get_current_user)])

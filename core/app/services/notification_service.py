@@ -1,18 +1,10 @@
-from typing import Annotated
-
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from core import db_helper
 from core.models import NotifierSettingsDbModel, NotifiersDbModel
 from core.schemas.notifications import Notifications, TelegramNotifier, EmailNotifier
 from crud.notifications import get_notifiers, save_notifier
+from services.base_service import BaseDbService
 
 
-class NotificationService:
-    def __init__(self, session: Annotated[AsyncSession, Depends(db_helper.session)]):
-        self._session = session
-
+class NotificationService(BaseDbService):
     async def get_notificator(self) -> Notifications:
         notifiers = await get_notifiers(self._session)
 

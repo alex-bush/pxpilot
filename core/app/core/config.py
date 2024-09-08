@@ -17,6 +17,10 @@ class DatabaseConfig(BaseModel):
     url: str
 
 
+class ProxmoxConfig(BaseModel):
+    auth_header: str = "PVEAPIToken"
+    api_prefix: str = "/api2/json"
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
@@ -26,6 +30,7 @@ class Settings(BaseSettings):
     )
     run: RunConfig = RunConfig()
     api: ApiConfig = ApiConfig()
+    proxmox: ProxmoxConfig = ProxmoxConfig()
     db: DatabaseConfig
 
 

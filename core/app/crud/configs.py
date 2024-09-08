@@ -5,10 +5,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from core.models import ProxmoxSettingsDbModel, VmStartupSettingsDbModel, HealthcheckDbModel
+from core.models import ProxmoxSettingsDbModel, VmStartupSettingsDbModel, HealthcheckDbModel, \
+    ProxmoxExtraSettingsDbModel
 
 
-async def get_proxmox_settings(db_session: AsyncSession):
+async def get_proxmox_settings(db_session: AsyncSession) -> ProxmoxSettingsDbModel:
     query = select(ProxmoxSettingsDbModel).options(selectinload(ProxmoxSettingsDbModel.extra_settings))
     result = await db_session.execute(query)
     st = result.scalars().first()
@@ -49,7 +50,8 @@ async def save_proxmox_settings(settings: ProxmoxSettingsDbModel, db_session: As
                         existing_extra.value = extra.value
                     else:
                         # Add new extra setting
-                        existing_settings.extra_settings.append(extra)
+                        extra.proxmox_settings_id = existing_settings.id
+                        db_session.add(ProxmoxExtraSettingsDbModel(name=extra.name, value=extra.value, proxmox_settings_id=existing_settings.id))
 
         if is_new:
             db_session.add(settings)

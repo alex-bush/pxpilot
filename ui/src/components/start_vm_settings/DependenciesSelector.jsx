@@ -1,4 +1,4 @@
-import {Table} from "antd";
+import {Badge, Table, Tag} from "antd";
 
 export default function DependenciesSelector({dataTable, selectedRowKeys, onSelectChange}) {
     const columns = [
@@ -10,6 +10,11 @@ export default function DependenciesSelector({dataTable, selectedRowKeys, onSele
             title: 'Name',
             dataIndex: 'name',
         },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            //render: () => <Tag color="success">{}</Tag>
+        }
     ];
 
     const rowSelection = {

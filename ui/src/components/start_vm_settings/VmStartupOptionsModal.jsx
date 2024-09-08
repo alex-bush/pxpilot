@@ -16,11 +16,12 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
         ,];
 
     const emptyItem = useMemo(() => ({
-            startup_parameters: {await_running: true, startup_timeout: 120, enable_dependencies: false},
-            healthcheck: {check_method: defaultCheck},
-            dependencies: [],
-        }), [])
-    ;
+        wait_until_running: true,
+        startup_timeout: 120,
+        enable_dependencies: false,
+        healthcheck: {check_method: defaultCheck},
+        dependencies: [],
+    }), []);
 
     const {authGet} = useAuthFetch();
     const [healthcheckEnabled, setHealthcheckEnabled] = useState(false);
@@ -55,6 +56,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                         label: vm.id + ': ' + vm.name,
                         disabled: usedKeys && usedKeys.findIndex(i => i === vm.id) > -1,
                         name: vm.name,
+                        status: vm.status,
                     }
                 })
                 setAvailableVms(vmList);
@@ -83,6 +85,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                     key: vm.value,
                     vmid: vm.value,
                     name: vm.name,
+                    status: vm.status,
                 }
             })
         setDataTable(table);
@@ -170,10 +173,9 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                         <CheckboxField
                             className='mt-3'
                             title='Wait for the virtual machine to finish starting'
-                            value={data.startup_parameters?.await_running}
+                            value={data.wait_until_running}
                             onChange={(e) => setData({
-                                ...data,
-                                startup_parameters: {...data.startup_parameters, await_running: e.target.checked}
+                                ...data, wait_until_running: e.target.checked
                             })}/>
                         <InfoMark placement='top' content={(
                             <>
@@ -191,11 +193,10 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                         className='mt-3'
                         title='Timeout'
                         type='number'
-                        value={data.startup_parameters.startup_timeout}
-                        disabled={!data.startup_parameters?.await_running}
+                        value={data.startup_timeout}
+                        disabled={!data.wait_until_running}
                         onChange={(value) => setData({
-                            ...data,
-                            startup_parameters: {...data.startup_parameters, startup_timeout: value}
+                            ...data, startup_timeout: value
                         })}/>
 
                     <Divider/>
@@ -215,7 +216,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                             <Select
                                 size={"large"}
                                 defaultValue={defaultCheck}
-                                value={data.healthcheck?.check_method}
+                                value={data.healthcheck ? data.healthcheck?.check_method : defaultCheck}
                                 className='w-full'
                                 options={healthCheckTypes}
                                 onChange={handleHealthcheckSelectChange}
@@ -243,13 +244,9 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                             <CheckboxField
                                 className='mt-3'
                                 title='This VM depends on the following VM(s):'
-                                value={data.startup_parameters.enable_dependencies}
+                                value={data.enable_dependencies}
                                 onChange={(e) => setData({
-                                    ...data,
-                                    startup_parameters: {
-                                        ...data.startup_parameters,
-                                        enable_dependencies: e.target.checked
-                                    }
+                                    ...data, enable_dependencies: e.target.checked
                                 })}
                             />
                             <InfoMark placement='top' content={(
@@ -261,7 +258,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
                             )}/>
                         </div>
                         <span>{data.dependencies.join(', ')}</span>
-                        <div className={data.startup_parameters.enable_dependencies ? '' : 'disabled'}>
+                        <div className={data.enable_dependencies ? '' : 'disabled'}>
                             {(
                                 <DependenciesSelector
                                     dataTable={dataTable}

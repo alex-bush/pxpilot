@@ -6,8 +6,8 @@ import {Card, Popover} from "antd";
 export default function StartItemRow({item, onClick, onRemove}) {
     const waitContent = (
         <div>
-            {item.startup_parameters.await_running && <p>Wait {item.startup_parameters.startup_timeout} seconds until VM started successfully</p>}
-            {!item.startup_parameters.await_running && <p>No waiting for the VM to be fully started</p>}
+            {item.wait_until_running && <p>Wait {item.startup_timeout} seconds until VM started successfully</p>}
+            {!item.wait_until_running && <p>No waiting for the VM to be fully started</p>}
         </div>
     );
 
@@ -37,7 +37,7 @@ export default function StartItemRow({item, onClick, onRemove}) {
             {item.dependencies && item.dependencies.length > 0 && (
                 <>
                     <p>Depends on: {item.dependencies.join(', ')}</p>
-                    <p>{item.startup_parameters.enable_dependencies ? 'Enabled' : 'Disabled'}</p>
+                    <p>{item.enable_dependencies ? 'Enabled' : 'Disabled'}</p>
                 </>
                 )}
             {!(item.dependencies && item.dependencies.length > 0) && <p>There are no dependencies to run</p>}
@@ -60,7 +60,7 @@ export default function StartItemRow({item, onClick, onRemove}) {
                             <div>
                                 <Popover content={waitContent}>
                                     <FontAwesomeIcon icon={faClockRotateLeft} flip="horizontal"
-                                                     className={!item.startup_parameters.await_running ? 'disabled-icon' : ''}
+                                                     className={!item.wait_until_running ? 'disabled-icon' : ''}
                                     />
                                 </Popover>
                             </div>
@@ -74,7 +74,7 @@ export default function StartItemRow({item, onClick, onRemove}) {
                             <div>
                                 <Popover content={dependenciesContent}>
                                     <FontAwesomeIcon icon={faLink}
-                                                     color={item.startup_parameters.enable_dependencies ? 'blue' : 'black'}
+                                                     color={item.enable_dependencies ? 'blue' : 'black'}
                                                      className={!(item.dependencies && item.dependencies.length > 0) ? 'disabled-icon' : ''}
                                                      />
                                 </Popover>

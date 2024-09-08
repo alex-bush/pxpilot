@@ -52,6 +52,13 @@ async def save_proxmox_settings(settings: ProxmoxSettingsDbModel, db_session: As
                         # Add new extra setting
                         extra.proxmox_settings_id = existing_settings.id
                         db_session.add(ProxmoxExtraSettingsDbModel(name=extra.name, value=extra.value, proxmox_settings_id=existing_settings.id))
+                
+                # Delete extra settings
+                requested_extra_names = {extra.name for extra in settings.extra_settings}
+                for existing_name in existing_extra_settings.keys():
+                    if existing_name not in requested_extra_names:
+                        await db_session.delete(existing_extra_settings[existing_name])
+
 
         if is_new:
             db_session.add(settings)

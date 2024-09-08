@@ -32,7 +32,7 @@ export default function useLoadData(url, initialState, title, processData = null
         try {
             await authPost(url, body);
             if (reloadAfterSave) {
-                await authPost(RELOAD_CONFIG_URL);
+                // await authPost(RELOAD_CONFIG_URL);
                 await fetchData();
             }
             showNotification('success', title);

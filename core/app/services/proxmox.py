@@ -1,5 +1,8 @@
+from http import HTTPStatus
 from typing import Annotated
 
+from aiohttp import InvalidUrlClientError
+from alembic.util import status
 from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -37,6 +40,8 @@ class ProxmoxService(BaseDbService):
             return ProxmoxValidationResponse(is_valid=False, status_code=e.status_code, message=str(e))
         except HttpError as e:
             return ProxmoxValidationResponse(is_valid=False, status_code=e.status_code, message=str(e))
+        except InvalidUrlClientError as e:
+            return ProxmoxValidationResponse(is_valid=False, status_code=HTTPStatus.BAD_REQUEST, message=f'Invalid Url: {str(e)}')
         except Exception as e:
             return ProxmoxValidationResponse(is_valid=False, status_code=500, message=str(e))
 

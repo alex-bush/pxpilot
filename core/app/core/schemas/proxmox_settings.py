@@ -40,7 +40,8 @@ class ProxmoxSettingsCreate(ProxmoxSettingsBase):
         return None
 
     def get_as_bool(self, name: str):
-        return self.get_value(name).lower() in ['true', '1', 'yes']
+        value = self.get_value(name)
+        return value is not None and value.lower() in ['true', '1', 'yes']
 
 
 class ProxmoxSettings(ProxmoxSettingsBase):
@@ -56,7 +57,8 @@ class ProxmoxSettings(ProxmoxSettingsBase):
         return None
 
     def get_as_bool(self, name: str):
-        return self.get_value(name).lower() in ['true', '1', 'yes']
+        value = self.get_value(name)
+        return value is not None and value.lower() in ['true', '1', 'yes']
 
     class Config:
         from_attributes = True

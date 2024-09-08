@@ -15,6 +15,7 @@ class ProxmoxAPIWrapper:
     async def _request(self, method, endpoint, **kwargs):
         url = f"{self.base_url}{settings.proxmox.api_prefix}/{endpoint}"
 
+        # try:
         async with aiohttp.ClientSession(headers=self.headers) as session:
             async with session.request(method, url, ssl=self.verify_ssl, **kwargs) as response:
                 match response.status:
@@ -27,6 +28,10 @@ class ProxmoxAPIWrapper:
                     case _:
                         error_text = await response.text()
                         raise HttpError(f"Error: {error_text}. Reason: {response.reason}", status_code=response.status)
+        # except Exception as error:
+        #     if isinstance(error, (NotAuthorizedError, HttpError)):
+        #         raise error
+        #     raise HttpError(f"Error: {error_text}. Reason: {response.reason}", status_code=response.status)
 
     async def get_version(self):
         return await self._request('GET', 'version')

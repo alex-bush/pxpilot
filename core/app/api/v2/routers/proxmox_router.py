@@ -4,10 +4,11 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 
 from core.schemas.proxmox_settings import ProxmoxSettings, ProxmoxSettingsCreate
+from services.auth_service import get_current_user
 from services.config_service import ConfigService
 from services.proxmox import ProxmoxService
 
-router = APIRouter(prefix="/proxmox", tags=["proxmox v2"])
+router = APIRouter(prefix="/proxmox", tags=["proxmox v2"], dependencies=[Depends(get_current_user)])
 
 
 @router.get('/settings')

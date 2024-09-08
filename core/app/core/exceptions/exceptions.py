@@ -21,6 +21,7 @@ class ProxmoxConfigurationError(ProxmoxError):
 class FatalProxmoxError(ProxmoxError):
     pass
 
+
 class HttpError(Exception):
     def __init__(self, message: str = "", status_code: int = 500):
         self.message = message

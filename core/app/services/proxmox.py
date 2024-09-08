@@ -31,7 +31,7 @@ class ProxmoxService(BaseDbService):
                                        token_secret=settings.token_value,
                                        verify_ssl=settings.get_as_bool('verify_ssl'))
         try:
-            res = await px_wrapper.get_version()
+            await px_wrapper.get_version()
             return ProxmoxValidationResponse(is_valid=True)
         except NotAuthorizedError as e:
             return ProxmoxValidationResponse(is_valid=False, status_code=e.status_code, message=str(e))
@@ -42,5 +42,8 @@ class ProxmoxService(BaseDbService):
 
     @staticmethod
     def _get_wrapper(settings):
-        return ProxmoxAPIWrapper(base_url=settings.hostname, token_id=settings.token,
-                          token_secret=settings.token_value, verify_ssl=settings.get_as_bool('verify_ssl'))
+        return ProxmoxAPIWrapper(
+            base_url=settings.hostname,
+            token_id=settings.token,
+            token_secret=settings.token_value,
+            verify_ssl=settings.get_as_bool('verify_ssl'))

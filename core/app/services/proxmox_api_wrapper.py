@@ -23,11 +23,10 @@ class ProxmoxAPIWrapper:
                     case code if 300 <= code <= 399:
                         return await response.json()
                     case code if 400 <= code <= 499:
-                        raise NotAuthorizedError( f"{response.reason}", status_code=response.status)
+                        raise NotAuthorizedError(f"{response.reason}", status_code=response.status)
                     case _:
                         error_text = await response.text()
-                        raise HttpError( f"Error: {error_text}. Reason: {response.reason}", status_code=response.status)
-
+                        raise HttpError(f"Error: {error_text}. Reason: {response.reason}", status_code=response.status)
 
     async def get_version(self):
         return await self._request('GET', 'version')

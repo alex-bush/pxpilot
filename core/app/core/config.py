@@ -21,6 +21,7 @@ class ProxmoxConfig(BaseModel):
     auth_header: str = "PVEAPIToken"
     api_prefix: str = "/api2/json"
 
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),

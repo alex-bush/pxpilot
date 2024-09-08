@@ -3,7 +3,6 @@ from typing import Annotated, Optional
 from fastapi import APIRouter
 from fastapi.params import Depends
 
-from core.schemas.common import ProxmoxValidationResponse
 from core.schemas.proxmox_settings import ProxmoxSettings, ProxmoxSettingsCreate
 from services.config_service import ConfigService
 from services.proxmox import ProxmoxService

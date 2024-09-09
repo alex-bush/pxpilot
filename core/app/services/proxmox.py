@@ -5,7 +5,7 @@ from aiohttp import InvalidUrlClientError
 from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core import db_helper
+from core.database import db_helper
 from core.exceptions.exceptions import NotAuthorizedError, HttpError
 from core.schemas.common import ProxmoxValidationResponse
 from core.schemas.proxmox_settings import ProxmoxSettingsCreate

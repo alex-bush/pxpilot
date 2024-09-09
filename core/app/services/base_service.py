@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core import db_helper
+from core.database import db_helper
 
 
 class BaseDbService(ABC):

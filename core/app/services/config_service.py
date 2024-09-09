@@ -84,8 +84,6 @@ class ConfigService(BaseDbService):
                     ) for hc in vm.health_checks
                 ]
 
-
-
         saved_vm = await save_vm_startup(vm_db, health_checks, self._session)
         return self.convert(saved_vm)
 

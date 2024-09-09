@@ -23,7 +23,7 @@ async def add_vm(vm: CreateVmStartupSettings, config_service: Annotated[ConfigSe
 
 
 @router.post('/startups')
-async def add_vm(vms: list[CreateVmStartupSettings], config_service: Annotated[ConfigService, Depends(ConfigService)]):
+async def add_vms(vms: list[CreateVmStartupSettings], config_service: Annotated[ConfigService, Depends(ConfigService)]):
     return await config_service.set_vm_startups_settings(vms)
 
 

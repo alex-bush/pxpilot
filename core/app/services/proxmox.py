@@ -2,7 +2,6 @@ from http import HTTPStatus
 from typing import Annotated
 
 from aiohttp import InvalidUrlClientError
-from alembic.util import status
 from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 

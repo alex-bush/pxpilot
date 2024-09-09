@@ -59,7 +59,6 @@ async def save_proxmox_settings(settings: ProxmoxSettingsDbModel, db_session: As
                     if existing_name not in requested_extra_names:
                         await db_session.delete(existing_extra_settings[existing_name])
 
-
         if is_new:
             db_session.add(settings)
 
@@ -132,6 +131,7 @@ async def save_vm_startup(vm: VmStartupSettingsDbModel, healthchecks: [Healthche
 
     # Return updated object
     return await get_vm_by_id(vm.id, db_session)
+
 
 async def delete_vm_startup_settings_by_ids(ids_to_delete: set[int], db_session: AsyncSession):
     if not ids_to_delete:

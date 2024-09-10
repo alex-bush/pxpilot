@@ -3,7 +3,7 @@ import sys
 
 from api import api as fast_api
 from pxpilot import logging_config
-from pxpilot.common import config_validator
+from pxpilot.config import config_validator
 from pxpilot.pilot import start
 from .__about__ import __version__
 

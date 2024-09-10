@@ -3,7 +3,7 @@ import sys
 from logging.handlers import RotatingFileHandler
 
 from .__about__ import __title__, __version__
-from services.notifications import log as notifications_log
+from .notifications import log as notifications_log
 
 
 def setup_logging():

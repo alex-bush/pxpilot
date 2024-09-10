@@ -1,6 +1,6 @@
-from pxpilot.common import IConfig, ConfigProvider
-from pxpilot.common.config_provider_v2 import ConfigProviderV2
-from pxpilot.common.i_config import ConfigType
+from pxpilot.config import IConfig, ConfigProvider
+from pxpilot.config.config_provider_v2 import ConfigProviderV2
+from pxpilot.config.i_config import ConfigType
 
 
 def get_config_provider(cfg_type: ConfigType, config_path) -> IConfig:

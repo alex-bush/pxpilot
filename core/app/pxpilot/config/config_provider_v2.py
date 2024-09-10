@@ -6,8 +6,8 @@ from typing import Any, List, Optional, Dict
 
 from ruamel.yaml import YAML
 
-from pxpilot.common import IConfig
-from pxpilot.common.constants import ConfigSections
+from pxpilot.config import IConfig
+from pxpilot.config.constants import ConfigSections
 from pxpilot.models.configuration.app_settings import ProxmoxSettings, AppSettings, CommonSettings, User
 from pxpilot.models.configuration.vm_start_settings import VmStartOptions, HealthCheckOptions, StartOptions, \
     HealthcheckType

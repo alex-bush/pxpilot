@@ -6,7 +6,7 @@ from pxpilot.models.configuration.vm_start_settings import VmStartOptions
 from pxpilot.models.px.vms import VMContext
 from pxpilot.vm_management.models import StartStatus
 from core.exceptions.exceptions import ProxmoxError, FatalProxmoxError
-from services.notifications import NotificationManager
+from pxpilot.notifications import NotificationManager
 from pxpilot.pxtool import VMService
 from pxpilot.pxtool.models import VirtualMachine
 from pxpilot.vm_management.vm_starter import VMStarter

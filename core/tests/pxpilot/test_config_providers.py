@@ -5,9 +5,9 @@ from unittest.mock import patch, mock_open
 import pytest
 import yaml
 
-from pxpilot.common.config_provider import IConfig
-from pxpilot.common.config_provider_v2 import ConfigProviderV2
-from pxpilot.common.i_config import ConfigType
+from pxpilot.config.config_provider import IConfig
+from pxpilot.config.config_provider_v2 import ConfigProviderV2
+from pxpilot.config.i_config import ConfigType
 from pxpilot.models.configuration import config_builder
 from pxpilot.models.configuration.app_settings import ProxmoxSettings
 from pxpilot.models.configuration.vm_start_settings import VmStartOptions, HealthcheckType

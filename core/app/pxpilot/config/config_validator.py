@@ -1,6 +1,6 @@
 from typing import List
 
-from pxpilot.common.config_provider import IConfig, ConfigProvider
+from pxpilot.config.config_provider import IConfig, ConfigProvider
 from pxpilot.models.configuration.vm_start_settings import VmStartOptions
 from pxpilot.pxtool import ProxmoxClient
 

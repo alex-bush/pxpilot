@@ -3,7 +3,7 @@ from typing import Dict, Any, List, Optional
 
 import yaml
 
-from pxpilot.common.i_config import IConfig
+from pxpilot.config.i_config import IConfig
 from pxpilot.models.configuration.app_settings import ProxmoxSettings, AppSettings, CommonSettings
 from pxpilot.models.configuration.vm_start_settings import VmStartOptions, HealthCheckOptions, HealthcheckType, \
     StartOptions

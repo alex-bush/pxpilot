@@ -6,7 +6,7 @@ from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import db_helper
-from core.exceptions.exceptions import NotAuthorizedError, HttpError
+from core.exceptions.exceptions import NotAuthorizedError, HttpError, ArgumentError, SettingsError
 from core.schemas.common import ProxmoxValidationResponse
 from core.schemas.proxmox_settings import ProxmoxSettingsCreate
 from services.base_service import BaseDbService
@@ -28,6 +28,8 @@ class ProxmoxService(BaseDbService):
 
     async def get_virtual_machines(self):
         settings = await self._config_service.get_px_settings()
+        if settings is None:
+            raise SettingsError('Settings not set')
 
         def get_vm(q):
             return {
@@ -75,6 +77,11 @@ class ProxmoxService(BaseDbService):
 
     @staticmethod
     def _get_wrapper(settings):
+        if settings is None:
+            raise ArgumentError('settings is None')
+        if settings.hostname is None:
+            raise ArgumentError('hostname is None')
+
         return ProxmoxAPIWrapper(
             base_url=settings.hostname,
             token_id=settings.token,

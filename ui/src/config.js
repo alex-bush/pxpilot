@@ -4,7 +4,7 @@ export const API_VERSION = "/v2"
 export const api_prefix = "/api/v2"
 
 export const PX_SETTINGS_URL = api_prefix + "/proxmox/settings"
-export const NOTIFICATIONS_SETTINGS_URL = api_prefix + "/config/notifications"
+export const NOTIFICATIONS_SETTINGS_URL = api_prefix + "/settings/notifications"
 export const STARTUPS_SETTINGS_URL = api_prefix + "/settings/startups"
 
 export const PX_VALIDATE_CONNECTION_URL = api_prefix + "/proxmox/validate"

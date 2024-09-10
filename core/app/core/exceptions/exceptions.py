@@ -34,3 +34,11 @@ class HttpError(Exception):
 class NotAuthorizedError(HttpError):
     def __init__(self, message: str = "Not Authorized", status_code: int = 401):
         super().__init__(message, status_code)
+
+
+class SettingsError(Exception):
+    pass
+
+
+class ArgumentError(Exception):
+    pass

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from core.models import NotifierSettingsDbModel, NotifiersDbModel
 from core.schemas.notifications import Notifications, TelegramNotifier, EmailNotifier
 from crud.notifications import get_notifiers, save_notifier
@@ -5,7 +7,7 @@ from services.base_service import BaseDbService
 
 
 class NotificationService(BaseDbService):
-    async def get_notificator(self) -> Notifications:
+    async def get_notificator(self) -> Optional[Notifications]:
         notifiers = await get_notifiers(self._session)
 
         telegram_notifier = None
@@ -31,6 +33,9 @@ class NotificationService(BaseDbService):
                     from_email=options.get('from_email', ''),
                     to_email=options.get('to_email', '')
                 )
+
+        if not telegram_notifier and not email_notifier:
+            return None
 
         return Notifications(
             telegram=telegram_notifier,

@@ -3,12 +3,12 @@ import warnings
 
 from pxpilot.common.i_config import ConfigType
 from pxpilot.models.configuration import config_builder
-from pxpilot.notifications import NotificationManager
-from pxpilot.notifications.notifier_types import NOTIFIER_TYPES
+from services.notifications import NotificationManager
 from pxpilot.pxtool import ProxmoxClient
 from pxpilot.vm_management.executor import Executor
 from pxpilot.vm_management.host_validator import HostValidator
 from pxpilot.vm_management.vm_starter import VMStarter
+from services.notifications.notifier_types import NOTIFIER_TYPES
 
 warnings.filterwarnings("ignore")
 logger = logging.getLogger(__name__)

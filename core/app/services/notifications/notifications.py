@@ -3,7 +3,7 @@ import html
 from datetime import datetime, timedelta
 from typing import Protocol
 
-from pxpilot.notifications.consts import ROCKET_SYMBOL, HOURGLASS_NOT_DONE_SYMBOL, CHECK_MARK_SYMBOL, \
+from services.notifications.consts import ROCKET_SYMBOL, HOURGLASS_NOT_DONE_SYMBOL, CHECK_MARK_SYMBOL, \
     CROSS_SIGN_SYMBOL, BLUE_CIRCLE_SYMBOL, FORBIDDEN_SIGN_SYMBOL, WARNING_SIGN_SYMBOL, DIGITS_SYMBOLS, STOP_SIGN_SYMBOL
 
 

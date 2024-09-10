@@ -1,6 +1,6 @@
 import pytest
 
-from pxpilot.notifications import NotificationManager
+from services.notifications import NotificationManager
 
 
 class MockNotifier:

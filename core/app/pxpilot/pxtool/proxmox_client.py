@@ -2,14 +2,12 @@ import proxmoxer
 from proxmoxer import ProxmoxAPI, ResourceException
 from requests.exceptions import SSLError
 
+from core.tools.retry import retry
 from .models import ProxmoxCommand, VMType, VirtualMachine, VMState
 from core.exceptions.exceptions import ProxmoxError, ProxmoxConfigurationError, FatalProxmoxError
 
 from .models import ProxmoxVMFields
 from .vm_service import VMService
-
-from pxpilot.tools.retry import retry
-
 
 def create_vm_service(config) -> VMService:
     return ProxmoxClient(**config)

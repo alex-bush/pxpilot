@@ -24,9 +24,9 @@ export default function ProxmoxSettings() {
     const {authPost} = useAuthFetch();
     const {
         data, isLoading, setIsLoading, isSaving, saveData, notificationHolder
-    } = useLoadData(PX_SETTINGS_URL, {extra_settings: {}}, TITLE, (data) => {
+    } = useLoadData(PX_SETTINGS_URL, {extra_settings: []}, TITLE, (data) => {
         if (data === null) {
-            data = {extra_settings: {verify_ssl: false}};
+            data = {extra_settings: [{name: 'verify_ssl', value: 'false'}]};
         }
         return data;
     });
@@ -63,24 +63,26 @@ export default function ProxmoxSettings() {
     }
 
     function handleExtraSettingsChanged(index, newKey, newValue) {
-        const new_extra = Object.entries(localData.extra_settings).map((item, idx) => {
+        const updatedSettings = localData.extra_settings.map((item, idx) => {
             if (idx === index) {
-                return [newKey, convertValue(newValue)];
+                return {...item, name: newKey, value: (newValue)};
             }
             return item;
-        })
+        });
 
-        setLocalData({...localData, ['extra_settings']: Object.fromEntries(new_extra)});
+        setLocalData({...localData, extra_settings: updatedSettings});
     }
 
     function handleAddExtraSettingClick() {
-        setLocalData({...localData, extra_settings: {...localData.extra_settings, ['']: ''}});
+        setLocalData({
+            ...localData,
+            extra_settings: [...localData.extra_settings, {name: '', value: ''}]
+        });
     }
 
     function handleDeleteExtraSettingClick(index) {
-        const new_extra = Object.entries(localData.extra_settings).filter((item, idx) => idx !== index);
-
-        setLocalData({...localData, extra_settings: Object.fromEntries(new_extra)});
+        const updatedSettings = localData.extra_settings.filter((_, idx) => idx !== index);
+        setLocalData({...localData, extra_settings: updatedSettings});
     }
 
     async function handleSaveClick() {
@@ -91,8 +93,8 @@ export default function ProxmoxSettings() {
         setValidatingConnection(true)
         try {
             const res = await authPost(PX_VALIDATE_CONNECTION_URL, {
-                host: localData.host,
-                token_name: localData.token_name,
+                hostname: localData.hostname,
+                token: localData.token,
                 token_value: localData.token_value,
                 extra_settings: localData.extra_settings,
             });
@@ -116,12 +118,12 @@ export default function ProxmoxSettings() {
             }}>
             {!isLoading ? (<div className="settings">
                 <div className="mainBlock">
-                    <LabeledTextField title='Host' value={localData.host} placeholder={placeholders.host}
+                    <LabeledTextField title='Host' value={localData.hostname} placeholder={placeholders.host}
                                       className="p-2"
-                                      onChange={value => handleFieldChange('host', value)}/>
-                    <LabeledTextField title='Token name' value={localData.token_name} className="p-2"
+                                      onChange={value => handleFieldChange('hostname', value)}/>
+                    <LabeledTextField title='Token name' value={localData.token} className="p-2"
                                       placeholder={placeholders.username}
-                                      onChange={value => handleFieldChange('token_name', value)}/>
+                                      onChange={value => handleFieldChange('token', value)}/>
                     <LabeledTextField title='Token value' value={localData.token_value} is_password={"true"}
                                       className="p-2"
                                       placeholder={placeholders.token}
@@ -138,7 +140,7 @@ export default function ProxmoxSettings() {
                 <div className="toolbar p-2 pt-6">
                     <Flex justify="space-between">
                         <Button type="primary"
-                                disabled={!(localData.host && localData.token_name && localData.token_value)}
+                                disabled={!(localData.hostname && localData.token && localData.token_value)}
                                 loading={validatingConnection}
                                 onClick={handleTestClick}>Test connection
                         </Button>

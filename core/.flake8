@@ -5,3 +5,4 @@ exclude =
     .venv
     venv
     src/frontend
+    alembic

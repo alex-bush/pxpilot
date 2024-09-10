@@ -7,44 +7,19 @@ from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
 from passlib.context import CryptContext
 
-from api.services.user_service import UserService
+from core.config import settings
+from services.user_service import UserService
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=settings.api.token_url)
 
 # todo: test key from fastapi docs, do not use it on production
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+SECRET_KEY = settings.api.secret_key
 ALGORITHM = "HS256"
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
-                           user_service: UserService = Depends(UserService)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail='Could not validate credentials',
-        headers={'WWW-Authenticate': 'Bearer'})
-
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-    except InvalidTokenError as err:
-        print(err)
-        raise credentials_exception
-
-    user = await user_service.get_user(username)
-    if not user:
-        raise credentials_exception
-
-    return user
-
-
-class AuthService:
-    def __init__(self, user_service: Annotated[UserService, Depends(UserService)]):
-        self.user_service = user_service
-
+class PwdTokenService:
     @staticmethod
     def create_access_token(data: dict, expires_delta: timedelta | None = None):
         to_encode = data.copy()
@@ -57,9 +32,37 @@ class AuthService:
         return encoded_jwt
 
     @staticmethod
-    def get_password_hash(password):
+    def decode_token(token):
+        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+    @staticmethod
+    def hash_password(password):
         return pwd_context.hash(password)
 
     @staticmethod
     def verify_password(password: str, hashed: str) -> bool:
         return pwd_context.verify(password, hashed)
+
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
+                           pwd_service: Annotated[PwdTokenService, Depends(PwdTokenService)],
+                           user_service: UserService = Depends(UserService)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail='Could not validate credentials',
+        headers={'WWW-Authenticate': 'Bearer'})
+
+    try:
+        payload = pwd_service.decode_token(token)
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except InvalidTokenError as err:
+        print(err)
+        raise credentials_exception
+
+    user = await user_service.get_user_by_username(username)
+    if not user:
+        raise credentials_exception
+
+    return user

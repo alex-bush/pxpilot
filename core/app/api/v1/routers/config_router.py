@@ -3,13 +3,13 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Response, status
 from fastapi.params import Depends
 
+from api.services.auth_service import get_current_user
 from core.schemas.notifications import Notifications
 from core.schemas.vms import VmStartupSettings, CreateVmStartupSettings
-from services.auth_service import get_current_user
 from services.config_service import ConfigService
 from services.notification_service import NotificationService
 
-router = APIRouter(prefix="/settings", tags=["config v2"], dependencies=[Depends(get_current_user)])
+router = APIRouter(prefix="/settings", tags=["Startups configuration"], dependencies=[Depends(get_current_user)])
 
 
 @router.get('/startups')

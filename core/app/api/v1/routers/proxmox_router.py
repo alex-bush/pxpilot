@@ -3,13 +3,13 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, HTTPException, status
 from fastapi.params import Depends
 
+from api.services.auth_service import get_current_user
 from core.exceptions.exceptions import SettingsError
 from core.schemas.proxmox_settings import ProxmoxSettings, ProxmoxSettingsCreate
-from services.auth_service import get_current_user
 from services.config_service import ConfigService
 from services.proxmox import ProxmoxService
 
-router = APIRouter(prefix="/proxmox", tags=["proxmox v2"], dependencies=[Depends(get_current_user)])
+router = APIRouter(prefix="/proxmox", tags=["Proxmox"], dependencies=[Depends(get_current_user)])
 
 
 @router.get('/settings')

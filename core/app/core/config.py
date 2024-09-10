@@ -25,6 +25,9 @@ class ProxmoxConfig(BaseModel):
 class AppConfig(BaseModel):
     single_healthcheck: bool = True
 
+    # If True pilot worker will start during FastAPI starting
+    pilot_enabled: bool = False
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(

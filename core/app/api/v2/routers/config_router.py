@@ -23,9 +23,8 @@ async def add_vms(vms: list[CreateVmStartupSettings], config_service: Annotated[
 
 
 @router.get('/notifications')
-async def get_notification_settings(
-        notification_service: Annotated[NotificationService,
-        Depends(NotificationService)]) -> Optional[Notifications]:
+async def get_notification_settings(notification_service: Annotated[NotificationService,
+                                    Depends(NotificationService)]) -> Optional[Notifications]:
     settings = await notification_service.get_notificator()
     return settings if settings is not None else Response(status_code=status.HTTP_204_NO_CONTENT)
 

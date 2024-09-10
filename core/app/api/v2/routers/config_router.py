@@ -23,11 +23,15 @@ async def add_vms(vms: list[CreateVmStartupSettings], config_service: Annotated[
 
 
 @router.get('/notifications')
-async def get_notification_settings(notification_service: Annotated[NotificationService, Depends(NotificationService)]) -> Optional[Notifications]:
+async def get_notification_settings(
+        notification_service: Annotated[NotificationService,
+        Depends(NotificationService)]) -> Optional[Notifications]:
     settings = await notification_service.get_notificator()
     return settings if settings is not None else Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post('/notifications')
-async def save_notification_settings(n: Notifications, notification_service: Annotated[NotificationService, Depends(NotificationService)]):
+async def save_notification_settings(
+        n: Notifications,
+        notification_service: Annotated[NotificationService, Depends(NotificationService)]):
     return await notification_service.save_notificator(n)

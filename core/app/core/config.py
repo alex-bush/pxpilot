@@ -14,7 +14,8 @@ class ApiConfig(BaseModel):
 
 
 class DatabaseConfig(BaseModel):
-    url: str
+    connection_string_async: str
+    connection_string: str
 
 
 class ProxmoxConfig(BaseModel):
@@ -44,4 +45,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-print(settings.db.url)
+print(settings.db.connection_string_async)

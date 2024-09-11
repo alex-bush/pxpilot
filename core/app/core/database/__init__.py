@@ -1,5 +1,5 @@
 __all__ = (
-    "db_helper",
+    "async_db_helper",
 )
 
-from .database import db_helper
+from .database import async_db_helper

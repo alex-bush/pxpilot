@@ -6,10 +6,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.v1.routers.routers import include_routers as include_routers_v1
 from api.services.background_worker import run_pxpilot_worker
+from core import logging_config
 from core.config import settings
-from core.database import db_helper
+from core.database import async_db_helper
 from pxpilot.__about__ import __title__, __version__
 #from api.routers import config_router, auth_router, common_router, proxmox_router, settings_router
+
+
+logging_config.setup_logging()
+logging.getLogger("aiosqlite").setLevel(logging.INFO)
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +30,7 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    await db_helper.dispose()
+    await async_db_helper.dispose()
     executor.shutdown() if executor is not None else None
 
 

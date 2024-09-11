@@ -1,9 +1,9 @@
 import argparse
 import sys
 
-from pxpilot import logging_config
+from core import logging_config
 from pxpilot.config import config_validator
-from pxpilot.pilot import start
+from pxpilot.pilot import start_from_config
 from pxpilot.__about__ import __version__
 
 # from api import api as fast_api
@@ -31,4 +31,4 @@ def main():
     #     uvicorn.run(fast_api, host="0.0.0.0", port=8000)
     #     sys.exit(0)
 
-    start(CONFIG_FILE)
+    start_from_config(CONFIG_FILE)

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Annotated
+from typing import Annotated, Optional
 
 from aiohttp import InvalidUrlClientError
 from fastapi.params import Depends
@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import async_db_helper
 from core.exceptions.exceptions import NotAuthorizedError, HttpError, ArgumentError, SettingsError
-from core.schemas.common import ProxmoxValidationResponse
+from core.schemas.common import ProxmoxValidationResponse, ProxmoxVm
 from core.schemas.proxmox_settings import ProxmoxSettingsCreate
 from services.base_service import BaseDbService
 from services.config_service import ConfigService
@@ -26,18 +26,17 @@ class ProxmoxService(BaseDbService):
         px_wrapper = self._get_wrapper(settings)
         return await px_wrapper.get_nodes()
 
-    async def get_virtual_machines(self):
+    async def get_virtual_machines(self) -> Optional[list[ProxmoxVm]]:
         settings = await self._config_service.get_px_settings()
         if settings is None:
             raise SettingsError('Settings not set')
 
         def get_vm(q):
-            return {
-                    'id': q.get('vmid'),
-                    'name': q.get('name'),
-                    'type': q.get('type'),
-                    'status': q.get('status')
-                }
+            return ProxmoxVm(id=q.get('vmid'),
+                             name=q.get('name'),
+                             type=q.get('type'),
+                             status=q.get('status'),
+                             node=q.get('node'))
 
         px_wrapper = self._get_wrapper(settings)
         nodes = self.get_data(await px_wrapper.get_nodes())
@@ -71,7 +70,8 @@ class ProxmoxService(BaseDbService):
         except HttpError as e:
             return ProxmoxValidationResponse(is_valid=False, status_code=e.status_code, message=str(e))
         except InvalidUrlClientError as e:
-            return ProxmoxValidationResponse(is_valid=False, status_code=HTTPStatus.BAD_REQUEST, message=f'Invalid Url: {str(e)}')
+            return ProxmoxValidationResponse(is_valid=False, status_code=HTTPStatus.BAD_REQUEST,
+                                             message=f'Invalid Url: {str(e)}')
         except Exception as e:
             return ProxmoxValidationResponse(is_valid=False, status_code=500, message=str(e))
 

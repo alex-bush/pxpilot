@@ -9,6 +9,7 @@ from core.exceptions.exceptions import ProxmoxError, ProxmoxConfigurationError, 
 from .models import ProxmoxVMFields
 from .vm_service import VMService
 
+
 def create_vm_service(config) -> VMService:
     return ProxmoxClient(**config)
 

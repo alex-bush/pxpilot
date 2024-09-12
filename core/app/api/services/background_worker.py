@@ -50,7 +50,7 @@ def get_settings() -> Optional[AppSettings]:
         px_settings.px_settings['host'] = px_s.hostname.replace("https://", "")
         px_settings.px_settings['token'] = px_s.token
         px_settings.px_settings['token_value'] = px_s.token_value
-        px_settings.px_settings['verify_ssl'] = 'False' # px_s.extra_settings.
+        px_settings.px_settings['verify_ssl'] = 'False'  # px_s.extra_settings.
 
         vms = session.query(VmStartupSettingsDbModel) \
             .options(joinedload(VmStartupSettingsDbModel.healthcheck)) \

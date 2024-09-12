@@ -4,8 +4,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.v1.routers.routers import include_routers as include_routers_v1
-from api.services.background_worker import run_pxpilot_worker
+from .v1.routers.routers import include_routers as include_routers_v1
+from .services.background_worker import run_pxpilot_worker
 from core import logging_config
 from core.config import settings
 from core.database import async_db_helper

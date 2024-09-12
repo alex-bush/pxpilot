@@ -41,6 +41,7 @@ def start_from_settings(app_config: AppSettings):
 
     logger.info("pilot has finished. Exit.")
 
+
 def _execute(app_config, notification_manager):
     try:
         executor = _build_executor(app_config, notification_manager)

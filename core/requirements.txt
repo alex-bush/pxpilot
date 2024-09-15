@@ -7,11 +7,9 @@ proxmoxer==2.1.0
 pydantic==2.9.1
 pydantic_settings==2.5.2
 PyJWT==2.9.0
-pytest==8.3.3
 PyYAML==6.0.2
 Requests==2.32.3
 ruamel.yaml==0.18.6
-setuptools==74.1.2
 SQLAlchemy==2.0.34
 sqlalchemy[asyncio]==2.0.34
 aiosqlite==0.20.0

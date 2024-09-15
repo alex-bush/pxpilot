@@ -2,7 +2,7 @@ import logging
 
 import requests
 from ping3 import ping
-#from pythonping import ping
+#  from pythonping import ping
 
 from pxpilot.models.configuration.vm_start_settings import HealthCheckOptions, HealthcheckType
 
@@ -37,7 +37,7 @@ class HostValidator:
         """
         try:
             logger.debug(f"Ping: {healthcheck.target_url}")
-            #response = ping(healthcheck.target_url, count=self._PING_COUNT, verbose=True)
+            #  response = ping(healthcheck.target_url, count=self._PING_COUNT, verbose=True)
             response = ping(healthcheck.target_url)
             if not response or response is None:
                 return False

@@ -10,7 +10,7 @@ from core import logging_config
 from core.config import settings
 from core.database import async_db_helper
 from core.__about__ import __title__, __version__
-#from api.routers import config_router, auth_router, common_router, proxmox_router, settings_router
+# from api.routers import config_router, auth_router, common_router, proxmox_router, settings_router
 
 
 logging_config.setup_logging()

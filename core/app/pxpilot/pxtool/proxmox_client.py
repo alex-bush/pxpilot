@@ -16,7 +16,7 @@ def create_vm_service(config) -> VMService:
 
 class ProxmoxClient(VMService):
     """ Proxmoxer client """
-    
+
     _proxmox: ProxmoxAPI
 
     def __init__(self, **kwargs):

@@ -27,7 +27,7 @@ class AppConfig(BaseModel):
     single_healthcheck: bool = True
 
     # If True pilot worker will start during FastAPI starting
-    pilot_enabled: bool = False
+    pilot_enabled: bool = True
 
 
 class Settings(BaseSettings):

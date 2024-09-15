@@ -2,7 +2,7 @@ from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, status, HTTPException, Depends
-#from fastapi.security import OAuth2PasswordRequestForm
+# from fastapi.security import OAuth2PasswordRequestForm
 
 from api.services.auth_service import PwdTokenService
 from core.schemas.auth import RegisterModel, AuthResponse, LoginModel

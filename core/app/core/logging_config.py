@@ -2,8 +2,8 @@ import logging
 import sys
 from logging.handlers import RotatingFileHandler
 
-from .__about__ import __title__, __version__
-from .notifications import log as notifications_log
+from core.__about__ import __title__, __version__
+from pxpilot.notifications import log as notifications_log
 
 
 def setup_logging():

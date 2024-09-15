@@ -3,10 +3,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from core.schemas.common import HealthcheckModel, AppStateModel
-from pxpilot.__about__ import __version__
+from core.__about__ import __version__
 from services.user_service import UserService
 
-router = APIRouter(prefix="/status", tags=["status v2"])
+router = APIRouter(prefix="/status", tags=["App status"])
 
 
 @router.get("/healthcheck")

@@ -9,12 +9,13 @@ class RunConfig(BaseModel):
 
 class ApiConfig(BaseModel):
     prefix: str = "/api"
-    token_url: str = "/api/login"
+    token_url: str = "/api/v1/login"
     secret_key: str = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 
 
 class DatabaseConfig(BaseModel):
-    url: str
+    connection_string_async: str
+    connection_string: str
 
 
 class ProxmoxConfig(BaseModel):
@@ -24,6 +25,9 @@ class ProxmoxConfig(BaseModel):
 
 class AppConfig(BaseModel):
     single_healthcheck: bool = True
+
+    # If True pilot worker will start during FastAPI starting
+    pilot_enabled: bool = True
 
 
 class Settings(BaseSettings):
@@ -41,4 +45,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-print(settings.db.url)
+print(settings.db.connection_string_async)

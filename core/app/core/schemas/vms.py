@@ -23,7 +23,7 @@ class CreateVmStartupSettings(BaseModel):
     node_name: Optional[str] = None
     name: Optional[str] = None
     description: Optional[str] = None
-    enabled: bool = False
+    enabled: bool = True
     enable_dependencies: bool = False
     startup_timeout: int = 120
     wait_until_running: bool = True

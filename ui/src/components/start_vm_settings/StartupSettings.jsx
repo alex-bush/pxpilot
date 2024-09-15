@@ -123,7 +123,17 @@ export default function StartupSettings() {
                                 </SortableContext>
                             </DndContext>
                             {localData.length === 0 && <div>
-                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
+                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={
+                                    <div>
+                                        <Typography.Text strong>
+                                            Your VM List is Empty
+                                        </Typography.Text><br/>
+                                        <Typography.Text italic>
+                                            Start by adding virtual machines to configure their startup order and dependencies.
+                                        </Typography.Text>
+                                    </div>
+                                }
+                                ></Empty>
                             </div>}
                             <Flex justify="space-between" className="pt-4">
                                 <AddButton onClick={() => {

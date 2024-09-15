@@ -6,7 +6,7 @@ from pxpilot.models.configuration.vm_start_settings import VmStartOptions
 
 @dataclass
 class ProxmoxSettings:
-    px_settings: Dict[str, str] = field(default_factory=dict)
+    px_settings: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

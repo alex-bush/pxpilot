@@ -3,13 +3,14 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, HTTPException, status
 from fastapi.params import Depends
 
+from api.services.auth_service import get_current_user
 from core.exceptions.exceptions import SettingsError
+from core.schemas.common import ProxmoxVm
 from core.schemas.proxmox_settings import ProxmoxSettings, ProxmoxSettingsCreate
-from services.auth_service import get_current_user
 from services.config_service import ConfigService
 from services.proxmox import ProxmoxService
 
-router = APIRouter(prefix="/proxmox", tags=["proxmox v2"], dependencies=[Depends(get_current_user)])
+router = APIRouter(prefix="/proxmox", tags=["Proxmox"], dependencies=[Depends(get_current_user)])
 
 
 @router.get('/settings')
@@ -35,7 +36,7 @@ async def get_nodes(px_service: Annotated[ProxmoxService, Depends(ProxmoxService
 
 
 @router.get('/virtual-machines')
-async def get_vms(px_service: Annotated[ProxmoxService, Depends(ProxmoxService)]):
+async def get_vms(px_service: Annotated[ProxmoxService, Depends(ProxmoxService)]) -> Optional[list[ProxmoxVm]]:
     try:
         return await px_service.get_virtual_machines()
     except SettingsError as e:

@@ -6,7 +6,6 @@ import {useState} from "react";
 
 const {Footer} = Layout;
 
-
 export default function AppFooter({isDarkTheme, onThemeChange}) {
     const {version} = useAppContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,13 +20,15 @@ export default function AppFooter({isDarkTheme, onThemeChange}) {
                     showVersionHistory: false
                 }}
                 onClose={() => setIsModalOpen(false)}/>
-            <Footer className='flex justify-end gap-5 p-5'>
+            <Footer className='flex justify-end gap-5 p-10'>
 
                 <div className='status-version'>
-                    <a style={{color: isDarkTheme ? 'darkslategrey' : 'gray'}}
+                    <Popover content={<p>About</p>} placement="topLeft">
+                    <a style={{color: isDarkTheme ? 'lightgray' : 'gray'}}
                        onClick={() => setIsModalOpen(true)}>
                         Version: {version}
                     </a>
+                    </Popover>
                 </div>
                 <div className='theme-switcher'>
                     {isDarkTheme ? <Popover content={<p>Switch to light theme</p>} placement="topLeft">

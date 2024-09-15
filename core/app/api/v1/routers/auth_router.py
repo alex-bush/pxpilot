@@ -2,19 +2,19 @@ from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, status, HTTPException, Depends
-from fastapi.security import OAuth2PasswordRequestForm
+# from fastapi.security import OAuth2PasswordRequestForm
 
-from api.v2.services.auth_service import PwdTokenService
-from core.schemas.auth import RegisterModel, AuthResponse
+from api.services.auth_service import PwdTokenService
+from core.schemas.auth import RegisterModel, AuthResponse, LoginModel
 from core.schemas.user import UserCreate
 from services.user_service import UserService
 
 
-router = APIRouter(tags=["auth v2"])
+router = APIRouter(tags=["auth"])
 
 
 @router.post('/login')
-async def login(auth_form: Annotated[OAuth2PasswordRequestForm, Depends()],
+async def login(auth_form: LoginModel,
                 pwd_service: Annotated[PwdTokenService, Depends(PwdTokenService)],
                 user_service: Annotated[UserService, Depends(UserService)]) -> AuthResponse:
     user = await user_service.get_user_by_username(auth_form.username)

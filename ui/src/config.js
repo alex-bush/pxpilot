@@ -1,7 +1,7 @@
 export const API_URL = import.meta.env.VITE_API_BASE_URL
 
-export const API_VERSION = "/v2"
-export const api_prefix = "/api/v2"
+export const API_VERSION = "/v1"
+export const api_prefix = "/api" + API_VERSION
 
 export const PX_SETTINGS_URL = api_prefix + "/proxmox/settings"
 export const NOTIFICATIONS_SETTINGS_URL = api_prefix + "/settings/notifications"

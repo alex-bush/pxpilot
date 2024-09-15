@@ -8,12 +8,14 @@
     "key": "info",
     "label": "Proxmox information",
     "icon": "DesktopOutlined",
-    "disabled": true
+    "disabled": true,
+    "visible": true
   },
   {
     "key": "settings",
     "label": "Settings",
     "icon": "SettingOutlined",
-    "disabled": true
+    "disabled": true,
+    "visible": true
   }
 ]

@@ -2,7 +2,7 @@ import logging
 import sys
 from logging.handlers import RotatingFileHandler
 
-from pxpilot.__about__ import __title__, __version__
+from core.__about__ import __title__, __version__
 from pxpilot.notifications import log as notifications_log
 
 

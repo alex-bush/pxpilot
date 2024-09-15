@@ -9,7 +9,7 @@ from .services.background_worker import run_pxpilot_worker
 from core import logging_config
 from core.config import settings
 from core.database import async_db_helper
-from pxpilot.__about__ import __title__, __version__
+from core.__about__ import __title__, __version__
 #from api.routers import config_router, auth_router, common_router, proxmox_router, settings_router
 
 

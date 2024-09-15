@@ -1,0 +1,28 @@
+services:
+  px_api:
+    build:
+      context: ../core/
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../core:/core
+    environment:
+      - APP_CONFIG__DB__CONNECTION_STRING_ASYNC=sqlite+aiosqlite:///./sql_app.db
+      - APP_CONFIG__DB__CONNECTION_STRING=sqlite:///sql_app.db
+    command: >
+      uvicorn api.main:api --host 0.0.0.0 --port 8080 --app-dir app --reload
+
+  px_nginx:
+    depends_on:
+      - px_api
+    build:
+      context: ../ui/
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ../ui:/app
+      - ../ui/nginx.conf:/etc/nginx/conf.d/default.conf
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8080

@@ -1,7 +1,8 @@
 import logging
 
 import requests
-from pythonping import ping
+from ping3 import ping
+#from pythonping import ping
 
 from pxpilot.models.configuration.vm_start_settings import HealthCheckOptions, HealthcheckType
 
@@ -36,11 +37,18 @@ class HostValidator:
         """
         try:
             logger.debug(f"Ping: {healthcheck.target_url}")
-            response = ping(healthcheck.target_url, count=self._PING_COUNT, verbose=True)
-            return response.success()
+            #response = ping(healthcheck.target_url, count=self._PING_COUNT, verbose=True)
+            response = ping(healthcheck.target_url)
+            if not response or response is None:
+                return False
+            if response > 0:
+                return True
+            return False
         except ConnectionError:
             logger.debug(f"Validate. Error occurred during ping URL {healthcheck.target_url}.")
             return False
+        except Exception as e:
+            logger.error(e)
 
     def _validate_request(self, healthcheck: HealthCheckOptions) -> bool:
         """

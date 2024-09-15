@@ -1,7 +1,10 @@
 import {API_URL, LOGIN_URL, REGISTER_URL, STATUS_URL} from "../config.js";
 
 async function login(username, password){
-    return await inner_fetch(API_URL + LOGIN_URL, new URLSearchParams({ username, password }), 'application/x-www-form-urlencoded');
+    return await inner_fetch(API_URL + LOGIN_URL, JSON.stringify({
+        username: username,
+        password: password,
+    }));
 }
 
 async function register(username, password) {

@@ -38,7 +38,7 @@
 
 .theme-icon {
   font-size: 15px;
-  color: darkslategrey;
+  color: lightgray;
   cursor: pointer;
   transition: color 0.3s, transform 0.3s;
 }

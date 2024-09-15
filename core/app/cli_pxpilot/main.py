@@ -4,7 +4,7 @@ import sys
 from core import logging_config
 from pxpilot.config import config_validator
 from pxpilot.pilot import start_from_config
-from pxpilot.__about__ import __version__
+from core.__about__ import __version__
 
 # from api import api as fast_api
 

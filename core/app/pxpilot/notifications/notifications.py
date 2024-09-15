@@ -76,7 +76,8 @@ class ProxmoxMessage(NotificationMessage):
 
         msg = f"{DIGITS_SYMBOLS[self._status_count]} <b>{vm_name}</b>:\n"
         msg += f"    - ID: {vm_id} ({vm_type})\n"
-        msg += f"    - Start time: <i>{start_time.strftime('%H:%M:%S')}</i>\n"
+        if start_time is not None:
+            msg += f"    - Start time: <i>{start_time.strftime('%H:%M:%S')}</i>\n"
         msg += f"    - Duration: <i>{duration_str}</i>\n"
         msg += f"    - Status: {status_icon} {status_str}\n\n"
 

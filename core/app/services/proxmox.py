@@ -6,6 +6,7 @@ from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import async_db_helper
+from core.database.database import logger
 from core.exceptions.exceptions import NotAuthorizedError, HttpError, ArgumentError, SettingsError
 from core.schemas.common import ProxmoxValidationResponse, ProxmoxVm
 from core.schemas.proxmox_settings import ProxmoxSettingsCreate
@@ -23,12 +24,13 @@ class ProxmoxService(BaseDbService):
     async def get_nodes(self):
         settings = await self._config_service.get_px_settings()
 
-        px_wrapper = self._get_wrapper(settings)
+        px_wrapper = self._create_proxmox_wrapper(settings)
         return await px_wrapper.get_nodes()
 
     async def get_virtual_machines(self) -> Optional[list[ProxmoxVm]]:
         settings = await self._config_service.get_px_settings()
         if settings is None:
+            logger.warn('Proxmox connection settings are empty.')
             raise SettingsError('Settings not set')
 
         def get_vm(q):
@@ -38,7 +40,7 @@ class ProxmoxService(BaseDbService):
                              status=q.get('status'),
                              node=q.get('node'))
 
-        px_wrapper = self._get_wrapper(settings)
+        px_wrapper = self._create_proxmox_wrapper(settings)
         nodes = self.get_data(await px_wrapper.get_nodes())
         result = []
         for node in nodes:
@@ -76,7 +78,7 @@ class ProxmoxService(BaseDbService):
             return ProxmoxValidationResponse(is_valid=False, status_code=500, message=str(e))
 
     @staticmethod
-    def _get_wrapper(settings):
+    def _create_proxmox_wrapper(settings):
         if settings is None:
             raise ArgumentError('settings is None')
         if settings.hostname is None:

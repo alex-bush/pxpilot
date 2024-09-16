@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi.params import Depends
 
 from api.services.auth_service import get_current_user
-from core.exceptions.exceptions import SettingsError
+from core.exceptions.exceptions import SettingsError, HttpError
 from core.schemas.common import ProxmoxVm
 from core.schemas.proxmox_settings import ProxmoxSettings, ProxmoxSettingsCreate
 from services.config_service import ConfigService
@@ -41,8 +41,10 @@ async def get_vms(px_service: Annotated[ProxmoxService, Depends(ProxmoxService)]
         return await px_service.get_virtual_machines()
     except SettingsError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except Exception as e:
+    except HttpError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @router.post('/run-pilot')

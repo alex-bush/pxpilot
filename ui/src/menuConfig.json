@@ -9,13 +9,13 @@
     "label": "Proxmox information",
     "icon": "DesktopOutlined",
     "disabled": true,
-    "visible": true
+    "visible": false
   },
   {
     "key": "settings",
     "label": "Settings",
     "icon": "SettingOutlined",
     "disabled": true,
-    "visible": true
+    "visible": false
   }
 ]

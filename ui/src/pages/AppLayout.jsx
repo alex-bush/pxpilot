@@ -34,7 +34,7 @@ export default function AppLayout() {
     }, [set_logout]);
 
     useEffect(() => {
-        const config = menuConfig.map((item) => ({
+        const config = menuConfig.filter((item) => item.visible !== false).map((item) => ({
             key: item.key,
             icon: iconMap[item.icon],
             label: !item.disabled && <Link to={item.key}>{item.label}</Link>,

@@ -1,5 +1,6 @@
 import {Card} from "antd";
 import {InfoCircleOutlined} from "@ant-design/icons";
+import {Link} from "react-router-dom";
 
 export default function StartupsHelperPanel() {
     return <Card className="text-gray-500 pt-5 pb-10">
@@ -23,7 +24,7 @@ export default function StartupsHelperPanel() {
         </p>
         <br/>
         <p>
-            For a better experience, it is recommended to <strong>first configure the connection settings to Proxmox</strong> in order to
+            For a better experience, it is recommended to <strong>first configure the <Link to='/startups/proxmox_settings' style={{ color: "#1890ff", fontWeight: "bold", textDecoration: "underline" }}>connection settings</Link> to Proxmox</strong> in order to
             ensure seamless management of your virtual machines.
         </p>
     </Card>;

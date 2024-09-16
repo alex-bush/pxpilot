@@ -23,7 +23,7 @@ const AppRouter = () => (
 
                             <Route path="/*" element={<AppLayout/>}>
                                 <Route index element={<AppSettings/>} />
-                                <Route path="startups" element={<AppSettings/>}/>
+                                <Route path="startups/*" element={<AppSettings/>}/>
                                 <Route path="info" element={<ProxmoxManagement/>}/>
                                 <Route path="settings" element={<Settings/>}/>
                                 <Route path="*" element={<Navigate to="startups" replace/>}/>

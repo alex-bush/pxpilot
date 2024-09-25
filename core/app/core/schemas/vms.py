@@ -40,3 +40,15 @@ class VmStartupSettings(CreateVmStartupSettings):
 
     class Config:
         from_attributes = True
+
+
+class StaringSettingsCreate(BaseModel):
+    uptime_threshold: int = 0
+    enable: bool = False
+
+
+class StaringSettings(StaringSettingsCreate):
+    id: int
+
+    class Config:
+        from_attributes = True

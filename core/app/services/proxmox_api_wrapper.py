@@ -5,7 +5,7 @@ from aiohttp import ClientError
 
 from core.config import settings
 from core.exceptions.exceptions import NotAuthorizedError, HttpError
-
+from core.schemas.proxmox import Node, VirtualMachine
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +17,33 @@ class ProxmoxAPIWrapper:
             'Authorization': f'{settings.proxmox.auth_header}={token_id}={token_secret}'
         }
         self.verify_ssl = verify_ssl
+
+    async def get_version(self):
+        return await self._get('version')
+
+    async def get_nodes(self) -> list[Node]:
+        response_json = await self._get('nodes')
+        nodes = [Node.model_validate(node_data) for node_data in response_json['data']]
+
+        return nodes
+
+    async def get_virtual_machine(self, node_name: str, vm_type: str) -> list[VirtualMachine]:
+        if node_name is None:
+            raise AttributeError('Node name is required')
+
+        response = await self._get(f'nodes/{node_name}/{vm_type}')
+        vms = [VirtualMachine.model_validate(vm) for vm in response['data']]
+
+        return vms
+
+    async def get_node_status(self, node_name):
+        return await self._get(f'nodes/{node_name}/status')
+
+    async def _get(self, endpoint, **kwargs):
+        return await self._request('GET', endpoint, **kwargs)
+
+    async def _post(self, endpoint, **kwargs):
+        return await self._request('POST', endpoint, **kwargs)
 
     async def _request(self, method, endpoint, **kwargs):
         url = f"{self.base_url}{settings.proxmox.api_prefix}/{endpoint}"
@@ -39,23 +66,9 @@ class ProxmoxAPIWrapper:
             raise error
         except ClientError as error:
             logger.error(error)
-            if error.os_error is not None and  isinstance(error.os_error, TimeoutError):
+            if error.os_error is not None and isinstance(error.os_error, TimeoutError):
                 raise HttpError(f'Timeout error: {str(error.os_error)}')
             raise HttpError(f'Error: {str(error)}')
         except Exception as error:
             logger.error(error)
             raise HttpError(f'Error: {str(error)}')
-
-    async def get_version(self):
-        return await self._request('GET', 'version')
-
-    async def get_nodes(self):
-        return await self._request('GET', 'nodes')
-
-    async def get_virtual_machine(self, node_name: str, vm_type: str):
-        if node_name is None:
-            return None
-        return await self._request('GET', f'nodes/{node_name}/{vm_type}')
-
-    async def get_node_status(self, node_name):
-        return await self._request('GET', f'nodes/{node_name}/status')

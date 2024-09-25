@@ -13,6 +13,8 @@ export const PX_GET_VMS_URL = api_prefix + "/proxmox/virtual-machines"
 export const RELOAD_CONFIG_URL = api_prefix + "/config/reload"
 export const STATUS_URL = api_prefix + "/status/state"
 
+export const USER_SETTINGS_URL = api_prefix + "/status/app-settings"
+
 export const LOGIN_URL = api_prefix + "/login"
 export const LOGOUT_URL = api_prefix + "/logout"
 export const REGISTER_URL = api_prefix + "/register"

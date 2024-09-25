@@ -5,10 +5,10 @@ from fastapi.params import Depends
 
 from api.services.auth_service import get_current_user
 from core.exceptions.exceptions import SettingsError, HttpError
-from core.schemas.common import ProxmoxVm
+from core.schemas.proxmox import VirtualMachine
 from core.schemas.proxmox_settings import ProxmoxSettings, ProxmoxSettingsCreate
 from services.config_service import ConfigService
-from services.proxmox import ProxmoxService
+from services.proxmox_service import ProxmoxService
 
 router = APIRouter(prefix="/proxmox", tags=["Proxmox"], dependencies=[Depends(get_current_user)])
 
@@ -36,13 +36,13 @@ async def get_nodes(px_service: Annotated[ProxmoxService, Depends(ProxmoxService
 
 
 @router.get('/virtual-machines')
-async def get_vms(px_service: Annotated[ProxmoxService, Depends(ProxmoxService)]) -> Optional[list[ProxmoxVm]]:
+async def get_vms(px_service: Annotated[ProxmoxService, Depends(ProxmoxService)]) -> Optional[list[VirtualMachine]]:
     try:
         return await px_service.get_virtual_machines()
     except SettingsError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except HttpError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 

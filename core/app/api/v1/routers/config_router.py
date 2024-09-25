@@ -5,7 +5,7 @@ from fastapi.params import Depends
 
 from api.services.auth_service import get_current_user
 from core.schemas.notifications import Notifications
-from core.schemas.vms import VmStartupSettings, CreateVmStartupSettings
+from core.schemas.vms import VmStartupSettings, CreateVmStartupSettings, StaringSettings, StaringSettingsCreate
 from services.config_service import ConfigService
 from services.notification_service import NotificationService
 
@@ -34,3 +34,14 @@ async def save_notification_settings(
         n: Notifications,
         notification_service: Annotated[NotificationService, Depends(NotificationService)]):
     return await notification_service.save_notificator(n)
+
+
+@router.get('/settings')
+async def get_settings(config_service: Annotated[ConfigService, Depends(ConfigService)]) -> StaringSettings:
+    return await config_service.get_settings()
+
+
+@router.post('/settings')
+async def set_settings(s: StaringSettingsCreate, config_service: Annotated[ConfigService, Depends(ConfigService)]):
+    await config_service.set_settings(s)
+    return Response(status_code=status.HTTP_200_OK)

@@ -52,9 +52,9 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
             authGet(PX_GET_VMS_URL).then(vms => {
                 let vmList = vms.map(vm => {
                     return {
-                        value: vm.id,
-                        label: vm.id + ': ' + vm.name,
-                        disabled: usedKeys && usedKeys.findIndex(i => i === vm.id) > -1,
+                        value: vm.vmid,
+                        label: vm.vmid + ': ' + vm.name,
+                        disabled: usedKeys && usedKeys.findIndex(i => i === vm.vmid) > -1,
                         name: vm.name,
                         status: vm.status,
                     }
@@ -132,7 +132,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
 
     return (<>
         <Modal
-            title="Add VM to startup list"
+            title={inputData ? 'Edit VM startup' : 'Add new VM startup' }
             centered
             width={900}
             open={isModalOpen}

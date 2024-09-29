@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from core.models import ProxmoxSettingsDbModel, VmStartupSettingsDbModel, HealthcheckDbModel, \
     ProxmoxExtraSettingsDbModel
+from core.models.vms import StartingSettingsDbModel
 
 
 async def get_proxmox_settings(db_session: AsyncSession) -> ProxmoxSettingsDbModel:
@@ -51,7 +52,8 @@ async def save_proxmox_settings(settings: ProxmoxSettingsDbModel, db_session: As
                     else:
                         # Add new extra setting
                         extra.proxmox_settings_id = existing_settings.id
-                        db_session.add(ProxmoxExtraSettingsDbModel(name=extra.name, value=extra.value, proxmox_settings_id=existing_settings.id))
+                        db_session.add(ProxmoxExtraSettingsDbModel(name=extra.name, value=extra.value,
+                                                                   proxmox_settings_id=existing_settings.id))
 
                 # Delete extra settings
                 requested_extra_names = {extra.name for extra in settings.extra_settings}
@@ -140,5 +142,36 @@ async def delete_vm_startup_settings_by_ids(ids_to_delete: set[int], db_session:
     await db_session.execute(
         delete(VmStartupSettingsDbModel).where(VmStartupSettingsDbModel.id.in_(ids_to_delete))
     )
+
+    await db_session.commit()
+
+
+async def get_starting_setting(id: int | None, db_session: AsyncSession) -> StartingSettingsDbModel:
+    if id is None:
+        existing = await db_session.execute(
+            select(StartingSettingsDbModel)
+        )
+        return existing.scalars().first()
+
+    existing = await db_session.execute(
+        select(StartingSettingsDbModel).where(StartingSettingsDbModel.id == id)
+    )
+    return existing.scalars().first()
+
+
+async def add_starting_setting(starting_setting: StartingSettingsDbModel, db_session: AsyncSession):
+    is_new = True
+    if starting_setting.id is not None:
+        existing = await db_session.execute(
+            select(StartingSettingsDbModel).where(StartingSettingsDbModel.id == starting_setting.id)
+        )
+        existing_starting_setting = existing.scalars().first()
+        if existing_starting_setting:
+            is_new = False
+            existing_starting_setting.uptime_threshold = starting_setting.uptime_threshold
+            existing_starting_setting.enable = starting_setting.enable
+
+    if is_new:
+        db_session.add(starting_setting)
 
     await db_session.commit()

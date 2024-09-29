@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker, joinedload
 
 from core.config import settings
 from core.models import ProxmoxSettingsDbModel, VmStartupSettingsDbModel, NotifiersDbModel
+from core.models.vms import StartingSettingsDbModel
 from core.schemas.vms import VmStartupSettings
 from pxpilot import pilot
 from pxpilot.models.configuration.app_settings import AppSettings, ProxmoxSettings, CommonSettings
@@ -22,6 +23,9 @@ def pxpilot_worker():
 
     if app_settings is not None:
         logger.debug('app settings has been loaded. Starting pilot')
+        if app_settings.uptime_threshold > 0:
+            logger.debug('Threshold is set, validating uptime')
+            check_threshold(app_settings.uptime_threshold)
         pilot.start_from_settings(app_settings)
 
 
@@ -32,20 +36,28 @@ def run_pxpilot_worker() -> ThreadPoolExecutor:
     return executor
 
 
+def check_threshold(threshold: int):
+    pass
+
+
 def get_settings() -> Optional[AppSettings]:
     engine = sqlalchemy.create_engine(settings.db.connection_string)
-    Session = sessionmaker(engine)
 
     px_settings = ProxmoxSettings()
     app_settings = CommonSettings()
     start_vms_settings: [VmStartupSettings()] = None
     notification_settings: Optional[Dict[str, Any]] = None
 
-    with Session() as session:
+    with sessionmaker(engine)() as session:
+        st_settings = session.query(StartingSettingsDbModel).first()
+        if st_settings and not st_settings.enable:
+            logger.info('pilot is disabled in settings')
+            return None
+
         px_s = session.query(ProxmoxSettingsDbModel).first()
         if px_s is None:
             logger.info('Proxmox settings database does not exist')
-            return
+            return None
 
         px_settings.px_settings['host'] = px_s.hostname.replace("https://", "")
         px_settings.px_settings['token'] = px_s.token
@@ -71,7 +83,8 @@ def get_settings() -> Optional[AppSettings]:
     return AppSettings(app_settings=app_settings,
                        proxmox_settings=px_settings,
                        start_vms_settings=start_vms_settings,
-                       notification_settings=notification_settings)
+                       notification_settings=notification_settings,
+                       uptime_threshold=st_settings.uptime_threshold)
 
 
 def convert_notification_settings(notifiers):

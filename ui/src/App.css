@@ -36,14 +36,19 @@
   transform: scale(1.1);
 }
 
+.theme-icon-wrapper {
+  display: inline-block;
+  padding: 10px; /* добавляет пространство вокруг иконки */
+}
+
 .theme-icon {
   font-size: 15px;
-  color: lightgray;
+  color: #08c;
   cursor: pointer;
   transition: color 0.3s, transform 0.3s;
 }
 
-.theme-icon:hover {
-  color: gray;
-  transform: scale(1.1);
+.theme-icon-wrapper:hover .theme-icon {
+  color: #08c;
+  transform: scale(1.5);
 }

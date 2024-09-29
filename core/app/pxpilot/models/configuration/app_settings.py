@@ -18,6 +18,9 @@ class CommonSettings:
 
 @dataclass
 class AppSettings:
+    enabled: bool = False
+    uptime_threshold: Optional[int] = None
+
     app_settings: CommonSettings = None
 
     proxmox_settings: ProxmoxSettings = None

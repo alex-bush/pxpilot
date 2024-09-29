@@ -3,10 +3,12 @@ from typing import Optional
 from core.config import settings
 from core.models import HealthcheckDbModel, VmStartupSettingsDbModel
 from core.models.proxmox_settings import ProxmoxSettingsDbModel, ProxmoxExtraSettingsDbModel
+from core.models.vms import StartingSettingsDbModel
 from core.schemas.proxmox_settings import ProxmoxSettingsCreate, ProxmoxSettings
-from core.schemas.vms import VmStartupSettings, Healthcheck, CreateVmStartupSettings
+from core.schemas.vms import VmStartupSettings, Healthcheck, CreateVmStartupSettings, StaringSettings, \
+    StaringSettingsCreate
 from crud.configs import get_proxmox_settings, save_proxmox_settings, get_vms_settings, \
-    save_vm_startup, delete_vm_startup_settings_by_ids
+    save_vm_startup, delete_vm_startup_settings_by_ids, get_starting_setting, add_starting_setting
 from services.base_service import BaseDbService
 
 
@@ -86,6 +88,22 @@ class ConfigService(BaseDbService):
 
         saved_vm = await save_vm_startup(vm_db, health_checks, self._session)
         return self.convert(saved_vm)
+
+    async def get_settings(self) -> StaringSettings:
+        starting_setting = await get_starting_setting(None, self._session)
+        if starting_setting:
+            return StaringSettings.model_validate(starting_setting)
+
+        return StaringSettings(id=0)
+
+    async def set_settings(self, starting_setting: StaringSettingsCreate):
+        sid = (await get_starting_setting(None, self._session)).id
+
+        update_model = StartingSettingsDbModel(**starting_setting.model_dump())
+        if sid != 0:
+            update_model.id = sid
+
+        await add_starting_setting(update_model, self._session)
 
     @staticmethod
     def convert(vm_data: VmStartupSettingsDbModel) -> VmStartupSettings:

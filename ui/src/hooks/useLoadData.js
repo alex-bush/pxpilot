@@ -3,7 +3,7 @@ import useAuthFetch from "./useAuthFetch.js";
 import {RELOAD_CONFIG_URL} from "../config.js";
 import useNotifier from "./useNotifier.js";
 
-export default function useLoadData(url, initialState, title, processData = null, reloadAfterSave = true) {
+export default function useLoadData(url, initialState, notification_title, processData = null, reloadAfterSave = true) {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [data, setData] = useState(initialState);
@@ -35,14 +35,14 @@ export default function useLoadData(url, initialState, title, processData = null
                 // await authPost(RELOAD_CONFIG_URL);
                 await fetchData();
             }
-            showNotification('success', title);
+            showNotification('success', notification_title);
         } catch (err) {
                 console.log(err);
-                showNotification('error', title);
+                showNotification('error', notification_title);
         } finally {
             setIsSaving(false);
         }
-    }, [authPost, url, fetchData, showNotification, title]);
+    }, [authPost, url, fetchData, showNotification, notification_title]);
 
     useEffect(() => {
         fetchData();

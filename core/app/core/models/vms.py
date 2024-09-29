@@ -1,9 +1,17 @@
-from sqlalchemy import ForeignKey, Integer, String, Boolean
+from sqlalchemy import ForeignKey, Integer, String, Boolean, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import BaseIdDbModel
 
 
+class StartingSettingsDbModel(BaseIdDbModel):
+    """ Common settings for starting up virtual machines"""
+    __tablename__ = "starting_settings"
+    uptime_threshold: Mapped[int] = Column(Integer, nullable=False, default=0)
+    enable: Mapped[bool] = Column(Boolean, nullable=False, default=True)
+
+
 class VmStartupSettingsDbModel(BaseIdDbModel):
+    """ Starting setting for particular virtual machine """
     __tablename__ = 'vm_startup_settings'
 
     vm_id: Mapped[int] = mapped_column(Integer, nullable=False)

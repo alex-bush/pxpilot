@@ -9,6 +9,10 @@ import AppFooter from "../components/AppFooter.jsx";
 import {useAppContext} from "../contexts/AppContext.jsx";
 import Header from "../components/Header.jsx";
 import {useAuth} from "../contexts/AuthContext.jsx";
+import useAuthFetch from "../hooks/useAuthFetch.js";
+import {USER_SETTINGS_URL} from "../config.js";
+import { Constants } from '../constants';
+
 
 const {Content, Sider} = Layout;
 
@@ -17,7 +21,8 @@ const iconMap = {
 }
 
 export default function AppLayout() {
-    const { set_logout } = useAuth()
+    const { set_logout } = useAuth();
+    const { authPost } = useAuthFetch();
 
     const {darkThemeEnabled, setDarkThemeEnabled} = useAppContext();
     const [collapsed, setCollapsed] = useState(true);
@@ -53,6 +58,16 @@ export default function AppLayout() {
         //setIsLoaded(true);
     }, [handleSysClickMenu]);
 
+    async function onThemeUpdated(value) {
+        setDarkThemeEnabled(value);
+        await authPost(USER_SETTINGS_URL, [
+            {
+                'name': Constants.UserSettings.THEME_NAME,
+                'value': `${value ? Constants.UserSettings.DARK_THEME : Constants.UserSettings.LIGHT_THEME}`
+            }
+        ]);
+    }
+
     return (<>
         <ConfigProvider theme={{
             algorithm: darkThemeEnabled ? theme.darkAlgorithm : theme.defaultAlgorithm, token: {
@@ -87,7 +102,7 @@ export default function AppLayout() {
                     marginLeft: collapsed ? 80 : 250,
                     transition: 'margin-left 0.2s'
                 }}>
-                    <Header/>
+                    <Header isDarkTheme={darkThemeEnabled} onThemeChange={onThemeUpdated}/>
                     <Content style={{
                         margin: '10px 16px',
                     }}>
@@ -95,7 +110,7 @@ export default function AppLayout() {
                             <Outlet/>
                         </Suspense>
                     </Content>
-                    <AppFooter isDarkTheme={darkThemeEnabled} onThemeChange={(value) => setDarkThemeEnabled(value)}/>
+                    <AppFooter isDarkTheme={darkThemeEnabled} onThemeChange={onThemeUpdated}/>
                 </Layout>
             </Layout>
         </ConfigProvider>

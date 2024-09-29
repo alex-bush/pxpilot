@@ -39,6 +39,7 @@ def run_pxpilot_worker() -> ThreadPoolExecutor:
 def check_threshold(threshold: int):
     pass
 
+
 def get_settings() -> Optional[AppSettings]:
     engine = sqlalchemy.create_engine(settings.db.connection_string)
 

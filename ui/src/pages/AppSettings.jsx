@@ -1,7 +1,7 @@
 import {Tabs} from "antd";
 import ProxmoxSettings from "../components/proxmox_settings/ProxmoxSettings.jsx";
 import {Notifications} from "../components/notification_settings/Notifications.jsx";
-import StartupSettings from "../components/start_vm_settings/StartupSettings.jsx";
+import VmsStartupSettings from "../components/start_vm_settings/VmsStartupSettings.jsx";
 import {CloudServerOutlined, MailOutlined, PlayCircleOutlined} from "@ant-design/icons";
 import {useEffect, useState} from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -15,7 +15,7 @@ const tabItems = [
     {
         label: "Startup settings",
         key: "startup_settings",
-        children: <StartupSettings />,
+        children: <VmsStartupSettings />,
         icon: <PlayCircleOutlined />,
     },
     {

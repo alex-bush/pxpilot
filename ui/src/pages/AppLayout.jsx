@@ -102,7 +102,7 @@ export default function AppLayout() {
                     marginLeft: collapsed ? 80 : 250,
                     transition: 'margin-left 0.2s'
                 }}>
-                    <Header/>
+                    <Header isDarkTheme={darkThemeEnabled} onThemeChange={onThemeUpdated}/>
                     <Content style={{
                         margin: '10px 16px',
                     }}>

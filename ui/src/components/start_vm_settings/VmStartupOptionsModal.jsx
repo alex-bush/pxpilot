@@ -132,7 +132,7 @@ export default function VmStartupOptionsModal({isModalOpen, inputData, usedKeys,
 
     return (<>
         <Modal
-            title="Add VM to startup list"
+            title={inputData ? 'Edit VM startup' : 'Add new VM startup' }
             centered
             width={900}
             open={isModalOpen}
